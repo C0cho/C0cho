@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="记录一次Nexus5x刷机过程刷机前需要在电脑安装adb环境和Android手机开启usb调试，十分简单，百度即可。刷机包选择刷机包选择与手机型号匹配的最新系统，如此次刷机的机子为Nexus5x，选择官方最新包为Android 8.10。最新能刷上的包一般兼容性较好，有利于安全测试。现阶段Android 6.0以下版本逐渐对app开发不够好，Android 6.0还能勉强支持。">
+<meta name="keywords" content="app">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android安全之刷机">
+<meta property="og:url" content="https://choge.top/2020/01/02/Android安全之刷机/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="记录一次Nexus5x刷机过程刷机前需要在电脑安装adb环境和Android手机开启usb调试，十分简单，百度即可。刷机包选择刷机包选择与手机型号匹配的最新系统，如此次刷机的机子为Nexus5x，选择官方最新包为Android 8.10。最新能刷上的包一般兼容性较好，有利于安全测试。现阶段Android 6.0以下版本逐渐对app开发不够好，Android 6.0还能勉强支持。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/01/02/Android安全之刷机/sj-1.png">
+<meta property="og:image" content="https://choge.top/2020/01/02/Android安全之刷机/sj-2.png">
+<meta property="og:image" content="https://choge.top/2020/01/02/Android安全之刷机/sj-3.png">
+<meta property="og:updated_time" content="2020-10-27T02:30:14.642Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android安全之刷机">
+<meta name="twitter:description" content="记录一次Nexus5x刷机过程刷机前需要在电脑安装adb环境和Android手机开启usb调试，十分简单，百度即可。刷机包选择刷机包选择与手机型号匹配的最新系统，如此次刷机的机子为Nexus5x，选择官方最新包为Android 8.10。最新能刷上的包一般兼容性较好，有利于安全测试。现阶段Android 6.0以下版本逐渐对app开发不够好，Android 6.0还能勉强支持。">
+<meta name="twitter:image" content="https://choge.top/2020/01/02/Android安全之刷机/sj-1.png">
+  <link rel="canonical" href="https://choge.top/2020/01/02/Android安全之刷机/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Android安全之刷机 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/01/02/Android安全之刷机/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Android安全之刷机
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-01-02 23:41:59" itemprop="dateCreated datePublished" datetime="2020-01-02T23:41:59+08:00">2020-01-02</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-27 10:30:14" itemprop="dateModified" datetime="2020-10-27T10:30:14+08:00">2020-10-27</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>2.4k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>2 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>记录一次Nexus5x刷机过程</p><p>刷机前需要在电脑安装adb环境和Android手机开启usb调试，十分简单，百度即可。</p><h2 id="刷机包选择"><a href="#刷机包选择" class="headerlink" title="刷机包选择"></a>刷机包选择</h2><p>刷机包选择与手机型号匹配的最新系统，如此次刷机的机子为Nexus5x，选择官方最新包为Android 8.10。最新能刷上的包一般兼容性较好，有利于安全测试。现阶段Android 6.0以下版本逐渐对app开发不够好，Android 6.0还能勉强支持。</p><a id="more"></a>
+
+
+<p>Nexus5x最新安装包连接<a href="https://dl.google.com/dl/android/aosp/bullhead-opm7.181205.001-factory-5f189d84.zip" target="_blank" rel="noopener">https://dl.google.com/dl/android/aosp/bullhead-opm7.181205.001-factory-5f189d84.zip</a></p>
+<p>Nexus5最新安装包连接<a href="https://dl.google.com/dl/android/aosp/hammerhead-m4b30z-factory-625c027b.zip" target="_blank" rel="noopener">https://dl.google.com/dl/android/aosp/hammerhead-m4b30z-factory-625c027b.zip</a></p>
+<h2 id="刷机"><a href="#刷机" class="headerlink" title="刷机"></a>刷机</h2><p>在配置好adb环境并手机开启usb情况下，连接usb，执行<code>db reboot bootloader</code>进入bootloader，或关机状态同时按住“音量减”和“电源”直到手机开机，进入 bootloader。</p>
+<p>刷机前需要确认手机已解锁，解锁的手机开机时会有解锁的图标，若是上锁的图标则需在bootloader模式先解锁，解锁命令<code>fastboot oem unlock</code></p>
+<p>将下载的压缩包解压，如下</p>
+<p><img src="//choge.top/2020/01/02/Android安全之刷机/sj-1.png" alt="sj-1"></p>
+<p>mac或者linux下赋予flash-all.sh执行权限后执行<code>./flahs-all.sh</code>，Windows下直接执行bat文件，Windows有时会出现无法刷入情况，需要将各个包手动刷入，进入zip包后使用fastboot刷入。如上图先刷入bootloader和radio，命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastboot flash bootloader bootloader-bullhead-bhz32c.img  #刷入bootloader-bullhead-bhz32c.img</span><br><span class="line">fastboot flash radio radio-bullhead-m8994f-2.6.42.5.03.img  #刷入radio-bullhead-m8994f-2.6.42.5.03.img</span><br></pre></td></tr></table></figure>
+
+<p>进入image-bullhead-opm7.181205.001.zip解压目录，刷入系统内核等</p>
+<p><img src="//choge.top/2020/01/02/Android安全之刷机/sj-2.png" alt="sj-2"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fastboot reboot-bootloader  #重启bootloader</span><br><span class="line">fastboot flash recovery recovery.img  #刷入recovery.img</span><br><span class="line">fastboot flash boot boot.img  #刷入boot.img</span><br><span class="line">fastboot flash system system.img  #刷入system.img</span><br><span class="line">fastboot flash vendor vendor.img  #刷入vendor.img</span><br><span class="line">fastboot reboot  #重启手机</span><br></pre></td></tr></table></figure>
+
+<h2 id="刷入第三方recovery"><a href="#刷入第三方recovery" class="headerlink" title="刷入第三方recovery"></a>刷入第三方recovery</h2><p>进入<a href="https://dl.twrp.me/网站寻找对应机型的第三方recovery，一般选最新版本。" target="_blank" rel="noopener">https://dl.twrp.me/网站寻找对应机型的第三方recovery，一般选最新版本。</a></p>
+<p>进入下载下载下来的第三方recovery目录，刷入第三方recovery，<code>fastboot flash recovery 第三方recovery包名称</code></p>
+<h2 id="root"><a href="#root" class="headerlink" title="root"></a>root</h2><p>进入<a href="https://autoroot.chainfire.eu/网站找对应手机root刷机包，下载后解压如下" target="_blank" rel="noopener">https://autoroot.chainfire.eu/网站找对应手机root刷机包，下载后解压如下</a></p>
+<p><img src="//choge.top/2020/01/02/Android安全之刷机/sj-3.png" alt="sj-3"></p>
+<p>本机为mac，<code>chmod +x root-mac.sh</code>赋予执行权限，手机进入bootloader模式，mac执行<code>/root-mac.sh</code>进行刷入，此方法经过测试一般会成功，此时可以通过第三方recovery刷入通用root包：</p>
+<p><a href="https://download.chainfire.eu/1220/SuperSU/SR5-SuperSU-v2.82-SR5-20171001224502.zip" target="_blank" rel="noopener">https://download.chainfire.eu/1220/SuperSU/SR5-SuperSU-v2.82-SR5-20171001224502.zip</a> </p>
+<p>将下载的包导入手机，随后重启进入bootloader，按音量键选择进入recovery，进入recovery后进入install功能找到导入的root包，进行刷入。由于此方法刷入会替换内核，不是十分推荐。Android8以上系统可以使用Magisk替代SuperSU进行root，Nexus5x可使用此root包：</p>
+<p><a href="https://github.com/topjohnwu/Magisk/releases/download/v16.7/Magisk-v16.7.zip" target="_blank" rel="noopener">https://github.com/topjohnwu/Magisk/releases/download/v16.7/Magisk-v16.7.zip</a> </p>
+<p>下载后导入手机通过第三方recovery刷入成功。</p>
+<h2 id="安装Xposed框架和证书绕过"><a href="#安装Xposed框架和证书绕过" class="headerlink" title="安装Xposed框架和证书绕过"></a>安装Xposed框架和证书绕过</h2><p>本人喜欢下载酷安应用市场然后进行Xposed框架安装（输入框架时需要科学上网），也可以直接安装。</p>
+<p><a href="http://repo.xposed.info/module/de.robv.android.xposed.installer" target="_blank" rel="noopener">http://repo.xposed.info/module/de.robv.android.xposed.installer</a></p>
+<p>Android 5.0以下版本使用此链接：</p>
+<p><a href="http://forum.xda-developers.com/showthread.php?t=3034811" target="_blank" rel="noopener">http://forum.xda-developers.com/showthread.php?t=3034811</a></p>
+<p>下载后使用第三方recovery刷入即可，由于Android 7以上安装有证书强校验机制，需要在Xposed狂街内安装JustTrustMe：</p>
+<p><a href="https://github.com/Fuzion24/JustTrustMe/releases" target="_blank" rel="noopener">https://github.com/Fuzion24/JustTrustMe/releases</a></p>
+<p>绕过证书模块。</p>
+<p>其他Xposed证书绕过模块</p>
+<p><a href="http://repo.xposed.info/module/mobi.acpm.sslunpinning" target="_blank" rel="noopener">http://repo.xposed.info/module/mobi.acpm.sslunpinning</a></p>
+<p>此证书绕过模式未测试</p>
+<h2 id="注"><a href="#注" class="headerlink" title="注"></a>注</h2><p>现阶段如果需进行手机root进行安全测试，宜选择一加和小米等热门机型，有丰富的root资源和教程。Google的Pixel系类不适合日常使用，华为等手机已经关闭解锁通道，进行root将会十分困难。</p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/01/02/Android安全之刷机/" title="Android安全之刷机">https://choge.top/2020/01/02/Android安全之刷机/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/app/" rel="tag"># app</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/12/18/cs之端口转发/" rel="next" title="Cobalt Strike之端口转发">
+                  <i class="fa fa-chevron-left"></i> Cobalt Strike之端口转发
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/01/16/Mysql注入基础/" rel="prev" title="Mysql注入基础">
+                  Mysql注入基础 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#刷机包选择"><span class="nav-number">1.</span> <span class="nav-text">刷机包选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#刷机"><span class="nav-number">2.</span> <span class="nav-text">刷机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#刷入第三方recovery"><span class="nav-number">3.</span> <span class="nav-text">刷入第三方recovery</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#root"><span class="nav-number">4.</span> <span class="nav-text">root</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Xposed框架和证书绕过"><span class="nav-number">5.</span> <span class="nav-text">安装Xposed框架和证书绕过</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注"><span class="nav-number">6.</span> <span class="nav-text">注</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

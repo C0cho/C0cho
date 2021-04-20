@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="文件上传高级利用与绕过技巧###重绘图正常图片上传后会重新渲染，会抹去代码加入部分。具体绕过方法可以参考上一篇upload-labs总结使用工具绕过。项目地址https://github.com/RickGray/Bypass-PHP-GD-Process-To-RCE用法1php codeinj.php demo.gif &quot;&amp;lt;?php phpinfo();?&amp;gt;&quot;">
+<meta name="keywords" content="upload">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文件上传高级利用">
+<meta property="og:url" content="https://choge.top/2020/02/29/文件上传高级利用/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="文件上传高级利用与绕过技巧###重绘图正常图片上传后会重新渲染，会抹去代码加入部分。具体绕过方法可以参考上一篇upload-labs总结使用工具绕过。项目地址https://github.com/RickGray/Bypass-PHP-GD-Process-To-RCE用法1php codeinj.php demo.gif &quot;&amp;lt;?php phpinfo();?&amp;gt;&quot;">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-1.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-2.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-3.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-4.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-5.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-6.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-7.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-8.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-9.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-10.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-11.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-12.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-13.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-14.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-15.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-16.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-17.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-18.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-19.png">
+<meta property="og:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-0.png">
+<meta property="og:updated_time" content="2020-08-25T08:58:44.049Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="文件上传高级利用">
+<meta name="twitter:description" content="文件上传高级利用与绕过技巧###重绘图正常图片上传后会重新渲染，会抹去代码加入部分。具体绕过方法可以参考上一篇upload-labs总结使用工具绕过。项目地址https://github.com/RickGray/Bypass-PHP-GD-Process-To-RCE用法1php codeinj.php demo.gif &quot;&amp;lt;?php phpinfo();?&amp;gt;&quot;">
+<meta name="twitter:image" content="https://choge.top/2020/02/29/文件上传高级利用/up-1.png">
+  <link rel="canonical" href="https://choge.top/2020/02/29/文件上传高级利用/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>文件上传高级利用 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/02/29/文件上传高级利用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            文件上传高级利用
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-02-29 13:47:30" itemprop="dateCreated datePublished" datetime="2020-02-29T13:47:30+08:00">2020-02-29</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-25 16:58:44" itemprop="dateModified" datetime="2020-08-25T16:58:44+08:00">2020-08-25</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>1.5k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>1 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="文件上传高级利用与绕过技巧"><a href="#文件上传高级利用与绕过技巧" class="headerlink" title="文件上传高级利用与绕过技巧"></a>文件上传高级利用与绕过技巧</h2><p>###重绘图</p><p>正常图片上传后会重新渲染，会抹去代码加入部分。具体绕过方法可以参考上一篇upload-labs总结</p><p>使用工具绕过。</p><p>项目地址</p><p><a href="https://github.com/RickGray/Bypass-PHP-GD-Process-To-RCE" target="_blank" rel="noopener">https://github.com/RickGray/Bypass-PHP-GD-Process-To-RCE</a></p><p>用法</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php codeinj.php demo.gif <span class="string">"&lt;?php phpinfo();?&gt;"</span></span><br></pre></td></tr></table></figure><a id="more"></a>
+
+
+
+
+
+
+
+<h3 id="结合phpinfo与本地文件包含利用"><a href="#结合phpinfo与本地文件包含利用" class="headerlink" title="结合phpinfo与本地文件包含利用"></a>结合phpinfo与本地文件包含利用</h3><p>某站点存在本地文件包含及phpinfo，可以利用其执行脚本。</p>
+<p>1.php在解析multipart/form-data请求时，会创建临时文件，并写入上传内容，脚本执行后即删除</p>
+<p>2.phpinfo可以输出$_FILE信息</p>
+<p>3.通过多种方式争取时间，在临时文件删除前进行执行包含</p>
+<p>1）通过在数据报文中加入大量的垃圾数据，似phpinfo页面过大，导致phpinfo页面过大，导致php输出进入流式输出，并不一次输出完毕</p>
+<p>2）通过大量请求来延迟php脚本的执行速度</p>
+<p>项目地址</p>
+<p><a href="http://github.com/hxer/vulnapp.git" target="_blank" rel="noopener">http://github.com/hxer/vulnapp.git</a></p>
+<h3 id="目录穿越"><a href="#目录穿越" class="headerlink" title="目录穿越"></a>目录穿越</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Directory</span> "<span class="attr">D:</span>/<span class="attr">www</span>/<span class="attr">ichunqiu</span>/<span class="attr">upload</span>"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">FilesMatch</span> "\<span class="attr">.</span>(?<span class="attr">i:php</span>|<span class="attr">php3</span>|<span class="attr">php4</span>)$"</span></span><br><span class="line"><span class="tag"><span class="attr">Order</span> <span class="attr">Allow.Deny</span></span></span><br><span class="line"><span class="tag"><span class="attr">Deny</span> <span class="attr">from</span> <span class="attr">all</span></span></span><br><span class="line">&lt;/FilesMatch&gt;</span><br><span class="line"><span class="tag">&lt;/<span class="name">Directory</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>以上代码为在upload下无权限访问php，php3，php4等文件</p>
+<p>首先判断目录是否为权限限制</p>
+<p>访问如下url显示Forbidden</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-1.png" alt="up-1"></p>
+<p>上传图片正常访问如下</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-2.png" alt="up-2"></p>
+<p>访问不存在的图片显示Not Found</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-3.png" alt="up-3"></p>
+<p>以上访问过程可判断次目录无法访问php文件</p>
+<p>继续向上级目录访问<img src="//choge.top/2020/02/29/文件上传高级利用/up-4.png" alt="up-4"></p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-5.png" alt="up-5"></p>
+<p>以上图片判断upload目录也没有php访问权限</p>
+<p>直道测试到ichunqiu目录有访问权限</p>
+<p>上传图片bp抓包，file处修改为<code>file/../../</code>进行目录穿越上传成功</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-6.png" alt="up-6"></p>
+<p>如果碰到waf情况拦截<code>../</code>可以使用<code>.././../</code>进行绕过<code>./</code>代表当前目录</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-7.png" alt="up-7"></p>
+<h3 id="在线解压缩"><a href="#在线解压缩" class="headerlink" title="在线解压缩"></a>在线解压缩</h3><h4 id="Webshll打包到压缩包中"><a href="#Webshll打包到压缩包中" class="headerlink" title="Webshll打包到压缩包中"></a>Webshll打包到压缩包中</h4><p>1.模板上传处常用压缩包上传后进行自动解压</p>
+<p>1.1.部分此类有监测压缩包中的内容的，可尝试建立目录进行压缩</p>
+<p>2.使用目录穿越<code>../</code>的方法向上一级目录进行上传</p>
+<p>将php文件直接压缩为zip，然后用notepad++打开压缩文件如下</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-8.png" alt="up-8"></p>
+<p>讲phpinfo改为../info，如下图</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-9.png" alt="up-9"></p>
+<p>文件上传</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-10.png" alt="up-10"></p>
+<p>成功上传并穿越目录</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-11.png" alt="up-11"></p>
+<h4 id="将文件软链接打包到压缩包"><a href="#将文件软链接打包到压缩包" class="headerlink" title="将文件软链接打包到压缩包"></a>将文件软链接打包到压缩包</h4><p>文件软链接到/etc/passwd等文件，达到任意文件读取</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ln -s /etc/passwd ./a   #文件/etc/pawwsd软链接到a</span><br><span class="line">zip --symlinks -r 1.zip ./a  #将a文件压缩为1.zip</span><br></pre></td></tr></table></figure>
+
+<p>上传成功</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-12.png" alt="up-12"></p>
+<p>点击a查看到/etc/passwd文件</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-13.png" alt="up-13"></p>
+<p>文件软链接到/文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ln -s / b    #/软链接到b</span><br><span class="line">zip --symlinks 2.zip b  #将b压缩为2.zip</span><br></pre></td></tr></table></figure>
+
+<p>上传2.zip，上传成功</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-14.png" alt="up-14"></p>
+<p>点击b显示目录</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-15.png" alt="up-15"></p>
+<h3 id="其他技巧"><a href="#其他技巧" class="headerlink" title="其他技巧"></a>其他技巧</h3><h4 id="图片文件头十六进制匹配"><a href="#图片文件头十六进制匹配" class="headerlink" title="图片文件头十六进制匹配"></a>图片文件头十六进制匹配</h4><p>一般检查文件头内容是加入gif89a即可，但部分后台有可能需要强制匹配文件头的16进制数据</p>
+<p>如需要匹配下图中的<code>\xff\xd8\xff</code></p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-16.png" alt="up-16"></p>
+<p>中bp抓包，文件中加入已url编码的<code>%ff%d8%ff</code></p>
+<p>上传过程<img src="//choge.top/2020/02/29/文件上传高级利用/up-17.png" alt="up-17"></p>
+<p>讲<code>%ff%d8%ff</code>进行urldecode</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-18.png" alt="up-18"></p>
+<p>可成功上传</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-19.png" alt="up-19"></p>
+<h4 id="双写filename"><a href="#双写filename" class="headerlink" title="双写filename"></a>双写filename</h4><p>部分waf会监测第一个filename中的内容，而忽略第二个filename内容</p>
+<p><img src="//choge.top/2020/02/29/文件上传高级利用/up-0.png" alt="up-0"></p>
+<p><em>注</em>：<code>filename=&quot;oh-info.png&quot;;</code>之后加一个空格再跟上第二个filename</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>网易云课堂/i春秋</p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/02/29/文件上传高级利用/" title="文件上传高级利用">https://choge.top/2020/02/29/文件上传高级利用/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/upload/" rel="tag"># upload</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/02/24/upload-labs记录/" rel="next" title="upload-labs记录">
+                  <i class="fa fa-chevron-left"></i> upload-labs记录
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/03/04/无风险套利-序/" rel="prev" title="无风险套利-序">
+                  无风险套利-序 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#文件上传高级利用与绕过技巧"><span class="nav-number">1.</span> <span class="nav-text">文件上传高级利用与绕过技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结合phpinfo与本地文件包含利用"><span class="nav-number">1.1.</span> <span class="nav-text">结合phpinfo与本地文件包含利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#目录穿越"><span class="nav-number">1.2.</span> <span class="nav-text">目录穿越</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在线解压缩"><span class="nav-number">1.3.</span> <span class="nav-text">在线解压缩</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Webshll打包到压缩包中"><span class="nav-number">1.3.1.</span> <span class="nav-text">Webshll打包到压缩包中</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将文件软链接打包到压缩包"><span class="nav-number">1.3.2.</span> <span class="nav-text">将文件软链接打包到压缩包</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他技巧"><span class="nav-number">1.4.</span> <span class="nav-text">其他技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#图片文件头十六进制匹配"><span class="nav-number">1.4.1.</span> <span class="nav-text">图片文件头十六进制匹配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双写filename"><span class="nav-number">1.4.2.</span> <span class="nav-text">双写filename</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

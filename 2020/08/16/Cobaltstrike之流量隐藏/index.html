@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="汇总一些cs的常见流量隐藏技术证书修改Keytool是一个java数据证书的管理工具，Keytool将密钥 和 证书 存放在一个称为 keystore 的文件中,即.store后缀的文件中。修改.store文件可以隐藏teamsrver的特征，避免被网络空间搜索引擎发现，同时需要修改默认端口。查看证书内容keytool -list -v -keystore cobaltstrike.store，可">
+<meta name="keywords" content="cs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cobaltstrike之流量隐藏">
+<meta property="og:url" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="汇总一些cs的常见流量隐藏技术证书修改Keytool是一个java数据证书的管理工具，Keytool将密钥 和 证书 存放在一个称为 keystore 的文件中,即.store后缀的文件中。修改.store文件可以隐藏teamsrver的特征，避免被网络空间搜索引擎发现，同时需要修改默认端口。查看证书内容keytool -list -v -keystore cobaltstrike.store，可">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821170818974.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821171645900.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821171732016.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821172405018.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821160118935.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821164516792.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821165306829.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821165736498.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817225615765.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818103031338.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818125241550.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818125353029.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818125951466.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818130057154.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818130617138.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818153051395.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817162149285.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817181513752.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817191014733.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817193936853.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817194151708.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200819222241488.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200819222934691.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200820234324385.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200820234755204.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821101600836.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821093712489.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821140946009.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821141003994.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821110130415.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821112504776.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821111649965.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821091310416.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821092818844.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821101134524.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821095440458.png">
+<meta property="og:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821101509781.png">
+<meta property="og:updated_time" content="2020-08-25T11:27:02.329Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Cobaltstrike之流量隐藏">
+<meta name="twitter:description" content="汇总一些cs的常见流量隐藏技术证书修改Keytool是一个java数据证书的管理工具，Keytool将密钥 和 证书 存放在一个称为 keystore 的文件中,即.store后缀的文件中。修改.store文件可以隐藏teamsrver的特征，避免被网络空间搜索引擎发现，同时需要修改默认端口。查看证书内容keytool -list -v -keystore cobaltstrike.store，可">
+<meta name="twitter:image" content="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821170818974.png">
+  <link rel="canonical" href="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Cobaltstrike之流量隐藏 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Cobaltstrike之流量隐藏
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-08-16 12:10:37" itemprop="dateCreated datePublished" datetime="2020-08-16T12:10:37+08:00">2020-08-16</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-25 19:27:02" itemprop="dateModified" datetime="2020-08-25T19:27:02+08:00">2020-08-25</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Cobalt-Strike/" itemprop="url" rel="index">
+                    <span itemprop="name">Cobalt Strike</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>2.1k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>2 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>汇总一些cs的常见流量隐藏技术</p><h2 id="证书修改"><a href="#证书修改" class="headerlink" title="证书修改"></a>证书修改</h2><p>Keytool是一个java数据证书的管理工具，Keytool将密钥 和 证书 存放在一个称为 keystore 的文件中,即.store后缀的文件中。修改.store文件可以隐藏teamsrver的特征，避免被网络空间搜索引擎发现，同时需要修改默认端口。查看证书内容<code>keytool -list -v -keystore cobaltstrike.store</code>，可以看到很多特征信息。</p><a id="more"></a>
+
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821170818974.png" alt="image-20200821170818974"></p>
+<p>先删除store文件，按照如下代码修改证书信息</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -keystore cobaltstrike<span class="selector-class">.store</span> -storepass <span class="number">123456</span> -keypass <span class="number">123456</span> -genkey -keyalg RSA -alias baidu<span class="selector-class">.com</span> -dname <span class="string">"CN=CC, OU=HW, O=IBM, L=AD, ST=AC, C=AV"</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821171645900.png" alt="image-20200821171645900"></p>
+<p>生成证书文件</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -importkeystore -srckeystore cobaltstrike<span class="selector-class">.store</span> -destkeystore cobaltstrike<span class="selector-class">.store</span> -deststoretype pkcs12</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821171732016.png" alt="image-20200821171732016"></p>
+<p>修改端口 编辑teamserver文件，将端口从50050修改为50005</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821172405018.png" alt="image-20200821172405018"></p>
+<h2 id="重定向"><a href="#重定向" class="headerlink" title="重定向"></a>重定向</h2><p>创建重定向监听器cdx，HTTP Hosts填入中转的vps地址，HTTP Host(Stager)地址也填入中转的vps地址，端口为80端口。</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821160118935.png" alt="image-20200821160118935"></p>
+<p>在中转vps进行流量转发，将中转vps的80端口流量转发到teamserver的80端口</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">socat</span> <span class="selector-tag">TCP4-LISTEN</span><span class="selector-pseudo">:80</span>,<span class="selector-tag">fork</span> <span class="selector-tag">TCP4</span>:<span class="selector-attr">[team server]</span><span class="selector-pseudo">:80</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821164516792.png" alt="image-20200821164516792"></p>
+<p>生成shellcode后执行上线。</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821165306829.png" alt="image-20200821165306829"></p>
+<p>查看通信流量为于中转vps的交互</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821165736498.png" alt="image-20200821165736498"></p>
+<p>##DNS Beacon</p>
+<p>DNS Beacon将数据封装在DNS协议中，然后利用DNS查询过程进行数据传输。可躲避一些防火墙和入侵检测设备，且DNS走UDP协议，受害机一般无特殊异常且较难发现。</p>
+<p>设置一个A类地址指向teamserver的ip地址</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817225615765.png" alt="image-20200817225615765"></p>
+<p>在创建几个ns记录指向刚才创建的A类地址，结果如下</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818103031338.png" alt="image-20200818103031338"></p>
+<p>创建一个Listener，payload选择Beacon DNS，DNS Hosts填写刚才创建的两个ns地址，DNS Host地址填写任意一个ns地址</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818125241550.png" alt="image-20200818125241550"></p>
+<p>创建完后本机执行<code>nslookup ns地址</code>，返回为0.0.0.0则表示成功。</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818125353029.png" alt="image-20200818125353029"></p>
+<p>然后创建一个Stageless，选择刚才创建的Listener</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818125951466.png" alt="image-20200818125951466"></p>
+<p>执行后会有机子上线，但显示为黑色。</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818130057154.png" alt="image-20200818130057154"></p>
+<p>此时在Beacon中输入以下命令</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">checkin</span>  <span class="comment">#强制回连</span></span><br><span class="line">mode dns-txt   <span class="comment">#使用dns TXT记录的数据通道</span></span><br></pre></td></tr></table></figure>
+
+<p>输入以上命令后再输入任意命令执行后点亮受害机</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818130617138.png" alt="image-20200818130617138"></p>
+<p>wireshark抓包可以发现数据走dns-txt，但会显示ns域名信息（打码处）</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200818153051395.png" alt="image-20200818153051395"></p>
+<p>除了mode dns-txt 外还可以使用mode dns 使用dns A记录的数据通道（ipv4）和mode dns6 使用dns AAAA记录的数据通道（ipv6）。</p>
+<h2 id="流量伪装"><a href="#流量伪装" class="headerlink" title="流量伪装"></a>流量伪装</h2><p>流量伪造主要使用Malleable-C2-Profiles脚本，github搜索即可。</p>
+<p>先来看发现4.1的流量，wireshark使用<code>ip.addr == vpsip and tcp.port == 81 and http</code>命令抓包发现流量内通已经加密</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817162149285.png" alt="image-20200817162149285"></p>
+<p>但依然可以post请求中可以发现cs的特征。</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817181513752.png" alt="image-20200817181513752"></p>
+<p>使用Malleable-C2-Profiles来隐藏流量</p>
+<p>使用方法：<code>./teamserver [external IP] [password] [/path/to/my.profile]</code></p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817191014733.png" alt="image-20200817191014733"></p>
+<p>配置后需要重新生成shellcode，执行后发现post数据包为amazon内容。</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817193936853.png" alt="image-20200817193936853"></p>
+<p>部分代码如下</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200817194151708.png" alt="image-20200817194151708"></p>
+<h2 id="域前置"><a href="#域前置" class="headerlink" title="域前置"></a>域前置</h2><p>使用阿里云cdn做测试，伪造高可信域名，如下配置</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200819222241488.png" alt="image-20200819222241488"></p>
+<p>配置完后复制cnname地址，使用多地区ping，获取域名的ip地址</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200819222934691.png" alt="image-20200819222934691"></p>
+<p>配置好后测试一下CDN转发功能，在C2监听80端口，个人终端执行请求：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">curl</span> 阿里云CDN节点<span class="built_in">IP</span>/  -H <span class="string">"Host:你配置的CDN域名"</span> -v</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200820234324385.png" alt="image-20200820234324385"></p>
+<p>如果返回码为404则表示成功。</p>
+<p>使用Malleable-C2-Profiles，统一替换里面的设置里面的header “Host”值为自己配置的域名，同时配置dc_ref的地址也为自己的域名</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200820234755204.png" alt="image-20200820234755204"></p>
+<p>重新启动cs，建立监听器HTTP Hosts中填写一些阿里云cdn的ip，HTTP Host（stager）填写配置的ip，端口为80。</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821101600836.png" alt="image-20200821101600836"></p>
+<p>配置完后观察Web_log会有不断的请求。</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821093712489.png" alt="image-20200821093712489"></p>
+<p>生成exe测试上线</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821140946009.png" alt="image-20200821140946009"></p>
+<p>可以上线，其中external的地址会不断变化</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821141003994.png" alt="image-20200821141003994"></p>
+<p>wireshark抓包发现请求地址为配置的域名</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821110130415.png" alt="image-20200821110130415"></p>
+<p>其中流量已伪装，传输数据已加密，通信地址都为cdn的ip</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821112504776.png" alt="image-20200821112504776"></p>
+<p>流量中搜索不到真实teamserver地址</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821111649965.png" alt="image-20200821111649965"></p>
+<p>如果是cs3.14，则需要用到CACTUSTORCH脚本。地址：</p>
+<p><a href="https://github.com/mdsecactivebreach/CACTUSTORCH.git" target="_blank" rel="noopener">https://github.com/mdsecactivebreach/CACTUSTORCH.git</a></p>
+<p>加载成功后选择如下</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821091310416.png" alt="image-20200821091310416"></p>
+<p>生成一个HTA payload</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821092818844.png" alt="image-20200821092818844"></p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821101134524.png" alt="image-20200821101134524"></p>
+<p>受害机执行如下命令</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821095440458.png" alt="image-20200821095440458"></p>
+<p>成功上线</p>
+<p><img src="//choge.top/2020/08/16/Cobaltstrike之流量隐藏/image-20200821101509781.png" alt="image-20200821101509781"></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/" title="Cobaltstrike之流量隐藏">https://choge.top/2020/08/16/Cobaltstrike之流量隐藏/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/cs/" rel="tag"># cs</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/08/12/Cobaltstrike之tcp-smb-bind上线/" rel="next" title="Cobaltstrike之tcp/smb_bind上线">
+                  <i class="fa fa-chevron-left"></i> Cobaltstrike之tcp/smb_bind上线
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/08/25/记录一次hexo迁移/" rel="prev" title="记录一次hexo迁移">
+                  记录一次hexo迁移 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#证书修改"><span class="nav-number">1.</span> <span class="nav-text">证书修改</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重定向"><span class="nav-number">2.</span> <span class="nav-text">重定向</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#流量伪装"><span class="nav-number">3.</span> <span class="nav-text">流量伪装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#域前置"><span class="nav-number">4.</span> <span class="nav-text">域前置</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

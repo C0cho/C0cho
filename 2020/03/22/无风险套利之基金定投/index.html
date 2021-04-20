@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="今天抽个时间稍微讲下基金定投。平时很多人问我买什么基金或者买什么股票，我一般不荐股，但我推荐基金定投。由于我非常懒，能躺着就绝不坐着。但由于此时内外动荡，国内外股市大幅波动，已经到了不得不讲的时间点了。因此我就稍微来讲下基金定投的策略和一些可以长期持有的标的。本系列文章偏实战，理论分析较少，如需补充理论知识请自行补充。">
+<meta name="keywords" content="基金定投">
+<meta property="og:type" content="article">
+<meta property="og:title" content="无风险套利之基金定投">
+<meta property="og:url" content="https://choge.top/2020/03/22/无风险套利之基金定投/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="今天抽个时间稍微讲下基金定投。平时很多人问我买什么基金或者买什么股票，我一般不荐股，但我推荐基金定投。由于我非常懒，能躺着就绝不坐着。但由于此时内外动荡，国内外股市大幅波动，已经到了不得不讲的时间点了。因此我就稍微来讲下基金定投的策略和一些可以长期持有的标的。本系列文章偏实战，理论分析较少，如需补充理论知识请自行补充。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/03/22/无风险套利之基金定投/dt-1.png">
+<meta property="og:image" content="https://choge.top/2020/03/22/无风险套利之基金定投/dt-2.png">
+<meta property="og:image" content="https://choge.top/2020/03/22/无风险套利之基金定投/dt-3.png">
+<meta property="og:updated_time" content="2020-03-22T15:11:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="无风险套利之基金定投">
+<meta name="twitter:description" content="今天抽个时间稍微讲下基金定投。平时很多人问我买什么基金或者买什么股票，我一般不荐股，但我推荐基金定投。由于我非常懒，能躺着就绝不坐着。但由于此时内外动荡，国内外股市大幅波动，已经到了不得不讲的时间点了。因此我就稍微来讲下基金定投的策略和一些可以长期持有的标的。本系列文章偏实战，理论分析较少，如需补充理论知识请自行补充。">
+<meta name="twitter:image" content="https://choge.top/2020/03/22/无风险套利之基金定投/dt-1.png">
+  <link rel="canonical" href="https://choge.top/2020/03/22/无风险套利之基金定投/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>无风险套利之基金定投 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/03/22/无风险套利之基金定投/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            无风险套利之基金定投
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-03-22 13:18:30 / 修改时间：23:11:18" itemprop="dateCreated datePublished" datetime="2020-03-22T13:18:30+08:00">2020-03-22</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/无风险套利/" itemprop="url" rel="index">
+                    <span itemprop="name">无风险套利</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>3.7k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>3 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>今天抽个时间稍微讲下基金定投。平时很多人问我买什么基金或者买什么股票，我一般不荐股，但我推荐基金定投。由于我非常懒，能躺着就绝不坐着。但由于此时内外动荡，国内外股市大幅波动，已经到了不得不讲的时间点了。因此我就稍微来讲下基金定投的策略和一些可以长期持有的标的。本系列文章偏实战，理论分析较少，如需补充理论知识请自行补充。</p><a id="more"></a>
+<h2 id="什么是基金定投"><a href="#什么是基金定投" class="headerlink" title="什么是基金定投"></a>什么是基金定投</h2><p>基金定投是定期定额投资基金的简称，是指在固定的时间（如每月8日）以固定的金额（如500元）投资到指定的开放式基金中，类似于银行的零存整取方式。人们平常所说的基金主要是指证券投资基金。（百度百科）</p>
+<h2 id="基金定投优势"><a href="#基金定投优势" class="headerlink" title="基金定投优势"></a>基金定投优势</h2><h3 id="摊平不确定性"><a href="#摊平不确定性" class="headerlink" title="摊平不确定性"></a>摊平不确定性</h3><p>市场总是有很多不确定性和黑天鹅，如本次新冠肺炎导致刚要向上的上证指数在春节后大幅波动，也导致我有所亏损。但如果使用基金定投的方式，如每个月或者每周投入一定数量的金额，可以非常好得摊平风险和不确定性。</p>
+<h4 id="基金定投会亏损吗？"><a href="#基金定投会亏损吗？" class="headerlink" title="基金定投会亏损吗？"></a>基金定投会亏损吗？</h4><p>只要选择比较靠谱的基金，长期定投，一般不会亏损。</p>
+<p>以我刚闭着眼瞎J8选的比较有代表的沪深300指数类基金020011为例，以2015年6月12日牛市最高点接盘算起，每月定投1w，分的红利继续投，以下为1年，2年，3年的结果如下图所示。</p>
+<p>第1年定投收益率为-7.95%，毕竟最高位当了接盘侠。</p>
+<p><img src="//choge.top/2020/03/22/无风险套利之基金定投/dt-1.png" alt="dt-1"></p>
+<p>第2年定投收益率为7.08%，还可以了。</p>
+<p><img src="//choge.top/2020/03/22/无风险套利之基金定投/dt-2.png" alt="dt-2"></p>
+<p>第3年收益率接近为10%</p>
+<p><img src="//choge.top/2020/03/22/无风险套利之基金定投/dt-3.png" alt="dt-3"></p>
+<p>以上是在最高位接盘情况下，且2015-2018年股市走的并非非常好，投入资金未做优化和分配的情况下的收益情况。只要选择比较靠谱的基金，长期定投，一般不会亏损。</p>
+<h3 id="强制储蓄"><a href="#强制储蓄" class="headerlink" title="强制储蓄"></a>强制储蓄</h3><p>如果你是每个月月光，而且又不知道钱花在了哪里，可使用基金定投的方式来做强制储蓄，既能储蓄，又能赚钱，一举两得。</p>
+<h3 id="懒人投资，躺赢"><a href="#懒人投资，躺赢" class="headerlink" title="懒人投资，躺赢"></a>懒人投资，躺赢</h3><p>适合上班族，设置好定投策略就不用再管了，而且可以躺赢80%的证券投资者。</p>
+<h2 id="基金定投劣势"><a href="#基金定投劣势" class="headerlink" title="基金定投劣势"></a>基金定投劣势</h2><p>牛市来了收益不及买股票收益，此点劣势可以忽略不计，因为牛市到最后，大部分韭菜可能比熊市亏得更多😭😭😭。</p>
+<h2 id="如何购买"><a href="#如何购买" class="headerlink" title="如何购买"></a>如何购买</h2><h3 id="支付宝"><a href="#支付宝" class="headerlink" title="支付宝"></a>支付宝</h3><p>支付宝-搜索栏-基金-输入基金代码-直接买入或设置每月或者每周购买策略</p>
+<h3 id="证券账户"><a href="#证券账户" class="headerlink" title="证券账户"></a>证券账户</h3><p>搜索栏-基金-输入基金代码-直接买入或设置每月或者每周购买策略</p>
+<h3 id="其他渠道"><a href="#其他渠道" class="headerlink" title="其他渠道"></a>其他渠道</h3><p>比较靠谱的渠道有天天基金网/app、蛋卷基金、微信、同花顺、且慢、网上银行等，此类渠道如何和购买未研究，自己研究，大同小异。</p>
+<h2 id="场内场外基金"><a href="#场内场外基金" class="headerlink" title="场内场外基金"></a>场内场外基金</h2><h3 id="场外基金"><a href="#场外基金" class="headerlink" title="场外基金"></a>场外基金</h3><p>场外基金就是直接从基金公司手里买。基金公司发行基金后，我们可以向基金公司买入（申购）/卖出（赎回）。支付宝等够买场外基金时即为与各类基金公司建立购买渠道，就能通过支付宝购买，但不同基金公司策略不同，有部分基金会对支付宝进行购买限制，如暂停购买或者限额购买，限制买入或者限制卖出等。在某一平台碰到限制情况下可以看看其他平台或者直接在证券账户够买。</p>
+<p>场外基金主要为开放式基金包括LOF和部分ETF基金，净值每天变动</p>
+<h3 id="场内基金"><a href="#场内基金" class="headerlink" title="场内基金"></a>场内基金</h3><p>场内外基金这个场，指的就是证券公司，开了证券账户不仅能购买场外基金，还能购买场内基金。场内基金主要为证券公司购买，本质上就是一些实时交易的股票组合，净值每10秒变动一次，交易操作也类似与股票有10%涨跌幅限制。</p>
+<p>场内基金主要包括，LOFT基金、ETF基金、封闭式基金</p>
+<h2 id="被动主动基金"><a href="#被动主动基金" class="headerlink" title="被动主动基金"></a>被动主动基金</h2><h3 id="被动基金"><a href="#被动基金" class="headerlink" title="被动基金"></a>被动基金</h3><p>被动型基金（通常被称为指数型基金）一般选取特定的指数成份股作为投资的对象，不主动寻求超越市场的表现，而是试图复制指数的表现，例如沪深300指数、创业板指数，还有行业指数等等。本文主要讲指数基金为主。</p>
+<h3 id="主动基金"><a href="#主动基金" class="headerlink" title="主动基金"></a>主动基金</h3><p>主动型基金是是基金经理主动管理这只基金，选择投资策略和进出股票市场的时间。</p>
+<h3 id="指数增强型基金"><a href="#指数增强型基金" class="headerlink" title="指数增强型基金"></a>指数增强型基金</h3><p>指数增强型基金并非纯指数基金，是指基金在进行指数化投资的过程中，为试图获得超越指数的投资回报，在被动跟踪指数的基础上，加入增强型的积极投资手段，对投资组合进行适当调整，力求在控制风险的同时获取积极的市场收益。 指数增强型基金将大部分资产按照基准指数权重配置之外，对成份股进行一定程度的增、减持，或增持成份股以外的个股，其投资目标则是在紧密跟踪基准指数的同时获得高于基准的收益。（百度百科）</p>
+<h2 id="购买策略"><a href="#购买策略" class="headerlink" title="购买策略"></a>购买策略</h2><p>此部分基金不区分场内外，如果发现有部分基金支付宝无法购买可能需要更换购买渠道或者使用证券账户场内购买。但场外基金更适合基金定投，场内基金更适合做单次配置或类似于股票一样的交易买卖。下面列举的大部分基金为场外基金，小部分场内基金。</p>
+<h3 id="优质基金"><a href="#优质基金" class="headerlink" title="优质基金"></a>优质基金</h3><p>1.代码：513600 南方恒指ETF 特点：优质港股，腾讯，中移动，港股建设银行，港股中国平安等</p>
+<p>2.代码：164705 汇添富恒生指数分级（QDII）特点：优质港股，腾讯等</p>
+<p>3.代码：110031 易方达恒生中国企业ETF联接（QDII） 特点：优质港股，腾讯，中移动，港股建设银行，港股中国人寿等</p>
+<p>4.代码：512880 国泰中证全指证券 特点：与证券相关基金</p>
+<p>5.代码：160225 国泰国证新能源汽车指数 特点：与新能源相关基金</p>
+<p>6.代码：161028 国富中证新能源汽车指数分级基金 特点：与新能源相关基金</p>
+<p>7.代码：515050 华夏中证5G通信主题ETF  特点：5g相关</p>
+<p>8.代码：515070 华夏中证人工智能主题ETF 特点：跟踪人工智能股票</p>
+<p>9.代码：000478 建信中证500指数增强A 特点：跟踪中证500成分股</p>
+<p>10.代码：001244 华泰柏瑞量化智慧灵活配置混合A 特点：A股优质股票，跟踪中证500</p>
+<p>11.代码：000172 华泰柏瑞量化增强混合A 特点：A股优质股票，跟踪沪深300</p>
+<p>12.代码：540012  汇丰晋信恒生A股行业龙头A  特点：贵州茅台，中国平安等优质股，此基金是恒生公司的执行的A股各行业龙头，并非为港股基金</p>
+<p>13.代码：513050 中概互联 特点：顾名思义包含了一篮子在国外上市的优质互联网公司，如腾讯、阿里、京东、网易等互联网公司</p>
+<p>14.代码：159915 易方达创业板ETF  特点：跟踪创业板指数</p>
+<p>15.代码：160420 华安创业板50指数分级  特点：创业板优质股票</p>
+<p>16.代码：162411 华宝油气A  特点：优质资产，但现在不推荐，做个记录</p>
+<p>17.代码：006947 华宝中短债A  特点：稳得一比，妥妥跑赢银行理财</p>
+<h3 id="购买策略-1"><a href="#购买策略-1" class="headerlink" title="购买策略"></a>购买策略</h3><h4 id="港股指数配置"><a href="#港股指数配置" class="headerlink" title="港股指数配置"></a>港股指数配置</h4><p>现港股估值到了人类历史最低，人类历史最低，人类历史最低，重要的事情说三遍，所以1-3中和港股指数相关标的必须配置其一，现南下资金也在抄底港股，我也觉得此时定投性价比极高。</p>
+<h4 id="牛市预期配置"><a href="#牛市预期配置" class="headerlink" title="牛市预期配置"></a>牛市预期配置</h4><p>牛市必定回来，疫情过去，全面复苏之后中国资产或是世界最好的资产，4必须配置，同时牛市以来中证500的弹性极大，所以9-10选其一。当然中证500可以换成沪深300，也就是选择11，这样风险更低。</p>
+<h4 id="行业配置"><a href="#行业配置" class="headerlink" title="行业配置"></a>行业配置</h4><p>管理层定性房住不炒，经济刺激点为新能源汽车和5g以及5g之后的人工智能、物联网的发展。所以5-6任选其一，7-8任选其一即可</p>
+<h4 id="优质资产"><a href="#优质资产" class="headerlink" title="优质资产"></a>优质资产</h4><p>优质资产可以选择国内的龙头公司12或者选择国外上市的优质互联网公司13。</p>
+<h4 id="仓位分配"><a href="#仓位分配" class="headerlink" title="仓位分配"></a>仓位分配</h4><p>我的风险偏好比较高，对牛市期待较大，看好5g新基建发展。所以我会在港股指数配置选择编号3的110031，牛市预期配置选择编号4的512880，行业配置我新能源和5g都选，即选择编号5和编号7的160225 和515050，同时选择一些优质资产，个人比较喜欢互联网公司所以选择编号13的513050。</p>
+<p>由于个人风险偏好较高，所以配置110031:512880:160225:515050:513050的比例为2:3:2:2:1。</p>
+<p>以上只是为一种配置思路，可以结合自身的情况和风险偏好，在我选出的基金中做适当调整和配置，也可以使用编号为14-17的基金做适当调整。</p>
+<h3 id="如何定投"><a href="#如何定投" class="headerlink" title="如何定投"></a>如何定投</h3><p>定投时间两年以上为佳，以30万人民币，定投30个月为例。只需要要将资产分成30等份，每份1w。没1w中110031:512880:160225:515050:513050的比例为2:3:2:1:2。</p>
+<h4 id="定投优化"><a href="#定投优化" class="headerlink" title="定投优化"></a>定投优化</h4><p>定投优化类似指数增强，就是对择机和择做出适当调整，如现在这个节点可以将每份定投资金设置为3000，进行少量建仓，同时建仓港股指数基金为主。当疫情到达最高峰时可以适当调整为每周定投，每周定投每份资金加到1w。总之，根据不同时间点适当人为干预，目的是获得更高的收益。当然也可以无脑按照固定比例定投，只需要选择好时间点即可，如全球经济恶化到无法再恶化之时即为出手时机。</p>
+<p>那么有没有工具自动帮我优化策略无脑投资呢？</p>
+<p>这个也有，就是上面讲到过有个且慢app，这个公司我研究过还是靠谱的，里面有个长赢计划，长赢计划买入了一篮子基金，当其中一个基金估值高了就踢出去，重新纳入新的低估基金，保证有更高的收益。（本人未投长赢计划，如果你比我还懒，一个月都不想看一次，那就投长赢吧。）</p>
+<h2 id="感想"><a href="#感想" class="headerlink" title="感想"></a>感想</h2><p>我炒股也有些年头了，风险偏好较大。选的股基行情好暴涨大赚，有点风吹草动就暴跌利润亏完。来来回回过山车，也没赚几块钱，后面可能会逐渐考虑极大基金配置同时减少股票配置，可能会获得更好的收益。</p>
+<p>定投的基金一段时间也需要卖出，或者换低估的基金。但我觉得现在开始到未来一年都是比较好的配置时间，关于什么时间点卖出和卖出策略后面再写。</p>
+<p>野生非专业基金经理意淫到此结束，仅供参考。</p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/03/22/无风险套利之基金定投/" title="无风险套利之基金定投">https://choge.top/2020/03/22/无风险套利之基金定投/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/基金定投/" rel="tag"># 基金定投</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/03/22/记一次docker安装oracle-11g/" rel="next" title="记一次docker安装oracle_11g">
+                  <i class="fa fa-chevron-left"></i> 记一次docker安装oracle_11g
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/04/16/Oracle数据库注入总结/" rel="prev" title="Oracle数据库注入总结">
+                  Oracle数据库注入总结 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是基金定投"><span class="nav-number">1.</span> <span class="nav-text">什么是基金定投</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基金定投优势"><span class="nav-number">2.</span> <span class="nav-text">基金定投优势</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#摊平不确定性"><span class="nav-number">2.1.</span> <span class="nav-text">摊平不确定性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基金定投会亏损吗？"><span class="nav-number">2.1.1.</span> <span class="nav-text">基金定投会亏损吗？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#强制储蓄"><span class="nav-number">2.2.</span> <span class="nav-text">强制储蓄</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#懒人投资，躺赢"><span class="nav-number">2.3.</span> <span class="nav-text">懒人投资，躺赢</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基金定投劣势"><span class="nav-number">3.</span> <span class="nav-text">基金定投劣势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何购买"><span class="nav-number">4.</span> <span class="nav-text">如何购买</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#支付宝"><span class="nav-number">4.1.</span> <span class="nav-text">支付宝</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#证券账户"><span class="nav-number">4.2.</span> <span class="nav-text">证券账户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他渠道"><span class="nav-number">4.3.</span> <span class="nav-text">其他渠道</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#场内场外基金"><span class="nav-number">5.</span> <span class="nav-text">场内场外基金</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#场外基金"><span class="nav-number">5.1.</span> <span class="nav-text">场外基金</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#场内基金"><span class="nav-number">5.2.</span> <span class="nav-text">场内基金</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#被动主动基金"><span class="nav-number">6.</span> <span class="nav-text">被动主动基金</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#被动基金"><span class="nav-number">6.1.</span> <span class="nav-text">被动基金</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主动基金"><span class="nav-number">6.2.</span> <span class="nav-text">主动基金</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指数增强型基金"><span class="nav-number">6.3.</span> <span class="nav-text">指数增强型基金</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#购买策略"><span class="nav-number">7.</span> <span class="nav-text">购买策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优质基金"><span class="nav-number">7.1.</span> <span class="nav-text">优质基金</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#购买策略-1"><span class="nav-number">7.2.</span> <span class="nav-text">购买策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#港股指数配置"><span class="nav-number">7.2.1.</span> <span class="nav-text">港股指数配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#牛市预期配置"><span class="nav-number">7.2.2.</span> <span class="nav-text">牛市预期配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#行业配置"><span class="nav-number">7.2.3.</span> <span class="nav-text">行业配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#优质资产"><span class="nav-number">7.2.4.</span> <span class="nav-text">优质资产</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#仓位分配"><span class="nav-number">7.2.5.</span> <span class="nav-text">仓位分配</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何定投"><span class="nav-number">7.3.</span> <span class="nav-text">如何定投</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#定投优化"><span class="nav-number">7.3.1.</span> <span class="nav-text">定投优化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#感想"><span class="nav-number">8.</span> <span class="nav-text">感想</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

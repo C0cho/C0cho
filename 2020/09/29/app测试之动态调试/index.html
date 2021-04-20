@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文主要介绍IDEA，JEB，Eclipse进行app动态调试准备工作安装apktool，如果apktool要使用-d参数将app反编译为java代码，则要使用apktool_2.0.3及之前版本反编译apkjava -jar apktool.jar d xxx.apkIDEA安装Smali插件https://bitbucket.org/JesusFreke/smali/downloads/">
+<meta name="keywords" content="app">
+<meta property="og:type" content="article">
+<meta property="og:title" content="app测试之动态调试">
+<meta property="og:url" content="https://choge.top/2020/09/29/app测试之动态调试/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文主要介绍IDEA，JEB，Eclipse进行app动态调试准备工作安装apktool，如果apktool要使用-d参数将app反编译为java代码，则要使用apktool_2.0.3及之前版本反编译apkjava -jar apktool.jar d xxx.apkIDEA安装Smali插件https://bitbucket.org/JesusFreke/smali/downloads/">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20200929151519251.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20200929151621532.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201005132619027.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201005132850789.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201007163417440.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201007163714272.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201007163913213.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201007164204736.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201007190242458.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201007191218025.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201007190919303.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201007213733932.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201008194759076.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009110348936.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009111000799.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009111724308.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009112023359.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009112044152.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009112132446.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009112227020.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009113551522.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009113656312.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009113823017.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009114034258.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009142739723.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009142803266.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009142931173.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009143002217.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009143137806.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009143040470.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009143206168.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009143257984.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009113953313.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009113746367.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201007213733932.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009104015084.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009104245721.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009104306243.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009104410238.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009104643668.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009104716033.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009105023750.png">
+<meta property="og:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20201009105213900.png">
+<meta property="og:updated_time" content="2020-10-27T02:30:24.507Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="app测试之动态调试">
+<meta name="twitter:description" content="本文主要介绍IDEA，JEB，Eclipse进行app动态调试准备工作安装apktool，如果apktool要使用-d参数将app反编译为java代码，则要使用apktool_2.0.3及之前版本反编译apkjava -jar apktool.jar d xxx.apkIDEA安装Smali插件https://bitbucket.org/JesusFreke/smali/downloads/">
+<meta name="twitter:image" content="https://choge.top/2020/09/29/app测试之动态调试/image-20200929151519251.png">
+  <link rel="canonical" href="https://choge.top/2020/09/29/app测试之动态调试/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>app测试之动态调试 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/09/29/app测试之动态调试/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            app测试之动态调试
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-29 14:59:32" itemprop="dateCreated datePublished" datetime="2020-09-29T14:59:32+08:00">2020-09-29</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-27 10:30:24" itemprop="dateModified" datetime="2020-10-27T10:30:24+08:00">2020-10-27</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>2.5k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>2 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要介绍IDEA，JEB，Eclipse进行app动态调试</p><h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>安装apktool，如果apktool要使用-d参数将app反编译为java代码，则要使用apktool_2.0.3及之前版本</p><p>反编译apk<code>java -jar apktool.jar d xxx.apk</code></p><p>IDEA安装Smali插件</p><p><a href="https://bitbucket.org/JesusFreke/smali/downloads/" target="_blank" rel="noopener">https://bitbucket.org/JesusFreke/smali/downloads/</a></p><a id="more"></a>
+
+
+
+
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20200929151519251.png" alt="image-20200929151519251"></p>
+<p>重启</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20200929151621532.png" alt="image-20200929151621532"></p>
+<p>这里有个天坑，安装完Smali插件后需要做一些配置，不然还是无法调试，配置如下两图</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201005132619027.png" alt="image-20201005132619027"></p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201005132850789.png" alt="image-20201005132850789"></p>
+<p>反编译apk</p>
+<p><code>java -jar apktool.jar d xxx.apk</code></p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201007163417440.png" alt></p>
+<p>反编译后AndroidManifest.xml中修改<code>debuggable=&quot;true&quot;</code></p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201007163714272.png" alt="image-20201007163714272"></p>
+<p>在入口处添加waitForDebugger代码进行调试等待</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201007163913213.png" alt="image-20201007163913213"></p>
+<p>找到入口Activity之后，我们直接在他的onCreate方法的第一行加上waitForDebugger代码即可，找到对应的MainActivity的smali源码：</p>
+<p>然后添加一行代码：<code>invoke-static {}, Landroid/os/Debug;-&gt;waitForDebugger()V</code>，这个是smali语法的，其实对应的Java代码就是：<code>android.os.Debug.waitForDebugger()</code></p>
+<p>启动app进入等待调试</p>
+<p><code>adb shell am start -D -n 包名/入口名</code>如果.MainActivity前面的是包名，此处可以把钱吗的包名称省略，当然此处也可以省略前面的包名，直接一个.MainActivity</p>
+<p>adb shell am start -D -n hfdcxy.com.myapplication/hfdcxy.com.myapplication.MainActivity</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201007164204736.png" alt="image-20201007164204736"></p>
+<h3 id="JEB动态调试"><a href="#JEB动态调试" class="headerlink" title="JEB动态调试"></a>JEB动态调试</h3><p>jeb下载与使用参考以下链接</p>
+<p><a href="https://blog.csdn.net/JEROME__S/article/details/105458589" target="_blank" rel="noopener">https://blog.csdn.net/JEROME__S/article/details/105458589</a></p>
+<p><a href="https://blog.csdn.net/ASSYIRAN/article/details/80534112" target="_blank" rel="noopener">https://blog.csdn.net/ASSYIRAN/article/details/80534112</a></p>
+<p>直接将app拖入到jeb后选择需要的地方ctrl+b打断点</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201007190242458.png" alt="image-20201007190242458"></p>
+<p>手机选择app进入调试等待或者输入以下命令</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell am start -D -n hfdcxy<span class="selector-class">.com</span><span class="selector-class">.myapplication</span>/hfdcxy<span class="selector-class">.com</span><span class="selector-class">.myapplication</span><span class="selector-class">.MainActivity</span></span><br></pre></td></tr></table></figure>
+
+<p>点击虫子图标选择要调试的应用进行调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201007191218025.png" alt="image-20201007191218025"></p>
+<p>app上输入数据后可以在jeb上看到输入的数据进行调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201007190919303.png" alt="image-20201007190919303"></p>
+<h3 id="IDEA动态调试"><a href="#IDEA动态调试" class="headerlink" title="IDEA动态调试"></a>IDEA动态调试</h3><h5 id="IDEA动态调试Java代码"><a href="#IDEA动态调试Java代码" class="headerlink" title="IDEA动态调试Java代码"></a>IDEA动态调试Java代码</h5><p>反编译时将Smali转换成Java代码加<code>-d</code>参数可以反编译为java代码，但是apktool需要选择</p>
+<p>反编译apk<code>java -jar apktool.jar d -d xxx.apk</code></p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201007213733932.png" alt="image-20201007213733932"></p>
+<p>打开ddms，注意新款Android studio的ddms需要用老版本的Java才能打开，使用jdk-8u144，打开ddms路径在/Users/用户名/Library/Android/sdk下启动终端<code>sudo ./monitor</code>打开</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201008194759076.png" alt="image-20201008194759076"></p>
+<p>新建一个java项目</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009110348936.png" alt="image-20201009110348936"></p>
+<p>新建一个Java项目，把反编译出来的把Smali文件夹中的Java代码文件复制到新建java项目中的src文件夹中去</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009111000799.png" alt="image-20201009111000799"></p>
+<p>进入如下功能点，填入对应端口号</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009111724308.png" alt="image-20201009111724308"></p>
+<p>点击下图位置，可进行调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009112023359.png" alt="image-20201009112023359"></p>
+<p>此时查看ddms，小虫子变绿，调试已通</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009112044152.png" alt="image-20201009112044152"></p>
+<p>下断点后进行调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009112132446.png" alt="image-20201009112132446"></p>
+<p>手机app输入数据后可在IDEA进行展示</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009112227020.png" alt="image-20201009112227020"></p>
+<h5 id="IDEA动态调试Smali"><a href="#IDEA动态调试Smali" class="headerlink" title="IDEA动态调试Smali"></a>IDEA动态调试Smali</h5><p>将app反编译的文件夹导入到IDEA作为一个项目</p>
+<p>当环境正确，手机正确连接IDEA时，IDEA会显示手机型号</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009113551522.png" alt="image-20201009113551522"></p>
+<p>app进入调试等待模式，点击IDEA如下图位置，会显示等待调试的应用，这样说明手机正确连接，app可以进行调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009113656312.png" alt="image-20201009113656312"></p>
+<p>点击如下进行配置</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009113823017.png" alt="image-20201009113823017"></p>
+<p>配置如下左侧新建一个Remote，端口可以先随便填写，手机与IDEA正确连接后再开启ddms会有冲突，所以此处可能不知道调试端口号，就可以随便填写</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009114034258.png" alt="image-20201009114034258"></p>
+<p>smali代码下断点</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009142739723.png" alt="image-20201009142739723"></p>
+<p>手机打开动态调试应用等待调试，按下图位置进行调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009142803266.png" alt="image-20201009142803266"></p>
+<p>发现无法连接端口号，无法调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009142931173.png" alt="image-20201009142931173"></p>
+<p>此点击右侧小虫子加箭头图标，选中调试应用进行调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009143002217.png" alt="image-20201009143002217"></p>
+<p>调试连接成功，端口号为8600</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009143137806.png" alt="image-20201009143137806"></p>
+<p>手机输入数据，IDEA可以正确调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009143040470.png" alt="image-20201009143040470"></p>
+<p>此时可以修改端口号</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009143206168.png" alt="image-20201009143206168"></p>
+<p>再点击小虫子图标，也可以正确调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009143257984.png" alt="image-20201009143257984"></p>
+<h5 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h5><p>网上有些文章会多一些配置，如下，作为参考，实际测试中图一会自动配置，图二操作可以不进行</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009113953313.png" alt="image-20201009113953313"></p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009113746367.png" alt="image-20201009113746367"></p>
+<h3 id="Eclipse动态调试java（不推荐）"><a href="#Eclipse动态调试java（不推荐）" class="headerlink" title="Eclipse动态调试java（不推荐）"></a>Eclipse动态调试java（不推荐）</h3><p>反编译时将Smali转换成Java代码加<code>-d</code>参数可以反编译为java代码，但是apktool需要选择</p>
+<p>反编译apk<code>java -jar apktool.jar d -d xxx.apk -o out</code></p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201007213733932.png" alt="image-20201007213733932"></p>
+<p>创建一个新的Java项目，Location使用反编译的out目录</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009104015084.png" alt="image-20201009104015084"></p>
+<p>打开ddms，/Users/用户名/Library/Android/sdk下启动终端<code>sudo ./monitor</code>打开，同时使应用等待调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009104245721.png" alt="image-20201009104245721"></p>
+<p>进行配置</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009104306243.png" alt="image-20201009104306243"></p>
+<p>新建一个Remote Java Application，端口选择ddms中显示的8600，然后点击Debug</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009104410238.png" alt="image-20201009104410238"></p>
+<p>此时小虫子变绿，说明调试成功</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009104643668.png" alt="image-20201009104643668"></p>
+<p>下合适的断点</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009104716033.png" alt="image-20201009104716033"></p>
+<p>调出Debug模式</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009105023750.png" alt="image-20201009105023750"></p>
+<p>点击右侧小虫子，手机上输入数据，eclipse可获取变量值进行调试</p>
+<p><img src="//choge.top/2020/09/29/app测试之动态调试/image-20201009105213900.png" alt="image-20201009105213900"></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://blog.csdn.net/binbin594738977/article/details/106571844/" target="_blank" rel="noopener">新版IDEA或者AndroidStudio不能调试smali工程的问题</a></p>
+<p><a href="https://blog.csdn.net/binbin594738977/article/details/106571844/" target="_blank" rel="noopener">https://blog.csdn.net/binbin594738977/article/details/106571844/</a></p>
+<p>IDEA调试java</p>
+<p><a href="https://www.cnblogs.com/axiong/p/5939762.html" target="_blank" rel="noopener">https://www.cnblogs.com/axiong/p/5939762.html</a></p>
+<p>动态调试条件</p>
+<p><a href="https://blog.csdn.net/qq_38851536/article/details/100026480" target="_blank" rel="noopener">https://blog.csdn.net/qq_38851536/article/details/100026480</a></p>
+<p>加等待代码</p>
+<p><a href="https://blog.csdn.net/zhangmiaoping23/article/details/51824728" target="_blank" rel="noopener">https://blog.csdn.net/zhangmiaoping23/article/details/51824728</a> </p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/09/29/app测试之动态调试/" title="app测试之动态调试">https://choge.top/2020/09/29/app测试之动态调试/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/app/" rel="tag"># app</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/09/27/app测试之通过Xposed抓取秘钥/" rel="next" title="app测试之通过Xposed抓取秘钥">
+                  <i class="fa fa-chevron-left"></i> app测试之通过Xposed抓取秘钥
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/10/09/Mac安装JDK双版本/" rel="prev" title="Mac安装JDK双版本">
+                  Mac安装JDK双版本 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#准备工作"><span class="nav-number">1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JEB动态调试"><span class="nav-number">2.</span> <span class="nav-text">JEB动态调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IDEA动态调试"><span class="nav-number">3.</span> <span class="nav-text">IDEA动态调试</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#IDEA动态调试Java代码"><span class="nav-number">3.0.1.</span> <span class="nav-text">IDEA动态调试Java代码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#IDEA动态调试Smali"><span class="nav-number">3.0.2.</span> <span class="nav-text">IDEA动态调试Smali</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#注意"><span class="nav-number">3.0.3.</span> <span class="nav-text">注意</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Eclipse动态调试java（不推荐）"><span class="nav-number">4.</span> <span class="nav-text">Eclipse动态调试java（不推荐）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

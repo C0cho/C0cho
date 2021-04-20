@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文主要介绍cs的进程管理、屏幕截图、键盘记录、屏幕监控和文件操作等强大功能进程管理在cs获取的服务上右键Explorer–&amp;gt;Process List获取进程信息选择session1的explorer.exe，点击对Inject对进程进行注入选择监听器如图获取一个新的远程控制服务屏幕截图选择session1的explorer.exe进程，点击Screenshot对屏幕进行截图">
+<meta name="keywords" content="cs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cobalt Strike之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作">
+<meta property="og:url" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文主要介绍cs的进程管理、屏幕截图、键盘记录、屏幕监控和文件操作等强大功能进程管理在cs获取的服务上右键Explorer–&amp;gt;Process List获取进程信息选择session1的explorer.exe，点击对Inject对进程进行注入选择监听器如图获取一个新的远程控制服务屏幕截图选择session1的explorer.exe进程，点击Screenshot对屏幕进行截图">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-1.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-2.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-3.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-4.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-4.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-5.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-6.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-7.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-8.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-9.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-10.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-11.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-12.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-13.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-14.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-15.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-16.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-17.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-18.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-19.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-20.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-21.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-22.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-23.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-24.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-25.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-26.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-27.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-28.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-29.png">
+<meta property="og:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-30.png">
+<meta property="og:updated_time" content="2019-11-22T06:15:10.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Cobalt Strike之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作">
+<meta name="twitter:description" content="本文主要介绍cs的进程管理、屏幕截图、键盘记录、屏幕监控和文件操作等强大功能进程管理在cs获取的服务上右键Explorer–&amp;gt;Process List获取进程信息选择session1的explorer.exe，点击对Inject对进程进行注入选择监听器如图获取一个新的远程控制服务屏幕截图选择session1的explorer.exe进程，点击Screenshot对屏幕进行截图">
+<meta name="twitter:image" content="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-1.png">
+  <link rel="canonical" href="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Cobalt Strike之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Cobalt Strike之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-11-14 20:11:21" itemprop="dateCreated datePublished" datetime="2019-11-14T20:11:21+08:00">2019-11-14</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-22 14:15:10" itemprop="dateModified" datetime="2019-11-22T14:15:10+08:00">2019-11-22</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Cobalt-Strike/" itemprop="url" rel="index">
+                    <span itemprop="name">Cobalt Strike</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>877</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>1 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要介绍cs的进程管理、屏幕截图、键盘记录、屏幕监控和文件操作等强大功能</p><h2 id="进程管理"><a href="#进程管理" class="headerlink" title="进程管理"></a>进程管理</h2><p>在cs获取的服务上右键Explorer–&gt;Process List获取进程信息</p><p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-1.png" alt="cs-1"></p><p>选择session1的explorer.exe，点击对Inject对进程进行注入</p><p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-2.png" alt="cs-2"></p><p>选择监听器</p><p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-3.png" alt="cs-3"></p><p>如图获取一个新的远程控制服务</p><p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-4.png" alt="cs-4"></p><h2 id="屏幕截图"><a href="#屏幕截图" class="headerlink" title="屏幕截图"></a>屏幕截图</h2><p>选择session1的explorer.exe进程，点击Screenshot对屏幕进行截图</p><a id="more"></a>
+
+
+
+
+
+
+
+
+
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-4.png" alt="cs-4"></p>
+<p>输入时间表示几秒后进行截图</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-5.png" alt="cs-5"></p>
+<p>点击图片查看截图</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-6.png" alt="cs-6"></p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-7.png" alt="cs-7"></p>
+<p>此时获取一个高权限服务，同时使用远程桌面登录administrator用户，查看进程可以发现两个session，对session2用户进行注入获取屏幕截图</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-8.png" alt="cs-8"></p>
+<p>截屏为adminisrator用户</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-9.png" alt="cs-9"></p>
+<h2 id="键盘记录"><a href="#键盘记录" class="headerlink" title="键盘记录"></a>键盘记录</h2><p>对session1用户使用explorer.exe进行键盘记录(Log Kwystrokes)</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-10.png" alt="cs-10"></p>
+<p>进入C0cho桌面，输入内容如下</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-11.png" alt="cs-11"></p>
+<p>点击钥匙按钮获取键盘记录</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-12.png" alt="cs-12"></p>
+<p>键盘记录如下</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-13.png" alt="cs-13"></p>
+<p>此时在远程桌面administrator用户下输入如下内容</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-14.png" alt="cs-14"></p>
+<p>查看键盘记录并未产生记录</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-15.png" alt="cs-15"></p>
+<p>此时使用session2，administrato的explorer.exe进行键盘记录</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-16.png" alt="cs-16"></p>
+<p>在远程桌面administrator用户下输入如下内容</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-17.png" alt="cs-17"></p>
+<p>查看键盘记录已记录</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-18.png" alt="cs-18"></p>
+<p>回到C0cho桌面输入如下内容</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-19.png" alt="cs-19"></p>
+<p>查看键盘记录发现已记录</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-20.png" alt="cs-20"></p>
+<p>总结：提权后高权限session可以记录原本低权限session的键盘记录，原低权限session无法记录高权限session的键盘记录</p>
+<h2 id="屏幕监控"><a href="#屏幕监控" class="headerlink" title="屏幕监控"></a>屏幕监控</h2><p>如下路径获取屏幕监控</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-21.png" alt="cs-21"></p>
+<p>ctrl+w可全屏显示</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-22.png" alt="cs-22"></p>
+<p>屏幕监控命令行操作如下</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-23.png" alt="cs-23"></p>
+<p>尝试获取session2的屏幕，选择PID为664的进程进行屏幕监控</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-24.png" alt="cs-24"></p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-25.png" alt="cs-25"></p>
+<p>成功获取session2屏幕，图中下方图标从左到右第2个可以对屏幕进行控制操作或锁定不操作，从右到左第4个为Ctrl+Alt+Del，其余图标功能和图标内容相同</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-26.png" alt="cs-26"></p>
+<h2 id="文件管理"><a href="#文件管理" class="headerlink" title="文件管理"></a>文件管理</h2><p>如下路径可进行文件操作</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-27.png" alt="cs-27"></p>
+<p>选中文件右键可对文件进行Copy(copy结果为路径)，Download(下载文件)，Execute(可以对exe直接进行执行)，Delete(删除文件)。</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-28.png" alt="cs-28"></p>
+<p>下载文件后点击下载按钮</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-29.png" alt="cs-29"></p>
+<p>Sync Files可同步到本地</p>
+<p><img src="//choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/cs-30.png" alt="cs-30"></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/" title="Cobalt Strike之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作">https://choge.top/2019/11/14/cs之进程管理、屏幕截图、键盘记录、屏幕监控、文件操作/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/cs/" rel="tag"># cs</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/11/13/cs之uac绕过和明文密码获取/" rel="next" title="Cobalt Strike之uac绕过和明文密码获取">
+                  <i class="fa fa-chevron-left"></i> Cobalt Strike之uac绕过和明文密码获取
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/11/14/cs之windows提权/" rel="prev" title="Cobalt Strike之windows提权">
+                  Cobalt Strike之windows提权 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#进程管理"><span class="nav-number">1.</span> <span class="nav-text">进程管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#屏幕截图"><span class="nav-number">2.</span> <span class="nav-text">屏幕截图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#键盘记录"><span class="nav-number">3.</span> <span class="nav-text">键盘记录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#屏幕监控"><span class="nav-number">4.</span> <span class="nav-text">屏幕监控</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件管理"><span class="nav-number">5.</span> <span class="nav-text">文件管理</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

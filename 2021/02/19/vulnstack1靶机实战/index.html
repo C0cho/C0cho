@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="尝试下vulnstack1的靶机实战准备工作地址：http://vulnstack.qiyuanxuetang.net/vuln/detail/2/密码：登录密码为hongrisec@2019 但是首次登陆必须改密码，密码改为hongrisec@2019.拓扑图vm1对应 win7，外网服务器，vm2对应win2003，vm3对应win2008">
+<meta name="keywords" content="red team">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vulnstack1靶机实战">
+<meta property="og:url" content="https://choge.top/2021/02/19/vulnstack1靶机实战/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="尝试下vulnstack1的靶机实战准备工作地址：http://vulnstack.qiyuanxuetang.net/vuln/detail/2/密码：登录密码为hongrisec@2019 但是首次登陆必须改密码，密码改为hongrisec@2019.拓扑图vm1对应 win7，外网服务器，vm2对应win2003，vm3对应win2008">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154153622.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154211980.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154243444.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154457223.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154527170.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154610114.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154635594.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154803569.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154825715.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154906265.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160539298.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160558750.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160623632.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160649960.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160718328.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160732355.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160812019.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160853237.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160926172.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160944742.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161018172.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161041081.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161103742.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161320857.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161338806.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161444240.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161529145.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161619856.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161648692.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161715474.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161738793.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161821460.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162032313.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161933827.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162105147.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162138461.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162148073.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162215665.png">
+<meta property="og:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162230159.png">
+<meta property="og:updated_time" content="2021-02-19T08:22:52.063Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="vulnstack1靶机实战">
+<meta name="twitter:description" content="尝试下vulnstack1的靶机实战准备工作地址：http://vulnstack.qiyuanxuetang.net/vuln/detail/2/密码：登录密码为hongrisec@2019 但是首次登陆必须改密码，密码改为hongrisec@2019.拓扑图vm1对应 win7，外网服务器，vm2对应win2003，vm3对应win2008">
+<meta name="twitter:image" content="https://choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154153622.png">
+  <link rel="canonical" href="https://choge.top/2021/02/19/vulnstack1靶机实战/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>vulnstack1靶机实战 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2021/02/19/vulnstack1靶机实战/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            vulnstack1靶机实战
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-02-19 15:36:05 / 修改时间：16:22:52" itemprop="dateCreated datePublished" datetime="2021-02-19T15:36:05+08:00">2021-02-19</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>1.5k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>1 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>尝试下vulnstack1的靶机实战</p><h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>地址：<a href="http://vulnstack.qiyuanxuetang.net/vuln/detail/2/" target="_blank" rel="noopener">http://vulnstack.qiyuanxuetang.net/vuln/detail/2/</a></p><p>密码：登录密码为hongrisec@2019 但是首次登陆必须改密码，密码改为hongrisec@2019.</p><p>拓扑图</p><p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154153622.png" alt="image-20210219154153622"></p><p>vm1对应 win7，外网服务器，vm2对应win2003，vm3对应win2008</p><a id="more"></a>
+
+
+
+
+
+<p>vm1设置两个网卡，一个自定义连接到VMnet1(仅主机模式)，另一个连接模式为NAT，方便连接外网。</p>
+<p>vm2和vm3为仅主机模式</p>
+<p>手工绘制拓扑图如下</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154211980.png" alt="image-20210219154211980"></p>
+<p>vm1开启phpstudy</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154243444.png" alt="image-20210219154243444"></p>
+<h3 id="外网打点"><a href="#外网打点" class="headerlink" title="外网打点"></a>外网打点</h3><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -P0 -p1<span class="number">-65535</span> -A -T4 <span class="number">172.16</span><span class="number">.237</span><span class="number">.6</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154457223.png" alt="image-20210219154457223"></p>
+<p>使用wufzz进行目录探测</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154527170.png" alt="image-20210219154527170"></p>
+<p>竟然没扫到，使用dirmap工具爆破</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">python3</span> <span class="selector-tag">dirmap</span><span class="selector-class">.py</span> <span class="selector-tag">-i</span> 172<span class="selector-class">.16</span><span class="selector-class">.237</span><span class="selector-class">.6</span> <span class="selector-tag">-lcf</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154610114.png" alt="image-20210219154610114"></p>
+<p>弱口令root/root进入进入phpmyadmin</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154635594.png" alt="image-20210219154635594"></p>
+<p>phpmyAdmin后台写webshell，且是windows系统，尝试写shell</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154803569.png" alt="image-20210219154803569"></p>
+<p>secure_file_priv的值为NULL，不能利用写into outfile写木马getshell</p>
+<p>修改general_log为on</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154825715.png" alt="image-20210219154825715"></p>
+<p>执行成功，可以看到路径</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219154906265.png" alt="image-20210219154906265"></p>
+<p>写入shell</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160539298.png" alt="image-20210219160539298"></p>
+<p>蚁剑连接成功</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160558750.png" alt="image-20210219160558750"></p>
+<p>生成cobalt strike马上传</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160623632.png" alt="image-20210219160623632"></p>
+<p>执行cobaltstrike马，上线成功</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160649960.png" alt="image-20210219160649960"></p>
+<h3 id="内网渗透"><a href="#内网渗透" class="headerlink" title="内网渗透"></a>内网渗透</h3><p>####信息收集</p>
+<p>查看是否存在域 <code>ifconfig/all</code></p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160718328.png" alt="image-20210219160718328"></p>
+<p>查看域信息 <code>net view</code></p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160732355.png" alt="image-20210219160732355"></p>
+<p>查看主域信息：<code>net view /domain</code></p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160812019.png" alt="image-20210219160812019"></p>
+<p>查看时间服务器：<code>net time /domain</code></p>
+<p>未做进程注入，执行失败</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160853237.png" alt="image-20210219160853237"></p>
+<p>查询当前的登录域与用户信息：<code>net config workstation</code></p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160926172.png" alt="image-20210219160926172"></p>
+<p>查看当前域的所有用户：<code>net user /domain</code></p>
+<p>未做进程注入，执行失败</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219160944742.png" alt="image-20210219160944742"></p>
+<p>获取域内用户的详细信息：<code>wmic useraccount get /all</code></p>
+<p>可以获取到用户名，描述信息，SID 域名等</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161018172.png" alt="image-20210219161018172"></p>
+<p>查看所有域成员计算机列表：<code>net group &quot;domain computers&quot; /domain</code></p>
+<p>未做进程注入 执行出错</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161041081.png" alt="image-20210219161041081"></p>
+<p>查看域管理员：<code>net group &quot;domain admins&quot; /domain</code></p>
+<p>未做进程注入执行出错</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161103742.png" alt="image-20210219161103742"></p>
+<p>获取域密码信息：<code>net accounts /domain</code></p>
+<p>未做进程注入执行出错</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161320857.png" alt="image-20210219161320857"></p>
+<p>获取域信任信息 (cs 里执行提示不是内部或外部命令)：<code>nltest /domain_trusts</code></p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161338806.png" alt="image-20210219161338806"></p>
+<h4 id="横向移动"><a href="#横向移动" class="headerlink" title="横向移动"></a>横向移动</h4><p>先前<code>net view</code>已经获取过信息</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161444240.png" alt="image-20210219161444240"></p>
+<p>尝试下主机发现</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for /L %I in (<span class="number">1</span>,<span class="number">1</span>,<span class="number">254</span>) DO @ping -w <span class="number">1</span> -n <span class="number">1</span> <span class="number">192.168</span><span class="number">.52</span>.%I | findstr <span class="string">"TTL="</span></span><br></pre></td></tr></table></figure>
+
+<p>发现143为本机，发现141主机，感觉此操作不太行</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161529145.png" alt="image-20210219161529145"></p>
+<p>使用Cobalt strike自带的端口扫描进行探测</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161619856.png" alt="image-20210219161619856"></p>
+<p>发现138和141且都开启了445端口</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161648692.png" alt="image-20210219161648692"></p>
+<p>抓取下141的hash</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161715474.png" alt="image-20210219161715474"></p>
+<p>查看到抓取的密码和hash如下</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161738793.png" alt="image-20210219161738793"></p>
+<p>尝试使用psexec使138和141上线</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161821460.png" alt="image-20210219161821460"></p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162032313.png" alt="image-20210219162032313"></p>
+<p>psexec64不行换成psexec成功，但是并未上线，因为处于内网环境</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219161933827.png" alt="image-20210219161933827"></p>
+<p>cobalt strike建立smb listen上线</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162105147.png" alt="image-20210219162105147"></p>
+<p>再次使用psexec上线成功</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162138461.png" alt="image-20210219162138461"></p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162148073.png" alt="image-20210219162148073"></p>
+<p>同样的方式再次上线另一台</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162215665.png" alt="image-20210219162215665"></p>
+<p>至此已拿下域控</p>
+<p><img src="//choge.top/2021/02/19/vulnstack1靶机实战/image-20210219162230159.png" alt="image-20210219162230159"></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://v0w.top/2020/07/19/vulnstack1/#psexec-%E4%BD%BF%E7%94%A8%E5%87%AD%E8%AF%81%E7%99%BB%E5%BD%95%E5%85%B6%E4%BB%96%E4%B8%BB%E6%9C%BA" target="_blank" rel="noopener">https://v0w.top/2020/07/19/vulnstack1/#psexec-%E4%BD%BF%E7%94%A8%E5%87%AD%E8%AF%81%E7%99%BB%E5%BD%95%E5%85%B6%E4%BB%96%E4%B8%BB%E6%9C%BA</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2021/02/19/vulnstack1靶机实战/" title="vulnstack1靶机实战">https://choge.top/2021/02/19/vulnstack1靶机实战/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/red-team/" rel="tag"># red team</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/12/24/NETHUNTER/" rel="next" title="nexus5刷kali">
+                  <i class="fa fa-chevron-left"></i> nexus5刷kali
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2021/02/20/cfs三层靶机渗透/" rel="prev" title="cfs三层靶机渗透">
+                  cfs三层靶机渗透 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#准备工作"><span class="nav-number">1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外网打点"><span class="nav-number">2.</span> <span class="nav-text">外网打点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内网渗透"><span class="nav-number">3.</span> <span class="nav-text">内网渗透</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#横向移动"><span class="nav-number">3.1.</span> <span class="nav-text">横向移动</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

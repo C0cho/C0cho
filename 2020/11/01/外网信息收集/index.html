@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="渗透的本质是信息收集信息收集越全，攻击面就越广，拿下目标的可能性就越大https://mp.weixin.qq.com/s/YNp8uKlSSS4be1cOeIIKxQ资产发现开源情报whois信息查询查找真实IPping测试网站· https://wepcc.com/· http://ping.chinaz.com/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="外网信息收集（草稿，未完成）">
+<meta property="og:url" content="https://choge.top/2020/11/01/外网信息收集/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="渗透的本质是信息收集信息收集越全，攻击面就越广，拿下目标的可能性就越大https://mp.weixin.qq.com/s/YNp8uKlSSS4be1cOeIIKxQ资产发现开源情报whois信息查询查找真实IPping测试网站· https://wepcc.com/· http://ping.chinaz.com/">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201124154612170.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201121215435309.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201125230216171.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201125134156854.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201126155323793.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201126160435751.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201126164228264.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200721111125407.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3l1a2lub3Jvbmc=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X3BuZy8zWlg0TzFReEd0TUpkZk80bjdBNVpBNHpYYmtJR3NOZDRhell1ZlR5Y0syODloZmVEUjVta2xEbGJYdzZuRFp4RDJnaWFwNVlObUdpY05BR3IxMFBDNXBnLzY0MA?x-oss-process=image/format,png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201111103805231.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/18.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/19.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/20.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/21-1.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/22.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/27.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/23.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/25-1.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/26-1.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201111163723352.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/6-2.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/7-2.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/10-2.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/15.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/11-2.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/12-2.png">
+<meta property="og:image" content="http://blog.nsfocus.net/wp-content/uploads/2018/03/13-2.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1474078/201902/1474078-20190220215432870-1910572151.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201126154447928.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201203164957124.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201203192520442.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201203193158788.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201203192733600.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201203193445675.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201203194614115.png">
+<meta property="og:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201203213257482.png">
+<meta property="og:updated_time" content="2021-02-18T08:30:30.582Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="外网信息收集（草稿，未完成）">
+<meta name="twitter:description" content="渗透的本质是信息收集信息收集越全，攻击面就越广，拿下目标的可能性就越大https://mp.weixin.qq.com/s/YNp8uKlSSS4be1cOeIIKxQ资产发现开源情报whois信息查询查找真实IPping测试网站· https://wepcc.com/· http://ping.chinaz.com/">
+<meta name="twitter:image" content="https://choge.top/2020/11/01/外网信息收集/image-20201124154612170.png">
+  <link rel="canonical" href="https://choge.top/2020/11/01/外网信息收集/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>外网信息收集（草稿，未完成） | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/11/01/外网信息收集/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            外网信息收集（草稿，未完成）
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-11-01 15:56:33" itemprop="dateCreated datePublished" datetime="2020-11-01T15:56:33+08:00">2020-11-01</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-02-18 16:30:30" itemprop="dateModified" datetime="2021-02-18T16:30:30+08:00">2021-02-18</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>14k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>12 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>渗透的本质是信息收集</p><p>信息收集越全，攻击面就越广，拿下目标的可能性就越大</p><p><a href="https://mp.weixin.qq.com/s/YNp8uKlSSS4be1cOeIIKxQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/YNp8uKlSSS4be1cOeIIKxQ</a></p><h3 id="资产发现"><a href="#资产发现" class="headerlink" title="资产发现"></a>资产发现</h3><h4 id="开源情报"><a href="#开源情报" class="headerlink" title="开源情报"></a>开源情报</h4><h4 id="whois信息查询"><a href="#whois信息查询" class="headerlink" title="whois信息查询"></a>whois信息查询</h4><h4 id="查找真实IP"><a href="#查找真实IP" class="headerlink" title="查找真实IP"></a>查找真实IP</h4><p>ping测试网站</p><p>· <a href="https://wepcc.com/" target="_blank" rel="noopener">https://wepcc.com/</a></p><p>· <a href="http://ping.chinaz.com/" target="_blank" rel="noopener">http://ping.chinaz.com/</a></p><a id="more"></a>
+
+
+
+
+
+<p>· <a href="http://ping.aizhan.com/" target="_blank" rel="noopener">http://ping.aizhan.com/</a></p>
+<h5 id="CDN绕过"><a href="#CDN绕过" class="headerlink" title="CDN绕过"></a>CDN绕过</h5><p><strong>(1)查询子域名：</strong>毕竟 CDN 还是不便宜的，所以很多站长可能只会对主站或者流量大的子站点做了 CDN，而很多小站子站点又跟主站在同一台服务器或者同一个C段内，此时就可以通过查询子域名对应的 IP 来辅助查找网站的真实IP。传送门——&gt; 子域名信息查询</p>
+<p><strong>(2)查询主域名</strong>：以前用CDN的时候有个习惯，只让WWW域名使用cdn，秃域名不适用，为的是在维护网站时更方便，不用等cdn缓存。所以试着把目标网站的www去掉，ping一下看ip是不是变了，您别说，这个方法还真是屡用不爽。</p>
+<p><strong>(3)邮件服务器：</strong>一般的邮件系统都在内部，没有经过CDN的解析，通过目标网站用户注册或者RSS订阅功能，查看邮件，寻找邮件头中的邮件服务器域名IP，ping这个邮件服务器的域名，就可以获得目标的真实IP(必须是目标自己的邮件服务器，第三方或者公共邮件服务器是没有用的)。</p>
+<p><strong>(4)查看域名历史解析记录：</strong>也许目标很久之前没有使用CDN，所以可能会存在使用 CDN 前的记录。所以可以通过网站<a href="https://www.netcraft.com" target="_blank" rel="noopener">https://www.netcraft.com</a> 来观察域名的IP历史记录。</p>
+<p><strong>(5)国外访问</strong>：国内的CDN往往只对国内用户的访问加速，而国外的CDN就不一定了。因此，通过国外在线代理网站<a href="https://asm.ca.com/en/ping.php" target="_blank" rel="noopener">https://asm.ca.com/en/ping.php</a> 访问 ，可能会得到真实的ip地址。</p>
+<p><strong>(6)Nslookup查询</strong>：查询域名的NS记录、MX记录、TXT记录等很有可能指向的是真实ip或同C段服务器。传送门：各种解析记录</p>
+<p><strong>(7)网站漏洞</strong>：利用网站自身存在的漏洞，很多情况下会泄露服务器的真实IP地址</p>
+<p><strong>(8)Censys查询SSL证书找到真实IP：</strong>利用“Censys网络空间搜索引擎”搜索网站的SSL证书及HASH，在<a href="https://crt.sh上查找目标网站SSL证书的HASH，然后再用Censys搜索该HASH即可得到真实IP地址" target="_blank" rel="noopener">https://crt.sh上查找目标网站SSL证书的HASH，然后再用Censys搜索该HASH即可得到真实IP地址</a></p>
+<p>443.https.tls.certificate.parsed.extensions.subject_alt_name.dns_names:***trade.com</p>
+<h5 id="使用IP地址访问"><a href="#使用IP地址访问" class="headerlink" title="使用IP地址访问"></a>使用IP地址访问</h5><p>查找出真实IP地址后，使用真实IP地址和网址绑定写入本地hosts文件就能直接访问</p>
+<h4 id="dns"><a href="#dns" class="headerlink" title="dns"></a>dns</h4><h4 id="子域"><a href="#子域" class="headerlink" title="子域"></a>子域</h4><h5 id="Layer子域名爆破工具"><a href="#Layer子域名爆破工具" class="headerlink" title="Layer子域名爆破工具"></a>Layer子域名爆破工具</h5><h5 id="subDomainBrute"><a href="#subDomainBrute" class="headerlink" title="subDomainBrute"></a>subDomainBrute</h5><h5 id="HTTP证书查询"><a href="#HTTP证书查询" class="headerlink" title="HTTP证书查询"></a>HTTP证书查询</h5><p><a href="https://crt.sh" target="_blank" rel="noopener">https://crt.sh</a></p>
+<h5 id="Google查询"><a href="#Google查询" class="headerlink" title="Google查询"></a>Google查询</h5><p>Site:baidu.com -www</p>
+<h4 id="sublist3r"><a href="#sublist3r" class="headerlink" title="sublist3r"></a>sublist3r</h4><p>python sublist3r.py -d target.com -b -t 50 -o dns.txt</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201124154612170.png" alt="image-20201124154612170"></p>
+<p>将域名解析为ip</p>
+<p>for i in `cat dns.txt` ;do host $i|grep -E -o “([0-9]{1,3}[.]{3}[0-9]{1,3})”;done&gt;ips.txt</p>
+<p>C段</p>
+<p>cat ips.txt |sort|uniq|grep -E -o “([0-9]{1,3}[.])”uniq -c |awk ‘{if ($1&gt;=5) print $2”0/24”}’</p>
+<p><a href="https://github.com/FortyNorthSecurity/EyeWitness" target="_blank" rel="noopener">https://github.com/FortyNorthSecurity/EyeWitness</a></p>
+<p>11.04.56.png</p>
+<p>11.06.13.png</p>
+<h5 id="Xray"><a href="#Xray" class="headerlink" title="Xray"></a>Xray</h5><h5 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h5><p>yougestsignal</p>
+<p><a href="https://www.yougetsignal.com/" target="_blank" rel="noopener">https://www.yougetsignal.com/</a></p>
+<h5 id="自治系统查询"><a href="#自治系统查询" class="headerlink" title="自治系统查询"></a>自治系统查询</h5><p><a href="https://bgp.he.net/" target="_blank" rel="noopener">https://bgp.he.net/</a></p>
+<p>渗透一些大型目标时，在目标公司有 AS（自治系统）的情况下可以通过 个运营商来查询目标公司的自治系统号和 CIDR 路由。自治系统分配情況也可以在 IANA 查询到</p>
+<p><a href="https://www.iana.org/assignments/as-numbers/as-numbers" target="_blank" rel="noopener">https://www.iana.org/assignments/as-numbers/as-numbers</a>. Xhtml</p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p>子域名查询在渗透测试中非常重要，但不同的工具，不同的设备活网络查询出的子域名并不相同，子域名查询建议使用2-3个工具组合使用。</p>
+<h4 id="旁站"><a href="#旁站" class="headerlink" title="旁站"></a>旁站</h4><p><a href="http://www.webscan.cc/" target="_blank" rel="noopener">http://www.webscan.cc/</a></p>
+<p><a href="http://dns.aizhan.com" target="_blank" rel="noopener">http://dns.aizhan.com</a></p>
+<p><a href="http://s.tool.chinaz.com/same" target="_blank" rel="noopener">http://s.tool.chinaz.com/same</a></p>
+<h4 id="C段"><a href="#C段" class="headerlink" title="C段"></a>C段</h4><h4 id="网络空间搜索引擎"><a href="#网络空间搜索引擎" class="headerlink" title="网络空间搜索引擎"></a>网络空间搜索引擎</h4><p>shodan</p>
+<p><a href="https://nosec.org/home/detail/3713.html" target="_blank" rel="noopener">https://nosec.org/home/detail/3713.html</a></p>
+<p>ZoomEye</p>
+<p><a href="https://www.zoomeye.org/" target="_blank" rel="noopener">https://www.zoomeye.org/</a></p>
+<h3 id="端口扫描"><a href="#端口扫描" class="headerlink" title="端口扫描"></a>端口扫描</h3><h4 id="域名解析为ip"><a href="#域名解析为ip" class="headerlink" title="域名解析为ip"></a>域名解析为ip</h4><h4 id="nmap"><a href="#nmap" class="headerlink" title="nmap"></a>nmap</h4><p>nmap常用语法</p>
+<p><a href="https://mp.weixin.qq.com/s?__biz=MzI2NDQyNzg1OA==&amp;mid=2247483849&amp;idx=1&amp;sn=7448559219c08db3913d027064af17da&amp;chksm=eaad81f4ddda08e24435273ce2ce762060197223ca3719a38589299bbe5b3471e36531201380&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzI2NDQyNzg1OA==&amp;mid=2247483849&amp;idx=1&amp;sn=7448559219c08db3913d027064af17da&amp;chksm=eaad81f4ddda08e24435273ce2ce762060197223ca3719a38589299bbe5b3471e36531201380&amp;scene=21#wechat_redirect</a></p>
+<p>nmap -p 1-65535 -T4 -A -v 47.91.163.1-254 -oX 47.91.163.1-254.xml</p>
+<p>扫描47.91.163.1-254段IP地址，使用快速扫描模式，输出47.91.163.1-254.xml</p>
+<p>nmap -v 47.91.163.1-254</p>
+<p>扫描C段常见TCP端口</p>
+<p>namp -O 47.91.163.1</p>
+<p>探测47.91.163.1服务器OS版本和TCP端口开放情况</p>
+<p>nmap -sn 10.0.1.161-166</p>
+<p>扫描存活主机 </p>
+<p>namp -e eth0 10.0.1.168 -S 10.0.1.168 -Pn</p>
+<p>使用伪装地址10.0.1.168对10.0.1.161进行扫描</p>
+<p>nmap -iflist</p>
+<p>查看本地路由和接口</p>
+<p>nmap –script smb-vuln-ms17-010.nse -p 445 192.168.1.1</p>
+<p>nmap -script = samba-vuln-cve-2012-1182 -p 139 192.168.1.3</p>
+<p>对主机192.168.1.1使用漏洞脚本smb-vuln-ms17-010.nse进行检测</p>
+<p>对主机192.168.1.3使用漏洞脚本amba-vuln-cve-2012-1182进行检测</p>
+<p>nmap –script whios-domain.nse <a href="http://www.secbang.com" target="_blank" rel="noopener">www.secbang.com</a></p>
+<p>获取secbang.com的域名注册情况，该脚本对国外域名支持较好</p>
+<p>nmap –script ftp-brute -p 21 127.0.0.1</p>
+<p>暴力破解127.0.0.1的ftp账号</p>
+<p>nmap -sv -script = http-enum 127.0.0.1</p>
+<p>枚举127.0.0.1的目录</p>
+<p>nmap-bootstrap.xsl模板将nmap扫描结果转换成HTML格式</p>
+<p>nmap -iL ips.txt -sS -T4 -A -sC -oA scanme</p>
+<p> xsltproc -o scanme.html nmap-bootstrap.xsl scanme.xml</p>
+<ol>
+<li>yum install libxslt</li>
+</ol>
+<p><a href="https://github.com/davidtavarez/WebMap" target="_blank" rel="noopener">https://github.com/davidtavarez/WebMap</a></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>端口号</td>
+<td>端口说明</td>
+<td>攻击技巧</td>
+</tr>
+<tr>
+<td>21/22/69</td>
+<td>ftp/tftp：文件传输协议</td>
+<td>爆破\嗅探\溢出\后门</td>
+</tr>
+<tr>
+<td>22</td>
+<td>ssh：远程连接</td>
+<td>爆破OpenSSH；28个退格</td>
+</tr>
+<tr>
+<td>23</td>
+<td>telnet：远程连接</td>
+<td>爆破\嗅探</td>
+</tr>
+<tr>
+<td>25</td>
+<td>smtp：邮件服务</td>
+<td>邮件伪造</td>
+</tr>
+<tr>
+<td>53</td>
+<td>DNS：域名系统</td>
+<td>DNS区域传输\DNS劫持\DNS缓存投毒\DNS欺骗\利用DNS隧道技术刺透防火墙</td>
+</tr>
+<tr>
+<td>67/68</td>
+<td>dhcp</td>
+<td>劫持\欺骗</td>
+</tr>
+<tr>
+<td>110</td>
+<td>pop3</td>
+<td>爆破</td>
+</tr>
+<tr>
+<td>139</td>
+<td>samba</td>
+<td>爆破\未授权访问\远程代码执行</td>
+</tr>
+<tr>
+<td>143</td>
+<td>imap</td>
+<td>爆破</td>
+</tr>
+<tr>
+<td>161</td>
+<td>snmp</td>
+<td>爆破</td>
+</tr>
+<tr>
+<td>389</td>
+<td>ldap</td>
+<td>注入攻击\未授权访问</td>
+</tr>
+<tr>
+<td>445</td>
+<td>smb</td>
+<td>永恒之蓝</td>
+</tr>
+<tr>
+<td>512/513/514</td>
+<td>linux r</td>
+<td>直接使用rlogin</td>
+</tr>
+<tr>
+<td>873</td>
+<td>rsync</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>1080</td>
+<td>socket</td>
+<td>爆破：进行内网渗透</td>
+</tr>
+<tr>
+<td>1352</td>
+<td>lotus</td>
+<td>爆破：弱口令\信息泄漏：源代码</td>
+</tr>
+<tr>
+<td>1433</td>
+<td>mssql</td>
+<td>爆破：使用系统用户登录\注入攻击</td>
+</tr>
+<tr>
+<td>1521</td>
+<td>oracle</td>
+<td>爆破：TNS\注入攻击</td>
+</tr>
+<tr>
+<td>2049</td>
+<td>nfs</td>
+<td>配置不当</td>
+</tr>
+<tr>
+<td>2181</td>
+<td>zookeeper</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>3306</td>
+<td>mysql</td>
+<td>爆破\拒绝服务\注入</td>
+</tr>
+<tr>
+<td>3389</td>
+<td>rdp</td>
+<td>爆破\Shift后门</td>
+</tr>
+<tr>
+<td>4848</td>
+<td>glassfish</td>
+<td>爆破：控制台弱口令\认证绕过</td>
+</tr>
+<tr>
+<td>5000</td>
+<td>sybase/DB2</td>
+<td>爆破\注入</td>
+</tr>
+<tr>
+<td>5432</td>
+<td>postgresql</td>
+<td>缓冲区溢出\注入攻击\爆破：弱口令</td>
+</tr>
+<tr>
+<td>5632</td>
+<td>pcanywhere</td>
+<td>拒绝服务\代码执行</td>
+</tr>
+<tr>
+<td>5900</td>
+<td>vnc</td>
+<td>爆破：弱口令\认证绕过</td>
+</tr>
+<tr>
+<td>6379</td>
+<td>redis</td>
+<td>未授权访问\爆破：弱口令</td>
+</tr>
+<tr>
+<td>7001</td>
+<td>weblogic</td>
+<td>Java反序列化\控制台弱口令\控制台部署webshell</td>
+</tr>
+<tr>
+<td>80/443/8080</td>
+<td>web</td>
+<td>常见web攻击\控制台爆破\对应服务器版本漏洞</td>
+</tr>
+<tr>
+<td>8069</td>
+<td>zabbix</td>
+<td>远程命令执行</td>
+</tr>
+<tr>
+<td>9090</td>
+<td>websphere控制台</td>
+<td>爆破：控制台弱口令\Java反序列</td>
+</tr>
+<tr>
+<td>9200/9300</td>
+<td>elasticsearch</td>
+<td>远程代码执行</td>
+</tr>
+<tr>
+<td>11211</td>
+<td>memcacache</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>27017</td>
+<td>mongodb</td>
+<td></td>
+</tr>
+</tbody></table>
+<h4 id="mascan"><a href="#mascan" class="headerlink" title="mascan"></a>mascan</h4><p><a href="https://github.com/robertdavidgraham/masscan" target="_blank" rel="noopener">https://github.com/robertdavidgraham/masscan</a></p>
+<p>扫描一个包</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201121215435309.png" alt="image-20201121215435309"></p>
+<p>根据带宽设置速度</p>
+<p>Masscan发送一个包是54字节，如果我们每秒钟要发送10w/秒，就需要54*100000/1024/1024=5.14M以上的带宽。通常windows每秒能发25W/秒，linux250W/秒。</p>
+<p>mascan </p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201125230216171.png" alt="image-20201125230216171"></p>
+<h5 id="EyeWitness"><a href="#EyeWitness" class="headerlink" title="EyeWitness"></a>EyeWitness</h5><p><a href="https://github.com/FortyNorthSecurity/EyeWitness/tree/master" target="_blank" rel="noopener">https://github.com/FortyNorthSecurity/EyeWitness/tree/master</a></p>
+<p>其他工具<a href="https://github.com/breenmachine/httpscreenshot" target="_blank" rel="noopener">https://github.com/breenmachine/httpscreenshot</a></p>
+<p>kali下</p>
+<p>apt-get install xvfb</p>
+<p>pip3 install xvfb</p>
+<p><a href="https://github.com/mozilla/geckodriver/releases/download/v0.28.0/geckodriver-v0.28.0-linux32.tar.gz" target="_blank" rel="noopener">https://github.com/mozilla/geckodriver/releases/download/v0.28.0/geckodriver-v0.28.0-linux32.tar.gz</a></p>
+<p>解压后放入 /usr/local/bin/ 下 chmod +x加入权限</p>
+<p>Python EyeWitness.py  -f target.com-dns.txt –web  –add-http-ports 80,81,88,888,2082,2083,3122,4848,6588,7000,7001,7002,7003,8000,8080,8081,8089,8090,8500,8888,9000,9001,9200,9080,10000,10051,50000 –add-https-ports 43,8443,9043</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201125134156854.png" alt="image-20201125134156854"></p>
+<p>前面看到的是用 Eyewitness 解析 DNS.txt，我们也可以直接解析 nmap 的扫描结果</p>
+<p>nmap -T4  ip.txt -oX  scan.xml -p 80,81,88,443,888,2082,2083,3122,4848,6588,7000,7001,7002,7003,8000,8080,8081,8089,8090,8443,8500,8888,9000,9001,9200,9043,9080,10000,10051,50000 -Pn –open -n</p>
+<p> python EyeWitness.py -x scan.xml –web –no-dns –active-scan</p>
+<p>namp解析工具</p>
+<p><a href="https://github.com/ilyar/xsltproc" target="_blank" rel="noopener">https://github.com/ilyar/xsltproc</a></p>
+<p>nmap解析模版</p>
+<p><a href="https://github.com/honze-net/nmap-bootstrap-xsl" target="_blank" rel="noopener">https://github.com/honze-net/nmap-bootstrap-xsl</a></p>
+<p>xsltproc -o mt.html nmap-bootstrap.xsl mt.xml</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201126155323793.png" alt="image-20201126155323793"></p>
+<p><a href="https://github.com/Sholway/nmap-parse-output" target="_blank" rel="noopener">https://github.com/Sholway/nmap-parse-output</a></p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201126160435751.png" alt="image-20201126160435751"></p>
+<p>./xray_darwin_amd64 webscan –url-file 1.file –html-output web.html</p>
+<p>文件格式</p>
+<p><a href="http://172.16.49.233:8080/" target="_blank" rel="noopener">http://172.16.49.233:8080/</a><br><a href="http://172.16.49.233:7001/" target="_blank" rel="noopener">http://172.16.49.233:7001/</a></p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201126164228264.png" alt="image-20201126164228264"></p>
+<h3 id="资产梳理"><a href="#资产梳理" class="headerlink" title="资产梳理"></a>资产梳理</h3><h4 id="获取网页"><a href="#获取网页" class="headerlink" title="获取网页"></a>获取网页</h4><p>看截图</p>
+<h4 id="快速查找漏洞库"><a href="#快速查找漏洞库" class="headerlink" title="快速查找漏洞库"></a>快速查找漏洞库</h4><h3 id="批量漏洞检测"><a href="#批量漏洞检测" class="headerlink" title="批量漏洞检测"></a>批量漏洞检测</h3><p>Web logic</p>
+<p><a href="https://github.com/rabbitmask/WeblogicScan" target="_blank" rel="noopener">https://github.com/rabbitmask/WeblogicScan</a>  可扫出漏洞</p>
+<p>goby</p>
+<p>poc</p>
+<p>Strust2</p>
+<p>Weblogic</p>
+<p><a href="https://github.com/rabbitmask/WeblogicScan" target="_blank" rel="noopener">https://github.com/rabbitmask/WeblogicScan</a></p>
+<p>thinkphp5</p>
+<p><a href="https://github.com/Mr-xn/Penetration_Testing_POC/tree/master/tp5-getshell" target="_blank" rel="noopener">https://github.com/Mr-xn/Penetration_Testing_POC/tree/master/tp5-getshell</a></p>
+<p>汇总</p>
+<p><a href="https://github.com/Mr-xn/Penetration_Testing_POC" target="_blank" rel="noopener">https://github.com/Mr-xn/Penetration_Testing_POC</a></p>
+<p>K8工具</p>
+<p><a href="https://github.com/k8gege/K8tools" target="_blank" rel="noopener">https://github.com/k8gege/K8tools</a></p>
+<h3 id="单独站点信息收集"><a href="#单独站点信息收集" class="headerlink" title="单独站点信息收集"></a>单独站点信息收集</h3><p>对网站whois查询看注册人、手机号、邮箱等（可以收集起来放到密码生成工具）；<img src="https://img-blog.csdnimg.cn/20200721111125407.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3l1a2lub3Jvbmc=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p><strong>二、备案号查询</strong></p>
+<p>访问<a href="http://www.beianbeian.com/网站" target="_blank" rel="noopener">http://www.beianbeian.com/网站</a></p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X3BuZy8zWlg0TzFReEd0TUpkZk80bjdBNVpBNHpYYmtJR3NOZDRhell1ZlR5Y0syODloZmVEUjVta2xEbGJYdzZuRFp4RDJnaWFwNVlObUdpY05BR3IxMFBDNXBnLzY0MA?x-oss-process=image/format,png" alt="img"></p>
+<h4 id="操作系统"><a href="#操作系统" class="headerlink" title="操作系统"></a>操作系统</h4><p>nmap -O IP地址</p>
+<p>nmap -A IP地址</p>
+<p>ping IP地址，观察TTL值，一般来说，Windows的TTL为128，Linux为64。一般大于100的Windows，几十到100为Linux，但是此方法不一定准确</p>
+<h4 id="网站容器"><a href="#网站容器" class="headerlink" title="网站容器"></a>网站容器</h4><p>apache、nginx、tomcat、IIS</p>
+<p>whatweb </p>
+<h4 id="脚本类型"><a href="#脚本类型" class="headerlink" title="脚本类型"></a>脚本类型</h4><p>php、jsp、asp、aspx</p>
+<p>判断方法</p>
+<p>1：可以根据网站URL来判断</p>
+<p>2：site:xxx  filetype:php</p>
+<p>3：浏览器插件来判断 Wappalyzer</p>
+<p><a href="https://www.netcraft.com/" target="_blank" rel="noopener">https://www.netcraft.com/</a></p>
+<p><a href="https://sitereport.netcraft.com/?url=http%3A%2F%2Ftestphp.vulnweb.com%2F" target="_blank" rel="noopener">https://sitereport.netcraft.com/?url=http%3A%2F%2Ftestphp.vulnweb.com%2F</a></p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201111103805231.png" alt="image-20201111103805231"></p>
+<p>whatweb </p>
+<h4 id="数据库类型"><a href="#数据库类型" class="headerlink" title="数据库类型"></a>数据库类型</h4><p>mysql、oracle、access、sqlserver</p>
+<p>端口判断</p>
+<p>脚本类型做大致判断</p>
+<h4 id="cms"><a href="#cms" class="headerlink" title="cms"></a>cms</h4><p><strong>HTTP 标头</strong></p>
+<ul>
+<li>标识 web 应用程序框架的最基本形式是查看 HTTP 响应标头中的 X-Powered-By  字段。</li>
+</ul>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/18.png" alt="img"></p>
+<p><strong>c) Cookies</strong></p>
+<p>确定当前 web 框架的另一个类似的、更可靠的方法是特定框架的 cookie。</p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/19.png" alt="img"></p>
+<p><strong>d) HTML 源代码</strong></p>
+<p>此技术基于在 HTML 页面源代码中查找某些模式。我们可以找到很多信息, 帮助测试人员识别特定的 web 应用程序。</p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/20.png" alt="img"></p>
+<p><strong>e）特定文件和文件夹</strong></p>
+<p>每个应用程序在服务器上都有自己的特定文件和文件夹结构。我们可以使用工具或手动访问它们。</p>
+<p>扫描器</p>
+<p>Test404 根据特定文件夹md5值</p>
+<p><strong>f）Dirbusting 示例</strong></p>
+<ul>
+<li>谷歌黑客技术</li>
+</ul>
+<p><a href="https://ssl.microsofttranslator.com/bv.aspx?from=&to=zh-CHS&a=https%3A%2F%2Fwww.exploit-db.com%2Fghdb%2F4675%2F" target="_blank" rel="noopener">https://www.exploit-db.com/ghdb/4675/</a></p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/21-1.png" alt="img"></p>
+<ul>
+<li>BurpSuite 入侵</li>
+</ul>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/22.png" alt="img"></p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/27.png" alt="img"></p>
+<p><strong>g）常见应用程序标识符</strong></p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/23.png" alt="img"></p>
+<p><strong>h）Nikto</strong></p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/25-1.png" alt="img"></p>
+<p><strong>i）Whatweb</strong></p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/26-1.png" alt="img"></p>
+<p> (1)  云悉：<a href="http://www.yunsee.cn/info.html" target="_blank" rel="noopener">http://www.yunsee.cn/info.html</a></p>
+<h4 id="目录扫描"><a href="#目录扫描" class="headerlink" title="目录扫描"></a>目录扫描</h4><p> 御剑</p>
+<p>dirbuster  字典比较关键</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201111163723352.png" alt="image-20201111163723352"></p>
+<p>wfuzz</p>
+<p>可以扫描多级目录</p>
+<p>wfuzz -w /root/FuzzDicts/directoryDicts/en_dirctories_all.txt -w /root/FuzzDicts/directoryDicts/php/phpFileName.txt <a href="http://192.168.0.102/wordpress/FUZZ/FUZ2Z" target="_blank" rel="noopener">http://192.168.0.102/wordpress/FUZZ/FUZ2Z</a></p>
+<p>Webdirscan</p>
+<p>python2 webdirscan.py -o 1.txt -t 10 <a href="http://www.xx.com" target="_blank" rel="noopener">http://www.xx.com</a>    <em># -o 指定输出的文件，-t 指定线程数</em></p>
+<p>Dirsearch</p>
+<p><a href="https://github.com/maurosoria/dirsearch" target="_blank" rel="noopener">https://github.com/maurosoria/dirsearch</a></p>
+<p>cansina</p>
+<p><a href="https://github.com/deibit/cansina" target="_blank" rel="noopener">https://github.com/deibit/cansina</a></p>
+<p>dirmap</p>
+<p><a href="https://github.com/H4ckForJob/dirmap" target="_blank" rel="noopener">https://github.com/H4ckForJob/dirmap</a></p>
+<p>字典文件</p>
+<p><a href="https://github.com/Bo0oM/fuzz.txt" target="_blank" rel="noopener">https://github.com/Bo0oM/fuzz.txt</a></p>
+<p> robots.txt 文件是专门针对搜索引擎机器人robot 编写的一个纯文本文件。我们可以在这个文件中指定网站中不想被robot访问的目录。这样，我们网站的部分或全部内容就可以不被搜索引擎收录了，或者让搜索引擎只收录指定的内容。因此我们可以利用robots.txt让Google的机器人访问不了我们网站上的重要文件，GoogleHack的威胁也就不存在了。<br>假如编写的robots.txt文件内容如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">User-<span class="string">agent:</span> *</span><br><span class="line"><span class="string">Disallow:</span> <span class="regexp">/data/</span></span><br><span class="line"><span class="string">Disallow:</span> <span class="regexp">/db/</span><span class="string">Disallow:</span> <span class="regexp">/admin/</span></span><br><span class="line"><span class="string">Disallow:</span> <span class="regexp">/manager/</span><span class="string">Allow:</span><span class="regexp">/images/</span></span><br></pre></td></tr></table></figure>
+
+<p>其中“Disallow”参数后面的是禁止robot收录部分的路径，例如我们要让robot禁止收录网站目录下的“data”文件夹，只需要在Disallow参数后面加上 /data/ 即可。如果想增加其他目录，只需按此格式继续添加。文件编写完成后将其上传到网站的根目录，就可以让网站远离Google Hack了。</p>
+<p>虽然robots文件目的是让搜索蜘蛛不爬取想要保护的页面，但是如果我们知道了robots文件的内容的话，我们就可以知道目标网站哪些文件夹不让访问，从侧面说明这些文件夹是很重要的了。</p>
+<p>(2) .SVN泄露</p>
+<p>(3) .DS_Stroe文件泄露</p>
+<p>(4) .hg源码泄露</p>
+<h4 id="waf"><a href="#waf" class="headerlink" title="waf"></a>waf</h4><h4 id><a href="#" class="headerlink" title></a></h4><h4 id="Google语法"><a href="#Google语法" class="headerlink" title="Google语法"></a>Google语法</h4><p>地址</p>
+<p><a href="https://mp.weixin.qq.com/s?__biz=MzI2NDQyNzg1OA==&amp;mid=2247483847&amp;idx=1&amp;sn=de67435015780fab4dd5832d7f1b4930&amp;chksm=eaad81faddda08ec8ed5ae134a0ecf466474ce67163212386808fb19d0471f23e3bdf7514fce&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzI2NDQyNzg1OA==&amp;mid=2247483847&amp;idx=1&amp;sn=de67435015780fab4dd5832d7f1b4930&amp;chksm=eaad81faddda08ec8ed5ae134a0ecf466474ce67163212386808fb19d0471f23e3bdf7514fce&amp;scene=21#wechat_redirect</a></p>
+<p>intext:</p>
+<p>寻找正文中含有关键字的网页，例如：<strong>intext:后台登录</strong>  将只返回正文中包含 后台登录 的网页</p>
+<p>intitle:</p>
+<p>寻找标题中含有关键字的网页，例如：<strong>intitle:后台登录</strong>  将只返回标题中包含 后台登录 的网页，<strong>intitle:后台登录 密码</strong> 将返回标题中包含黑客而正文中包含中国的网页</p>
+<p>allintitle:</p>
+<p>用法和intitle类似，只不过可以指定多个词，例如： <strong>alltitle:后台登录 管理员</strong>  将返回标题中包含后台登录 和管理员的网页</p>
+<p><strong>inurl：</strong></p>
+<p>将返回url中含有关键词的网页：例如：<strong>inurl:Login</strong>  将返回url中含有 Login 的网页，查找管理员登录页面inurl:/admin/login，查找数据库管理页面inurl:/phpmyadmin/index.php</p>
+<p><strong>allinurl:</strong></p>
+<p>用法和inurl类似，只不过可以指定多个词，例如：<strong>inurl:Login admin</strong> 将返回url中含有 Login 和 admin 的网页</p>
+<p><strong>site:</strong></p>
+<p>指定访问的站点，例如： <strong>site:baidu.com inurl:Login</strong>  将只在baidu.com 中查找url中含有 Login的网页</p>
+<p><strong>filetype:</strong></p>
+<p>指定访问的文件类型，例如：<strong>site:baidu.com filetype:pdf</strong>   将只返回baidu.com站点上文件类型为pdf的网页</p>
+<p><strong>link:</strong></p>
+<p>指定链接的网页，例如：<strong>link:<a href="http://www.baidu.com" target="_blank" rel="noopener">www.baidu.com</a></strong>  将返回所有包含指向 <a href="http://www.baidu.com" target="_blank" rel="noopener">www.baidu.com</a> 的网页</p>
+<p><strong>related:</strong></p>
+<p>相似类型的网页，例如：<strong>related:<a href="http://www.xjtu.edu.cn" target="_blank" rel="noopener">www.xjtu.edu.cn</a></strong> 将返回与 <a href="http://www.xjtu.edu.cn" target="_blank" rel="noopener">www.xjtu.edu.cn</a> 相似的页面，相似指的是网页的布局相似</p>
+<p><strong>cache:</strong></p>
+<p>网页快照，谷歌将返回给你他存储下来的历史页面，如果你同时制定了其他查询词，将在搜索结果里以高亮显示，例如：<strong>cache:<a href="http://www.hackingspirits.com" target="_blank" rel="noopener">www.hackingspirits.com</a> guest</strong> ，将返回指定网站的缓存，并且正文中含有guest</p>
+<p><strong>info:</strong></p>
+<p>返回站点的指定信息，例如：<strong>info:<a href="http://www.baidu.com" target="_blank" rel="noopener">www.baidu.com</a></strong>  将返回百度的一些信息</p>
+<p><strong>define:</strong></p>
+<p>返回某个词语的定义，例如：<strong>define:Hacker</strong>　　将返回关于Hacker的定义</p>
+<p><strong>phonebook:</strong></p>
+<p>电话簿查询美国街道地址和电话号码信息。例如：<strong>phonebook:Lisa+CA</strong> 将返回名字里面包含Lisa并住在加州的人的所有名字</p>
+<p><strong>查找网站后台</strong></p>
+<p>· site:xx.com intext:管理</p>
+<p>· site:xx.com inurl:login</p>
+<p>· site:xx.com intitle:后台</p>
+<p><strong>查看服务器使用的程序</strong></p>
+<p>· site:xx.com filetype:asp</p>
+<p>· site:xx.com filetype:php</p>
+<p>· site:xx.com filetype:jsp</p>
+<p>· site:xx.com filetype:aspx</p>
+<p><strong>查看上传漏洞</strong></p>
+<p>· site:xx.com inurl:file</p>
+<p>· site:xx.com inurl:load</p>
+<p><strong>Index of</strong></p>
+<p>利用 Index of  语法去发现允许目录浏览的web网站，就像在本地的普通目录一样。下面是一些有趣的查询：</p>
+<p>· index of /admin</p>
+<p>· index of /passwd</p>
+<p>· index of /password</p>
+<p>· index of /mail</p>
+<p>· “index of /“ +passwd</p>
+<p>· “index of /“ +password.txt</p>
+<p>· “index of /“ +.htaccess</p>
+<p>· “index of /root”</p>
+<p>· “index of /cgi-bin”</p>
+<p>· “index of /logs”</p>
+<p>· “index of /config”</p>
+<p><strong>inurl</strong></p>
+<p>而上面这些命令中用的最多的就是 inurl: 了，利用这个命令，可以查到很多意想不到的东西</p>
+<p>· 利用 allinurl:winnt/system32/ 查询：列出的服务器上本来应该受限制的诸如“system32” 等目录，如果你运气足够好，你会发现“system32” 目录里的“cmd.exe” 文件，并能执行他，接下来就是提升权限并攻克了。</p>
+<p>· 查询 allinurl:wwwboard/passwd.txt  将列出所有有“WWWBoard Password vulnerability”漏洞的服务器，阅读更多请参见下面链接。</p>
+<p>· 查询 inurl:.bash_history  将列出互联网上可以看见 “inurl:.bash_history” 文件的服务器。这是一个命令历史文件，这个文件包含了管理员执行的命令，有时会包含一些敏感信息比如管理员键入的密码。</p>
+<p>· 查询 inurl:config.txt  将看见网上暴露了“inurl:config.txt”文件的服务器，这个文件包含了经过哈希编码的管理员的密码和数据库存取的关键信息。</p>
+<p>还有一些其他一些使用“inurl:”和“allinurl:”查询组合的例子</p>
+<p>· inurl:admin filetype:txt</p>
+<p>· inurl:admin filetype:db</p>
+<p>· inurl:admin filetype:cfg</p>
+<p>· inurl:mysql filetype:cfg</p>
+<p>· inurl:passwd filetype:txt</p>
+<p>· inurl:”wwwroot/*.”</p>
+<p>· inurl:adpassword.txt</p>
+<p>· inurl:webeditor.php</p>
+<p>· inurl:file_upload.php</p>
+<p>· inurl:gov filetype:xls “restricted”</p>
+<p>· index of ftp +.mdb allinurl:/cgi-bin/ +mailto</p>
+<p>site:*.tw intext:网页底部模版信息</p>
+<p>利用该方法需要一定的经验积累，以下是针定特定目标的信息收集思路。例如：对于不同的业务系统，得想出不同的联想词，例如商城系统，联想词可以为商家系统，对于大型的企业，OA登录、CRM等等的联想词。</p>
+<blockquote>
+<p>后台：site:xxx.xxx admin|login|system|管理|登录|内部|系统</p>
+<p>钓鱼：site:xxx.xxx 邮件|email</p>
+<p>社工：site:xxx.xxx qq|群|微信|腾讯</p>
+<p>越权：site:xxx.xxx inurl:uid=1|userid=1</p>
+<p>包含：site:xxx.xxx inurl:php?include=</p>
+</blockquote>
+<h4 id="github信息泄露"><a href="#github信息泄露" class="headerlink" title="github信息泄露"></a>github信息泄露</h4><p>Github的搜素语法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">in</span>:name <span class="built_in">test</span>               <span class="comment">#仓库标题搜索含有关键字 SpringCloud</span></span><br><span class="line"><span class="keyword">in</span>:descripton <span class="built_in">test</span>         <span class="comment">#仓库描述搜索含有关键字</span></span><br><span class="line"><span class="keyword">in</span>:readme <span class="built_in">test</span>             <span class="comment">#Readme文件搜素含有关键字</span></span><br><span class="line">stars:&gt;3000 <span class="built_in">test</span>           <span class="comment">#stars数量大于3000的搜索关键字</span></span><br><span class="line">stars:1000..3000 <span class="built_in">test</span>      <span class="comment">#stars数量大于1000小于3000的搜索关键字</span></span><br><span class="line">forks:&gt;1000 <span class="built_in">test</span>           <span class="comment">#forks数量大于1000的搜索关键字</span></span><br><span class="line">forks:1000..3000 <span class="built_in">test</span>      <span class="comment">#forks数量大于1000小于3000的搜索关键字</span></span><br><span class="line">size:&gt;=5000 <span class="built_in">test</span>           <span class="comment">#指定仓库大于5000k(5M)的搜索关键字</span></span><br><span class="line">pushed:&gt;2019-02-12 <span class="built_in">test</span>    <span class="comment">#发布时间大于2019-02-12的搜索关键字</span></span><br><span class="line">created:&gt;2019-02-12 <span class="built_in">test</span>   <span class="comment">#创建时间大于2019-02-12的搜索关键字</span></span><br><span class="line">user:<span class="built_in">test</span>                  <span class="comment">#用户名搜素</span></span><br><span class="line">license:apache-2.0 <span class="built_in">test</span>    <span class="comment">#明确仓库的 LICENSE 搜索关键字</span></span><br><span class="line">language:java <span class="built_in">test</span>         <span class="comment">#在java语言的代码中搜索关键字</span></span><br><span class="line">user:<span class="built_in">test</span> <span class="keyword">in</span>:name <span class="built_in">test</span>     <span class="comment">#组合搜索,用户名test的标题含有test的</span></span><br></pre></td></tr></table></figure>
+
+<p>使用 Github 进行邮件配置信息收集</p>
+<p>很多网站及系统都会使用 pop3 和 smtp 发送来邮件，不少开发者由于安全意识不足会把相关的配置信息也放到Github上，所以如果这时候我们动用一下google搜索命令语句，构造一下关键字，就能把这些信息给找出来了。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">site</span>:Github.com smtp</span><br><span class="line"><span class="attribute">site</span>:Github.com smtp <span class="variable">@qq</span>.com</span><br><span class="line"><span class="attribute">site</span>:Github.com smtp <span class="variable">@126</span>.com</span><br><span class="line"><span class="attribute">site</span>:Github.com smtp <span class="variable">@163</span>.com</span><br><span class="line"><span class="attribute">site</span>:Github.com smtp <span class="variable">@sina</span>.com.cn</span><br><span class="line"><span class="attribute">site</span>:Github.com smtp password</span><br><span class="line"><span class="attribute">site</span>:Github.com String password smtp</span><br><span class="line">我们也可以锁定域名搜索结合厂商域名 灵活运用例如搜百度的</span><br><span class="line"><span class="attribute">site</span>:Github.com smtp <span class="variable">@baidu</span>.com</span><br></pre></td></tr></table></figure>
+
+<p>使用Github进行数据库信息收集</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">site:Github.com sa password</span><br><span class="line">site:Github.com root password</span><br><span class="line">site:Github.com<span class="built_in"> User </span><span class="attribute">ID</span>=’sa’;Password</span><br><span class="line">site:Github.com inurl:sql</span><br></pre></td></tr></table></figure>
+
+<p>使用Github进行 SVN 信息收集</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">site:Github<span class="selector-class">.com</span> svn</span><br><span class="line">site:Github<span class="selector-class">.com</span> svn username</span><br><span class="line">site:Github<span class="selector-class">.com</span> svn password</span><br><span class="line">site:Github<span class="selector-class">.com</span> svn username password</span><br></pre></td></tr></table></figure>
+
+<p>使用Github进行综合信息收集</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">site:Github<span class="selector-class">.com</span> password</span><br><span class="line">site:Github<span class="selector-class">.com</span> ftp ftppassword</span><br><span class="line">site:Github<span class="selector-class">.com</span> 密码</span><br><span class="line">site:Github<span class="selector-class">.com</span> 内部</span><br></pre></td></tr></table></figure>
+
+<p>github工具</p>
+<p>gsil git-all-secret gitminer</p>
+<p><a href="https://github.com/UnkL4b/GitMiner" target="_blank" rel="noopener">https://github.com/UnkL4b/GitMiner</a></p>
+<h4 id="网站信息泄露"><a href="#网站信息泄露" class="headerlink" title="网站信息泄露"></a>网站信息泄露</h4><p>Robots.txt</p>
+<p>敏感文件扫描</p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/6-2.png" alt="img"></p>
+<p>meta tag</p>
+<p>Tag位于每个 HTML 文档的 HEAD 部分, 并且应该在一个 web 站点上的下述事件中保持一致：机器人/蜘蛛/爬虫的起始点不是从 webroot 以外的文档链接开始的。</p>
+<p>网络蜘蛛/机器人/爬虫可以故意忽略 “<meta name="ROBOTS">” tag。</p>
+<p><strong>工具</strong>: BurpSuite</p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/7-2.png" alt="img"></p>
+<h4 id="审查网页评论和信息泄露的元数据"><a href="#审查网页评论和信息泄露的元数据" class="headerlink" title="审查网页评论和信息泄露的元数据"></a>审查网页评论和信息泄露的元数据</h4><p>对于程序员来说, 在源代码中添加详细注释和元数据是非常普遍的,甚至是推荐的。但是, HTML 代码中包含的注释和元数据可能会对潜在攻击者暴露内部信息。应对源代码中的注释和元数据进行审查以确定是否泄露了任何信息。</p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/10-2.png" alt="img"></p>
+<h4 id="响应"><a href="#响应" class="headerlink" title="响应"></a>响应</h4><ul>
+<li>确认并记下任何header<img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/15.png" alt="img"></li>
+<li>确认哪里有重定向(300 HTTP 状态代码)，400 状态代码, 403 禁用和500内部服务器错误。</li>
+</ul>
+<p>一些注意事项:</p>
+<ul>
+<li><p>为了发现隐藏的参数, 可以使用Burpsuit的以下选项:</p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/11-2.png" alt="img"></p>
+</li>
+</ul>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/12-2.png" alt="img"></p>
+<ul>
+<li><p>使用Burpsuite 和状态代码来查找它们</p>
+<p><img src="http://blog.nsfocus.net/wp-content/uploads/2018/03/13-2.png" alt="img"></p>
+</li>
+</ul>
+<p>Javascript信息收集</p>
+<p>burpsuite插件</p>
+<p>F12查看js文件或者查看资源模块（Resource）查看可利用的js文件，比如conf.js，里面可能会涉及到一些暗藏的链接等敏感信息</p>
+<p>webserver信息收集</p>
+<p>通过火狐浏览器的查看元素方法，查找信息。</p>
+<p> <img src="https://img2018.cnblogs.com/blog/1474078/201902/1474078-20190220215432870-1910572151.png" alt="img"></p>
+<h3 id="社工信息收集"><a href="#社工信息收集" class="headerlink" title="社工信息收集"></a>社工信息收集</h3><h4 id="员工信息收集"><a href="#员工信息收集" class="headerlink" title="员工信息收集"></a>员工信息收集</h4><p>image-20201112162745573.png</p>
+<h4 id="邮箱收集"><a href="#邮箱收集" class="headerlink" title="邮箱收集"></a>邮箱收集</h4><h1 id="SimplyEmail"><a href="#SimplyEmail" class="headerlink" title="SimplyEmail"></a>SimplyEmail</h1><p><a href="https://github.com/SimplySecurity/SimplyEmail/archive/master.zip" target="_blank" rel="noopener">https://github.com/SimplySecurity/SimplyEmail/archive/master.zip</a></p>
+<p>20201112163818486.png</p>
+<p>注意密码次数</p>
+<p>20201112163959472.png</p>
+<h4 id="字典创建"><a href="#字典创建" class="headerlink" title="字典创建"></a>字典创建</h4><h4 id="TG机器人"><a href="#TG机器人" class="headerlink" title="TG机器人"></a>TG机器人</h4><h3 id="其他信息收集"><a href="#其他信息收集" class="headerlink" title="其他信息收集"></a>其他信息收集</h3><p>重要</p>
+<p>App</p>
+<p>微信小程序</p>
+<p>微信公众号</p>
+<p>天眼查，企查查，企信宝</p>
+<p>微博，抖音</p>
+<p>根据找到的信息再做信息收集发现</p>
+<p>20201112170533441.png</p>
+<p>参考</p>
+<p><a href="https://github.com/We5ter/Scanners-Box/blob/master/README_CN.md" target="_blank" rel="noopener">https://github.com/We5ter/Scanners-Box/blob/master/README_CN.md</a></p>
+<p><a href="https://github.com/Mr-xn/Penetration_Testing_POC" target="_blank" rel="noopener">https://github.com/Mr-xn/Penetration_Testing_POC</a></p>
+<p><a href="https://github.com/k8gege/K8tools" target="_blank" rel="noopener">https://github.com/k8gege/K8tools</a></p>
+<p>Tomcat 弱口令扫描器</p>
+<p><a href="https://github.com/magicming200/tomcat-weak-password-scanner" target="_blank" rel="noopener">https://github.com/magicming200/tomcat-weak-password-scanner</a></p>
+<p>根据nmap脚本解析 自动扫描器</p>
+<p><a href="https://github.com/x90skysn3k/brutespray" target="_blank" rel="noopener">https://github.com/x90skysn3k/brutespray</a></p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201126154447928.png" alt="image-20201126154447928"></p>
+<p>字典文件。pmaowu</p>
+<p><a href="https://github.com/pmiaowu/PmWebDirScan/tree/master/dict" target="_blank" rel="noopener">https://github.com/pmiaowu/PmWebDirScan/tree/master/dict</a></p>
+<p><a href="https://github.com/TheKingOfDuck/fuzzDicts" target="_blank" rel="noopener">https://github.com/TheKingOfDuck/fuzzDicts</a></p>
+<p>k8字典。 gituhub搜索</p>
+<p>日本大神 字典</p>
+<p><a href="https://github.com/TuuuNya/fuzz_dict" target="_blank" rel="noopener">https://github.com/TuuuNya/fuzz_dict</a></p>
+<p>子域名</p>
+<p><a href="https://github.com/shmilylty/OneForAll" target="_blank" rel="noopener">https://github.com/shmilylty/OneForAll</a></p>
+<p><a href="https://github.com/lijiejie/subDomainsBrute/" target="_blank" rel="noopener">https://github.com/lijiejie/subDomainsBrute/</a></p>
+<p>子域名监控工具</p>
+<p><a href="https://github.com/yassineaboukir/sublert" target="_blank" rel="noopener">https://github.com/yassineaboukir/sublert</a></p>
+<p>搭建参考</p>
+<p><a href="https://www.sohu.com/a/303652848_120055360" target="_blank" rel="noopener">https://www.sohu.com/a/303652848_120055360</a></p>
+<p>护网自动化利用脚本github</p>
+<p><a href="https://github.com/0x9f99/Recon" target="_blank" rel="noopener">https://github.com/0x9f99/Recon</a></p>
+<p>子域名工具</p>
+<p><a href="https://github.com/projectdiscovery/subfinder/" target="_blank" rel="noopener">https://github.com/projectdiscovery/subfinder/</a></p>
+<p>自动化工具</p>
+<p><a href="https://github.com/broken5/WebAliveScan" target="_blank" rel="noopener">https://github.com/broken5/WebAliveScan</a></p>
+<p>外网信息收集</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201203164957124.png" alt="image-20201203164957124"></p>
+<p>几款子域名工具比较</p>
+<p>xray5691条</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201203192520442.png" alt="image-20201203192520442"></p>
+<p>sublist3r含爆破功能1757</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201203193158788.png" alt="image-20201203193158788"></p>
+<p>subDomainsBrute   423个</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201203192733600.png" alt="image-20201203192733600"></p>
+<p>oneforall  56147</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201203193445675.png" alt="image-20201203193445675"></p>
+<p>去除重复项后。28069  因为http和https</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201203194614115.png" alt="image-20201203194614115"></p>
+<p>指纹</p>
+<p><img src="//choge.top/2020/11/01/外网信息收集/image-20201203213257482.png" alt="image-20201203213257482"></p>
+<p>子域名</p>
+<p><a href="https://github.com/projectdiscovery/subfinder/" target="_blank" rel="noopener">https://github.com/projectdiscovery/subfinder/</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/11/01/外网信息收集/" title="外网信息收集（草稿，未完成）">https://choge.top/2020/11/01/外网信息收集/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/10/28/主流漏洞扫描器使用/" rel="next" title="主流漏洞扫描器使用">
+                  <i class="fa fa-chevron-left"></i> 主流漏洞扫描器使用
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/12/02/记PentestBox安装/" rel="prev" title="记PentestBox安装">
+                  记PentestBox安装 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#资产发现"><span class="nav-number">1.</span> <span class="nav-text">资产发现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#开源情报"><span class="nav-number">1.1.</span> <span class="nav-text">开源情报</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#whois信息查询"><span class="nav-number">1.2.</span> <span class="nav-text">whois信息查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查找真实IP"><span class="nav-number">1.3.</span> <span class="nav-text">查找真实IP</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#CDN绕过"><span class="nav-number">1.3.1.</span> <span class="nav-text">CDN绕过</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用IP地址访问"><span class="nav-number">1.3.2.</span> <span class="nav-text">使用IP地址访问</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dns"><span class="nav-number">1.4.</span> <span class="nav-text">dns</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#子域"><span class="nav-number">1.5.</span> <span class="nav-text">子域</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Layer子域名爆破工具"><span class="nav-number">1.5.1.</span> <span class="nav-text">Layer子域名爆破工具</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#subDomainBrute"><span class="nav-number">1.5.2.</span> <span class="nav-text">subDomainBrute</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HTTP证书查询"><span class="nav-number">1.5.3.</span> <span class="nav-text">HTTP证书查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Google查询"><span class="nav-number">1.5.4.</span> <span class="nav-text">Google查询</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sublist3r"><span class="nav-number">1.6.</span> <span class="nav-text">sublist3r</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Xray"><span class="nav-number">1.6.1.</span> <span class="nav-text">Xray</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其他"><span class="nav-number">1.6.2.</span> <span class="nav-text">其他</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自治系统查询"><span class="nav-number">1.6.3.</span> <span class="nav-text">自治系统查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">1.6.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#旁站"><span class="nav-number">1.7.</span> <span class="nav-text">旁站</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#C段"><span class="nav-number">1.8.</span> <span class="nav-text">C段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#网络空间搜索引擎"><span class="nav-number">1.9.</span> <span class="nav-text">网络空间搜索引擎</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#端口扫描"><span class="nav-number">2.</span> <span class="nav-text">端口扫描</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#域名解析为ip"><span class="nav-number">2.1.</span> <span class="nav-text">域名解析为ip</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nmap"><span class="nav-number">2.2.</span> <span class="nav-text">nmap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mascan"><span class="nav-number">2.3.</span> <span class="nav-text">mascan</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#EyeWitness"><span class="nav-number">2.3.1.</span> <span class="nav-text">EyeWitness</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#资产梳理"><span class="nav-number">3.</span> <span class="nav-text">资产梳理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#获取网页"><span class="nav-number">3.1.</span> <span class="nav-text">获取网页</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#快速查找漏洞库"><span class="nav-number">3.2.</span> <span class="nav-text">快速查找漏洞库</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#批量漏洞检测"><span class="nav-number">4.</span> <span class="nav-text">批量漏洞检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单独站点信息收集"><span class="nav-number">5.</span> <span class="nav-text">单独站点信息收集</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#操作系统"><span class="nav-number">5.1.</span> <span class="nav-text">操作系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#网站容器"><span class="nav-number">5.2.</span> <span class="nav-text">网站容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#脚本类型"><span class="nav-number">5.3.</span> <span class="nav-text">脚本类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库类型"><span class="nav-number">5.4.</span> <span class="nav-text">数据库类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cms"><span class="nav-number">5.5.</span> <span class="nav-text">cms</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#目录扫描"><span class="nav-number">5.6.</span> <span class="nav-text">目录扫描</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#waf"><span class="nav-number">5.7.</span> <span class="nav-text">waf</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">5.8.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Google语法"><span class="nav-number">5.9.</span> <span class="nav-text">Google语法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#github信息泄露"><span class="nav-number">5.10.</span> <span class="nav-text">github信息泄露</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#网站信息泄露"><span class="nav-number">5.11.</span> <span class="nav-text">网站信息泄露</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#审查网页评论和信息泄露的元数据"><span class="nav-number">5.12.</span> <span class="nav-text">审查网页评论和信息泄露的元数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#响应"><span class="nav-number">5.13.</span> <span class="nav-text">响应</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#社工信息收集"><span class="nav-number">6.</span> <span class="nav-text">社工信息收集</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#员工信息收集"><span class="nav-number">6.1.</span> <span class="nav-text">员工信息收集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#邮箱收集"><span class="nav-number">6.2.</span> <span class="nav-text">邮箱收集</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SimplyEmail"><span class="nav-number"></span> <span class="nav-text">SimplyEmail</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#字典创建"><span class="nav-number">0.1.</span> <span class="nav-text">字典创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TG机器人"><span class="nav-number">0.2.</span> <span class="nav-text">TG机器人</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他信息收集"><span class="nav-number">1.</span> <span class="nav-text">其他信息收集</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

